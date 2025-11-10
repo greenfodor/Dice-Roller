@@ -15,8 +15,10 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
@@ -276,7 +278,7 @@ fun DrawScope.drawCube(
             canvas.drawOutline(
                 outline = Outline.Generic(path),
                 paint = Paint().apply {
-                    this.color = color.copy(alpha = 0.85f)
+                    this.color = color
                     pathEffect = PathEffect.cornerPathEffect(cornerRadius)
                 }
             )
@@ -297,26 +299,37 @@ fun DrawScope.drawCube(
         // Small offset to lift dots slightly above the face (prevents z-fighting)
         val offset = normal * 0.5f
 
-        // Draw dots on this face immediately after drawing the face
-        drawDiceDotsOnFace(
-            dotCount = dotCount,
-            v0 = rotatedVertices[indices[0]],
-            v1 = rotatedVertices[indices[1]],
-            v2 = rotatedVertices[indices[2]],
-            v3 = rotatedVertices[indices[3]],
-            centerX = centerX,
-            centerY = centerY,
-            normalOffset = offset
-        )
+        // Create a clipping path for the face (with rounded corners)
+        val clipPath = Path().apply {
+            moveTo(projectedVertices[indices[0]].x, projectedVertices[indices[0]].y)
+            for (i in 1 until indices.size) {
+                lineTo(projectedVertices[indices[i]].x, projectedVertices[indices[i]].y)
+            }
+            close()
+        }
+
+        // Draw dots on this face with clipping applied
+        clipPath(clipPath) {
+            drawDiceDotsOnFace(
+                dotCount = dotCount,
+                v0 = rotatedVertices[indices[0]],
+                v1 = rotatedVertices[indices[1]],
+                v2 = rotatedVertices[indices[2]],
+                v3 = rotatedVertices[indices[3]],
+                centerX = centerX,
+                centerY = centerY,
+                normalOffset = offset
+            )
+        }
 
         // Draw stroke with rounded corners on top
         drawIntoCanvas { canvas ->
             canvas.drawOutline(
                 outline = Outline.Generic(path),
                 paint = Paint().apply {
-                    this.color = Color.Black.copy(alpha = 0.3f)
-                    style = androidx.compose.ui.graphics.PaintingStyle.Stroke
-                    strokeWidth = 2f
+                    this.color = Color.White.copy(alpha = 0.8f)
+                    style = PaintingStyle.Stroke
+                    strokeWidth = 4f
                     pathEffect = PathEffect.cornerPathEffect(cornerRadius)
                 }
             )
