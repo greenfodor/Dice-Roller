@@ -20,16 +20,32 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.sqrt
 
-data class Point3D(val x: Float, val y: Float, val z: Float)
+data class Point3D(val x: Float, val y: Float, val z: Float) {
+    operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
+    operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
+    operator fun times(scalar: Float) = Point3D(x * scalar, y * scalar, z * scalar)
 
-enum class CubeFace(val rotationX: Float, val rotationY: Float, val color: Color) {
-    FRONT(0f, 0f, Color(0xFFFF6B6B)),
-    BACK(0f, 180f, Color(0xFF4ECDC4)),
-    TOP(270f, 0f, Color(0xFF95E1D3)),
-    BOTTOM(90f, 0f, Color(0xFFFFE66D)),
-    LEFT(0f, 270f, Color(0xFFA8E6CF)),
-    RIGHT(0f, 90f, Color(0xFFDCCEFF))
+    fun normalize(): Point3D {
+        val len = sqrt(x * x + y * y + z * z)
+        return if (len > 0) Point3D(x / len, y / len, z / len) else this
+    }
+
+    fun cross(other: Point3D) = Point3D(
+        y * other.z - z * other.y,
+        z * other.x - x * other.z,
+        x * other.y - y * other.x
+    )
+}
+
+enum class CubeFace(val rotationX: Float, val rotationY: Float, val color: Color, val dots: Int) {
+    FRONT(0f, 0f, Color(0xFFFF6B6B), 1),
+    BACK(0f, 180f, Color(0xFF4ECDC4), 6),
+    TOP(270f, 0f, Color(0xFF95E1D3), 5),
+    BOTTOM(90f, 0f, Color(0xFFFFE66D), 2),
+    LEFT(0f, 270f, Color(0xFFA8E6CF), 4),
+    RIGHT(0f, 90f, Color(0xFFDCCEFF), 3)
 }
 
 @Composable
@@ -193,7 +209,7 @@ fun RollingCubeAnimation() {
 
         if (!isRolling) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Current face: ${targetFace.name}")
+            Text("Current face: ${targetFace.name} (${targetFace.dots})")
         }
     }
 }
@@ -226,24 +242,27 @@ fun DrawScope.drawCube(
         projectPoint(vertex, centerX, centerY)
     }
 
+    // Define faces with their dot counts
     val faces = listOf(
-        listOf(0, 1, 2, 3) to Color(0xFFFF6B6B),
-        listOf(4, 5, 6, 7) to Color(0xFF4ECDC4),
-        listOf(0, 1, 5, 4) to Color(0xFFFFE66D),
-        listOf(2, 3, 7, 6) to Color(0xFF95E1D3),
-        listOf(0, 3, 7, 4) to Color(0xFFA8E6CF),
-        listOf(1, 2, 6, 5) to Color(0xFFDCCEFF)
+        Triple(listOf(0, 1, 2, 3), Color(0xFFFF6B6B), 1),  // Front - 1 dot
+        Triple(listOf(4, 5, 6, 7), Color(0xFF4ECDC4), 6),  // Back - 6 dots
+        Triple(listOf(0, 1, 5, 4), Color(0xFFFFE66D), 2),  // Bottom - 2 dots
+        Triple(listOf(2, 3, 7, 6), Color(0xFF95E1D3), 5),  // Top - 5 dots
+        Triple(listOf(0, 3, 7, 4), Color(0xFFA8E6CF), 4),  // Left - 4 dots
+        Triple(listOf(1, 2, 6, 5), Color(0xFFDCCEFF), 3)   // Right - 3 dots
     )
 
-    val facesWithDepth = faces.map { (indices, color) ->
+    val facesWithDepth = faces.map { (indices, color, dots) ->
         val avgZ = indices.map { rotatedVertices[it].z }.average()
-        Triple(indices, color, avgZ)
-    }.sortedBy { it.third }
+        Pair(Triple(indices, color, dots), avgZ)
+    }.sortedBy { it.second }
 
-    // Corner radius for rounded edges - adjust this value to control roundness
     val cornerRadius = 20f
 
-    facesWithDepth.forEach { (indices, color, _) ->
+    // Draw each face with its dots
+    facesWithDepth.forEach { (faceData, _) ->
+        val (indices, color, dotCount) = faceData
+
         val path = Path().apply {
             moveTo(projectedVertices[indices[0]].x, projectedVertices[indices[0]].y)
             for (i in 1 until indices.size) {
@@ -263,7 +282,34 @@ fun DrawScope.drawCube(
             )
         }
 
-        // Draw stroke with rounded corners
+        // Calculate face normal for offset
+        val v0 = rotatedVertices[indices[0]]
+        val v1 = rotatedVertices[indices[1]]
+        val v2 = rotatedVertices[indices[3]]
+
+        // Calculate two edge vectors
+        val edge1 = v1 - v0
+        val edge2 = v2 - v0
+
+        // Cross product gives us the face normal
+        val normal = edge1.cross(edge2).normalize()
+
+        // Small offset to lift dots slightly above the face (prevents z-fighting)
+        val offset = normal * 0.5f
+
+        // Draw dots on this face immediately after drawing the face
+        drawDiceDotsOnFace(
+            dotCount = dotCount,
+            v0 = rotatedVertices[indices[0]],
+            v1 = rotatedVertices[indices[1]],
+            v2 = rotatedVertices[indices[2]],
+            v3 = rotatedVertices[indices[3]],
+            centerX = centerX,
+            centerY = centerY,
+            normalOffset = offset
+        )
+
+        // Draw stroke with rounded corners on top
         drawIntoCanvas { canvas ->
             canvas.drawOutline(
                 outline = Outline.Generic(path),
@@ -274,6 +320,80 @@ fun DrawScope.drawCube(
                     pathEffect = PathEffect.cornerPathEffect(cornerRadius)
                 }
             )
+        }
+    }
+}
+
+fun DrawScope.drawDiceDotsOnFace(
+    dotCount: Int,
+    v0: Point3D,
+    v1: Point3D,
+    v2: Point3D,
+    v3: Point3D,
+    centerX: Float,
+    centerY: Float,
+    normalOffset: Point3D
+) {
+    // Helper function to get a point on the face using normalized coordinates
+    // u and v range from -1 to 1, representing positions on the face
+    fun getPointOnFace(u: Float, v: Float): Offset {
+        // Convert from [-1, 1] to [0, 1] for interpolation
+        val s = (u + 1f) / 2f
+        val t = (v + 1f) / 2f
+
+        // Bilinear interpolation on the quad face with normal offset
+        val point = Point3D(
+            (1 - s) * (1 - t) * v0.x + s * (1 - t) * v1.x + s * t * v2.x + (1 - s) * t * v3.x,
+            (1 - s) * (1 - t) * v0.y + s * (1 - t) * v1.y + s * t * v2.y + (1 - s) * t * v3.y,
+            (1 - s) * (1 - t) * v0.z + s * (1 - t) * v1.z + s * t * v2.z + (1 - s) * t * v3.z
+        ) + normalOffset  // Add small offset along face normal
+
+        return projectPoint(point, centerX, centerY)
+    }
+
+    val dotRadius = 12f
+    val spacing = 0.5f  // Position offset in normalized coordinates
+    val dotColor = Color.White
+
+    when (dotCount) {
+        1 -> {
+            // Center dot
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(0f, 0f))
+        }
+        2 -> {
+            // Diagonal dots (top-left to bottom-right)
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
+        }
+        3 -> {
+            // Diagonal dots with center
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(0f, 0f))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
+        }
+        4 -> {
+            // Four corners
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, -spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, spacing))
+        }
+        5 -> {
+            // Four corners + center
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, -spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(0f, 0f))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, spacing))
+        }
+        6 -> {
+            // Two columns of three
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, -spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, 0f))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, 0f))
+            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, spacing))
         }
     }
 }
