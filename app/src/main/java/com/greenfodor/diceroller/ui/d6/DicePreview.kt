@@ -25,11 +25,9 @@ private fun DiceStaticPreview(
     modifier: Modifier = Modifier
 ) {
     val diceColors = LocalDiceColors.current
-    // Reuse objects as in the main animation
     val facePath = remember { Path() }
     val dotPath = remember { Path() }
-    val facePaint = remember { Paint() }
-    val strokePaint = remember { Paint() }
+    val paints = remember { CubePaints() }
 
     Box(
         modifier = modifier
@@ -43,19 +41,15 @@ private fun DiceStaticPreview(
                 .padding(16.dp)
                 .graphicsLayer { clip = false }
         ) {
-            val centerX = size.width / 2
-            val centerY = size.height / 2
-
             drawCube(
-                size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f, // Scale down for preview grid
-                centerX = centerX,
-                centerY = centerY,
+                size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
+                centerX = size.width / 2,
+                centerY = size.height / 2,
                 rotationX = rotationX,
                 rotationY = rotationY,
                 facePath = facePath,
                 dotPath = dotPath,
-                facePaint = facePaint,
-                strokePaint = strokePaint,
+                paints = paints,
                 diceColors = diceColors
             )
         }
