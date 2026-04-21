@@ -50,7 +50,7 @@ fun RollingCubeAnimation(
 
     Canvas(
         modifier = modifier
-            .size(300.dp)
+            .size(150.dp)
             .padding(16.dp)
             .graphicsLayer { clip = false }
     ) {

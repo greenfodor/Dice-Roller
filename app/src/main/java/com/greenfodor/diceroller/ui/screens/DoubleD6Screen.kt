@@ -2,9 +2,12 @@ package com.greenfodor.diceroller.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,21 +20,29 @@ import com.greenfodor.diceroller.ui.die.d6.rememberCubeState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
 @Composable
-fun D6Screen() {
-    val cubeState = rememberCubeState()
+fun DoubleD6Screen() {
+    val firstCubeState = rememberCubeState()
+    val secondCubeState = rememberCubeState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        RollingCubeAnimation(cubeState = cubeState)
+        Row(modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly) {
+            RollingCubeAnimation(cubeState = firstCubeState)
+            RollingCubeAnimation(cubeState = secondCubeState)
+        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = { cubeState.roll() },
-            enabled = cubeState.isRolling.not()
+            onClick = {
+                firstCubeState.roll()
+                secondCubeState.roll()
+            },
+            enabled = firstCubeState.isRolling.not() && secondCubeState.isRolling.not()
         ) {
             Text("Roll Cube")
         }
@@ -42,8 +53,8 @@ fun D6Screen() {
 
 @Preview(showBackground = true)
 @Composable
-private fun D6ScreenPreview() {
+private fun DoubleD6ScreenPreview() {
     DiceRollerTheme {
-        D6Screen()
+        DoubleD6Screen()
     }
 }
