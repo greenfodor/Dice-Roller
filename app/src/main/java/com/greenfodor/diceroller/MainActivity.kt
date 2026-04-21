@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.greenfodor.diceroller.ui.d6.RollingCubeAnimation
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
 class MainActivity : ComponentActivity() {

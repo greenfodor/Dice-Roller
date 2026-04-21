@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller
+package com.greenfodor.diceroller.ui.d6
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -9,49 +9,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.dp
+import com.greenfodor.diceroller.geometry.*
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.math.sqrt
-
-data class Point3D(val x: Float, val y: Float, val z: Float) {
-    operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
-    operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
-    operator fun times(scalar: Float) = Point3D(x * scalar, y * scalar, z * scalar)
-
-    fun dot(other: Point3D) = x * other.x + y * other.y + z * other.z
-
-    fun normalize(): Point3D {
-        val len = sqrt(x * x + y * y + z * z)
-        return if (len > 0) Point3D(x / len, y / len, z / len) else this
-    }
-
-    fun cross(other: Point3D) = Point3D(
-        y * other.z - z * other.y,
-        z * other.x - x * other.z,
-        x * other.y - y * other.x
-    )
-}
-
-enum class CubeFace(val rotationX: Float, val rotationY: Float, val dots: Int) {
-    FRONT(0f, 0f, 1),
-    BACK(0f, 180f, 6),
-    TOP(270f, 0f, 5),
-    BOTTOM(90f, 0f, 2),
-    LEFT(0f, 270f, 4),
-    RIGHT(0f, 90f, 3)
-}
 
 @Composable
 fun RollingCubeAnimation() {
@@ -61,10 +26,16 @@ fun RollingCubeAnimation() {
     var targetRotationX by remember { mutableFloatStateOf(0f) }
     var targetRotationY by remember { mutableFloatStateOf(0f) }
 
+    // Optimization: Reuse Path and Paint objects across frames
+    val facePath = remember { Path() }
+    val dotPath = remember { Path() }
+    val facePaint = remember { Paint() }
+    val strokePaint = remember { Paint() }
+
     val rotationX by animateFloatAsState(
         targetValue = targetRotationX,
         animationSpec = tween(
-            durationMillis = 2000,
+            durationMillis = DiceConstants.ROLL_DURATION_MILLIS,
             easing = FastOutSlowInEasing
         ),
         finishedListener = {
@@ -76,7 +47,7 @@ fun RollingCubeAnimation() {
     val rotationY by animateFloatAsState(
         targetValue = targetRotationY,
         animationSpec = tween(
-            durationMillis = 2000,
+            durationMillis = DiceConstants.ROLL_DURATION_MILLIS,
             easing = FastOutSlowInEasing
         ),
         finishedListener = {
@@ -97,12 +68,10 @@ fun RollingCubeAnimation() {
                 .size(300.dp)
                 .padding(16.dp)
                 .graphicsLayer {
-                    // Using graphicsLayer ensures the drawing is cached in a display list
-                    // and hardware accelerated. It also handles invalidation more efficiently.
                     clip = false
                 }
         ) {
-            val cubeSize = 320f
+            val cubeSize = DiceConstants.DEFAULT_CUBE_SIZE
             val centerX = size.width / 2
             val centerY = size.height / 2
 
@@ -111,7 +80,11 @@ fun RollingCubeAnimation() {
                 centerX = centerX,
                 centerY = centerY,
                 rotationX = rotationX,
-                rotationY = rotationY
+                rotationY = rotationY,
+                facePath = facePath,
+                dotPath = dotPath,
+                facePaint = facePaint,
+                strokePaint = strokePaint
             )
         }
 
@@ -120,8 +93,8 @@ fun RollingCubeAnimation() {
         Button(
             onClick = {
                 targetFace = CubeFace.entries.random()
-                targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                targetRotationY = currentRotationY + targetFace.rotationY + 900f
+                targetRotationX = currentRotationX + targetFace.rotationX + DiceConstants.ROTATION_X_OFFSET
+                targetRotationY = currentRotationY + targetFace.rotationY + DiceConstants.ROTATION_Y_OFFSET
             },
             enabled = !isRolling
         ) {
@@ -132,12 +105,31 @@ fun RollingCubeAnimation() {
     }
 }
 
+/**
+ * Performs the drawing of a 3D cube onto the canvas.
+ * This function handles vertex rotation, perspective projection, depth sorting,
+ * shading, and face rendering.
+ *
+ * @param size The size of the cube in pixels.
+ * @param centerX The horizontal center of the drawing area.
+ * @param centerY The vertical center of the drawing area.
+ * @param rotationX Current rotation around the X axis.
+ * @param rotationY Current rotation around the Y axis.
+ * @param facePath Reused [Path] object for face geometry.
+ * @param dotPath Reused [Path] object for dot geometry.
+ * @param facePaint Reused [Paint] object for face filling.
+ * @param strokePaint Reused [Paint] object for face outlines.
+ */
 fun DrawScope.drawCube(
     size: Float,
     centerX: Float,
     centerY: Float,
     rotationX: Float,
-    rotationY: Float
+    rotationY: Float,
+    facePath: Path,
+    dotPath: Path,
+    facePaint: Paint,
+    strokePaint: Paint
 ) {
     val halfSize = size / 2
 
@@ -175,8 +167,9 @@ fun DrawScope.drawCube(
         Pair(Triple(indices, color, dots), avgZ)
     }.sortedBy { it.second }
 
-    val cornerRadius = 20f
+    val cornerRadius = DiceConstants.CORNER_RADIUS
     val lightSource = Point3D(0.5f, -1f, 1.5f).normalize()
+    val pathEffect = PathEffect.cornerPathEffect(cornerRadius)
 
     // Draw each face with its dots
     facesWithDepth.forEach { (faceData, _) ->
@@ -189,7 +182,10 @@ fun DrawScope.drawCube(
         val normal = (v1 - v0).cross(v3 - v0).normalize()
 
         // Apply simple shading based on light source
-        val intensity = normal.dot(lightSource).coerceIn(0.4f, 1f)
+        val intensity = normal.dot(lightSource).coerceIn(
+            DiceConstants.MIN_SHADING_INTENSITY,
+            DiceConstants.MAX_SHADING_INTENSITY
+        )
         val shadedColor = Color(
             red = color.red * intensity,
             green = color.green * intensity,
@@ -197,30 +193,31 @@ fun DrawScope.drawCube(
             alpha = color.alpha
         )
 
-        val path = Path().apply {
-            moveTo(projectedVertices[indices[0]].x, projectedVertices[indices[0]].y)
-            for (i in 1 until indices.size) {
-                lineTo(projectedVertices[indices[i]].x, projectedVertices[indices[i]].y)
-            }
-            close()
+        facePath.reset()
+        facePath.moveTo(projectedVertices[indices[0]].x, projectedVertices[indices[0]].y)
+        for (i in 1 until indices.size) {
+            facePath.lineTo(projectedVertices[indices[i]].x, projectedVertices[indices[i]].y)
         }
+        facePath.close()
+
+        // Small offset to lift dots slightly above the face (prevents z-fighting)
+        val dotOffset = normal * DiceConstants.DOT_OFFSET_FACTOR
 
         // Draw filled face with rounded corners
         drawIntoCanvas { canvas ->
+            facePaint.apply {
+                this.color = shadedColor
+                this.pathEffect = pathEffect
+                this.style = PaintingStyle.Fill
+            }
             canvas.drawOutline(
-                outline = Outline.Generic(path),
-                paint = Paint().apply {
-                    this.color = shadedColor
-                    pathEffect = PathEffect.cornerPathEffect(cornerRadius)
-                }
+                outline = Outline.Generic(facePath),
+                paint = facePaint
             )
         }
 
-        // Small offset to lift dots slightly above the face (prevents z-fighting)
-        val dotOffset = normal * 0.5f
-
         // Draw dots on this face with clipping applied
-        clipPath(path) {
+        clipPath(facePath) {
             drawDiceDotsOnFace(
                 dotCount = dotCount,
                 v0 = rotatedVertices[indices[0]],
@@ -230,25 +227,39 @@ fun DrawScope.drawCube(
                 centerX = centerX,
                 centerY = centerY,
                 normalOffset = dotOffset,
-                cubeSize = size
+                dotPath = dotPath
             )
         }
 
         // Draw stroke with rounded corners on top
         drawIntoCanvas { canvas ->
+            strokePaint.apply {
+                this.color = Color.White.copy(alpha = 0.5f)
+                this.style = PaintingStyle.Stroke
+                this.strokeWidth = DiceConstants.STROKE_WIDTH
+                this.pathEffect = pathEffect
+            }
             canvas.drawOutline(
-                outline = Outline.Generic(path),
-                paint = Paint().apply {
-                    this.color = Color.White.copy(alpha = 0.5f)
-                    style = PaintingStyle.Stroke
-                    strokeWidth = 2f
-                    pathEffect = PathEffect.cornerPathEffect(cornerRadius)
-                }
+                outline = Outline.Generic(facePath),
+                paint = strokePaint
             )
         }
     }
 }
 
+/**
+ * Draws the pips (dots) on a specific face of the dice.
+ * Dots are rendered as flat 3D circles using polygonal approximation to
+ * ensure they distort correctly with the face's perspective.
+ *
+ * @param dotCount Number of dots to draw (1 to 6).
+ * @param v0 The first vertex of the face.
+ * @param v1 The second vertex of the face.
+ * @param v2 The third vertex of the face.
+ * @param v3 The fourth vertex of the face.
+ * @param normalOffset A small vector used to lift dots slightly above the face.
+ * @param dotPath Reused [Path] object for dot geometry.
+ */
 fun DrawScope.drawDiceDotsOnFace(
     dotCount: Int,
     v0: Point3D,
@@ -258,30 +269,24 @@ fun DrawScope.drawDiceDotsOnFace(
     centerX: Float,
     centerY: Float,
     normalOffset: Point3D,
-    cubeSize: Float
+    dotPath: Path
 ) {
     // Helper function to get a point on the face using normalized coordinates
-    // u and v range from -1 to 1, representing positions on the face
-    fun getPointOnFace(u: Float, v: Float): Offset {
-        // Convert from [-1, 1] to [0, 1] for interpolation
+    fun getPoint3DOnFace(u: Float, v: Float): Point3D {
         val s = (u + 1f) / 2f
         val t = (v + 1f) / 2f
-
-        // Bilinear interpolation on the quad face with normal offset
-        val point = Point3D(
+        return Point3D(
             (1 - s) * (1 - t) * v0.x + s * (1 - t) * v1.x + s * t * v2.x + (1 - s) * t * v3.x,
             (1 - s) * (1 - t) * v0.y + s * (1 - t) * v1.y + s * t * v2.y + (1 - s) * t * v3.y,
             (1 - s) * (1 - t) * v0.z + s * (1 - t) * v1.z + s * t * v2.z + (1 - s) * t * v3.z
-        ) + normalOffset  // Add small offset along face normal
-
-        return projectPoint(point, centerX, centerY)
+        ) + normalOffset
     }
 
-    val dotRadius = cubeSize / 20f
-    val spacing = 0.55f  // Position offset in normalized coordinates
+    val dotRadiusFactor = DiceConstants.DOT_RADIUS_FACTOR
+    val spacing = DiceConstants.DOT_SPACING_FACTOR
     val dotColor = Color.White.copy(alpha = 0.9f)
 
-    val positions = when (dotCount) {
+    val dotCenters = when (dotCount) {
         1 -> listOf(Offset(0f, 0f))
         2 -> listOf(Offset(-spacing, spacing), Offset(spacing, -spacing))
         3 -> listOf(Offset(-spacing, spacing), Offset(0f, 0f), Offset(spacing, -spacing))
@@ -300,44 +305,21 @@ fun DrawScope.drawDiceDotsOnFace(
         else -> emptyList()
     }
 
-    positions.forEach { pos ->
-        drawCircle(
-            color = dotColor,
-            radius = dotRadius,
-            center = getPointOnFace(pos.x, pos.y)
-        )
+    dotCenters.forEach { center ->
+        dotPath.reset()
+        val segments = DiceConstants.DOT_SEGMENTS
+        for (i in 0 until segments) {
+            val angle = 2.0 * Math.PI * i / segments
+            val u = center.x + cos(angle).toFloat() * dotRadiusFactor
+            val v = center.y + sin(angle).toFloat() * dotRadiusFactor
+            
+            val point3D = getPoint3DOnFace(u, v)
+            val projected = projectPoint(point3D, centerX, centerY)
+            
+            if (i == 0) dotPath.moveTo(projected.x, projected.y)
+            else dotPath.lineTo(projected.x, projected.y)
+        }
+        dotPath.close()
+        drawPath(path = dotPath, color = dotColor)
     }
-}
-
-fun rotatePoint(point: Point3D, angleX: Float, angleY: Float): Point3D {
-    val radX = Math.toRadians(angleX.toDouble())
-    val radY = Math.toRadians(angleY.toDouble())
-
-    val x = point.x
-    val y = point.y
-    val z = point.z
-
-    val cosY = cos(radY).toFloat()
-    val sinY = sin(radY).toFloat()
-    val x1 = x * cosY - z * sinY
-    val z1 = x * sinY + z * cosY
-
-    val cosX = cos(radX).toFloat()
-    val sinX = sin(radX).toFloat()
-    val y2 = y * cosX - z1 * sinX
-    val z2 = y * sinX + z1 * cosX
-
-    return Point3D(x1, y2, z2)
-}
-
-fun projectPoint(point: Point3D, centerX: Float, centerY: Float): Offset {
-    val cameraDistance = 800f
-    val fov = 500f
-
-    val factor = fov / (cameraDistance - point.z)
-
-    return Offset(
-        centerX + point.x * factor,
-        centerY + point.y * factor
-    )
 }
