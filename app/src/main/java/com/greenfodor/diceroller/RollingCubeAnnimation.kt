@@ -41,22 +41,22 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
     )
 }
 
-enum class CubeFace(val rotationX: Float, val rotationY: Float, val color: Color, val dots: Int) {
-    FRONT(0f, 0f, Color(0xFFFF6B6B), 1),
-    BACK(0f, 180f, Color(0xFF4ECDC4), 6),
-    TOP(270f, 0f, Color(0xFF95E1D3), 5),
-    BOTTOM(90f, 0f, Color(0xFFFFE66D), 2),
-    LEFT(0f, 270f, Color(0xFFA8E6CF), 4),
-    RIGHT(0f, 90f, Color(0xFFDCCEFF), 3)
+enum class CubeFace(val rotationX: Float, val rotationY: Float, val dots: Int) {
+    FRONT(0f, 0f, 1),
+    BACK(0f, 180f, 6),
+    TOP(270f, 0f, 5),
+    BOTTOM(90f, 0f, 2),
+    LEFT(0f, 270f, 4),
+    RIGHT(0f, 90f, 3)
 }
 
 @Composable
 fun RollingCubeAnimation() {
     var targetFace by remember { mutableStateOf(CubeFace.FRONT) }
-    var currentRotationX by remember { mutableStateOf(0f) }
-    var currentRotationY by remember { mutableStateOf(0f) }
-    var targetRotationX by remember { mutableStateOf(0f) }
-    var targetRotationY by remember { mutableStateOf(0f) }
+    var currentRotationX by remember { mutableFloatStateOf(0f) }
+    var currentRotationY by remember { mutableFloatStateOf(0f) }
+    var targetRotationX by remember { mutableFloatStateOf(0f) }
+    var targetRotationY by remember { mutableFloatStateOf(0f) }
 
     val rotationX by animateFloatAsState(
         targetValue = targetRotationX,
@@ -117,102 +117,10 @@ fun RollingCubeAnimation() {
             },
             enabled = !isRolling
         ) {
-            Text("Roll Cube (Random)")
+            Text("Roll Cube")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
-            Button(
-                onClick = {
-                    targetFace = CubeFace.FRONT
-                    targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                    targetRotationY = currentRotationY + targetFace.rotationY + 900f
-                },
-                enabled = !isRolling,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Front")
-            }
-
-            Button(
-                onClick = {
-                    targetFace = CubeFace.BACK
-                    targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                    targetRotationY = currentRotationY + targetFace.rotationY + 900f
-                },
-                enabled = !isRolling,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Back")
-            }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
-            Button(
-                onClick = {
-                    targetFace = CubeFace.TOP
-                    targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                    targetRotationY = currentRotationY + targetFace.rotationY + 900f
-                },
-                enabled = !isRolling,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Top")
-            }
-
-            Button(
-                onClick = {
-                    targetFace = CubeFace.BOTTOM
-                    targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                    targetRotationY = currentRotationY + targetFace.rotationY + 900f
-                },
-                enabled = !isRolling,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Bottom")
-            }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
-            Button(
-                onClick = {
-                    targetFace = CubeFace.LEFT
-                    targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                    targetRotationY = currentRotationY + targetFace.rotationY + 900f
-                },
-                enabled = !isRolling,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Left")
-            }
-
-            Button(
-                onClick = {
-                    targetFace = CubeFace.RIGHT
-                    targetRotationX = currentRotationX + targetFace.rotationX + 720f
-                    targetRotationY = currentRotationY + targetFace.rotationY + 900f
-                },
-                enabled = !isRolling,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Right")
-            }
-        }
-
-        if (!isRolling) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Current face: ${targetFace.name} (${targetFace.dots})")
-        }
     }
 }
 
@@ -364,7 +272,7 @@ fun DrawScope.drawDiceDotsOnFace(
         return projectPoint(point, centerX, centerY)
     }
 
-    val dotRadius = 12f
+    val dotRadius = 16f
     val spacing = 0.5f  // Position offset in normalized coordinates
     val dotColor = Color.White
 
@@ -415,9 +323,9 @@ fun rotatePoint(point: Point3D, angleX: Float, angleY: Float): Point3D {
     val radX = Math.toRadians(angleX.toDouble())
     val radY = Math.toRadians(angleY.toDouble())
 
-    var x = point.x
-    var y = point.y
-    var z = point.z
+    val x = point.x
+    val y = point.y
+    val z = point.z
 
     val cosY = cos(radY).toFloat()
     val sinY = sin(radY).toFloat()
