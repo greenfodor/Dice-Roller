@@ -7,14 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.die.d6.RollingCubeAnimation
 import com.greenfodor.diceroller.ui.die.d6.rememberCubeState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -29,8 +30,10 @@ fun DoubleD6Screen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Row(modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             RollingCubeAnimation(cubeState = firstCubeState)
             RollingCubeAnimation(cubeState = secondCubeState)
         }
@@ -44,7 +47,7 @@ fun DoubleD6Screen() {
             },
             enabled = firstCubeState.isRolling.not() && secondCubeState.isRolling.not()
         ) {
-            Text("Roll Cube")
+            Text(text = stringResource(R.string.roll_button_multiple))
         }
 
         Spacer(modifier = Modifier.height(16.dp))

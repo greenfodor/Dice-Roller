@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.die.d6.RollingCubeAnimation
 import com.greenfodor.diceroller.ui.die.d6.rememberCubeState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -33,7 +35,7 @@ fun D6Screen() {
             onClick = { cubeState.roll() },
             enabled = cubeState.isRolling.not()
         ) {
-            Text("Roll Cube")
+            Text(text = stringResource(R.string.roll_button_single))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
