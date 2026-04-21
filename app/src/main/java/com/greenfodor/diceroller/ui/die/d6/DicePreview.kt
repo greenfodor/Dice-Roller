@@ -2,14 +2,21 @@ package com.greenfodor.diceroller.ui.die.d6
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.geometry.CubeFace
@@ -30,8 +37,8 @@ private fun DiceStaticPreview(
 
     Box(
         modifier = modifier
-            .size(200.dp)
-            .background(Color.White),
+            .size(150.dp)
+            .background(color = MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Canvas(
@@ -55,7 +62,8 @@ private fun DiceStaticPreview(
     }
 }
 
-@Preview(showBackground = true, name = "Front Face")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Front Face Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Front Face Dark")
 @Composable
 fun PreviewFront() {
     DiceRollerTheme {
@@ -63,7 +71,8 @@ fun PreviewFront() {
     }
 }
 
-@Preview(showBackground = true, name = "Angled View")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Angled View Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Angled View Dark")
 @Composable
 fun PreviewAngled() {
     DiceRollerTheme {
@@ -71,7 +80,8 @@ fun PreviewAngled() {
     }
 }
 
-@Preview(showBackground = true, name = "Top-Right Edge")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Top-Right Edge Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Top-Right Edge Dark")
 @Composable
 fun PreviewTopRight() {
     DiceRollerTheme {
@@ -79,7 +89,8 @@ fun PreviewTopRight() {
     }
 }
 
-@Preview(showBackground = true, name = "Dice Faces Grid")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Dice Faces Grid Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dice Faces Grid Dark")
 @Composable
 fun PreviewDiceGrid() {
     DiceRollerTheme {

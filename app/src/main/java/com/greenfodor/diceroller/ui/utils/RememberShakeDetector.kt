@@ -18,18 +18,18 @@ fun rememberShakeDetector(onShake: () -> Unit) {
     val currentOnShake by rememberUpdatedState(onShake)
 
     DisposableEffect(Unit) {
-        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val detector = ShakeDetector { currentOnShake() }
 
-        sensorManager.registerListener(
+        sensorManager?.registerListener(
             detector,
             accelerometer,
             SensorManager.SENSOR_DELAY_UI
         )
 
         onDispose {
-            sensorManager.unregisterListener(detector)
+            sensorManager?.unregisterListener(detector)
         }
     }
 }
