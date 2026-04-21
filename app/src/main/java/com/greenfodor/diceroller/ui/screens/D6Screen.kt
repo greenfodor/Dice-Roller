@@ -17,10 +17,14 @@ import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.die.d6.RollingCubeAnimation
 import com.greenfodor.diceroller.ui.die.d6.rememberCubeState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 
 @Composable
 fun D6Screen() {
     val cubeState = rememberCubeState()
+    rememberShakeDetector(onShake = {
+        if (cubeState.isRolling.not()) cubeState.roll()
+    })
 
     Column(
         modifier = Modifier.fillMaxSize(),
