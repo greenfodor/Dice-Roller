@@ -14,15 +14,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.geometry.CubeFace
-import com.greenfodor.diceroller.geometry.DiceConstants
+import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 
 @Composable
-fun DiceStaticPreview(
+private fun DiceStaticPreview(
     rotationX: Float,
     rotationY: Float,
     modifier: Modifier = Modifier
 ) {
+    val diceColors = LocalDiceColors.current
     // Reuse objects as in the main animation
     val facePath = remember { Path() }
     val dotPath = remember { Path() }
@@ -43,7 +45,7 @@ fun DiceStaticPreview(
         ) {
             val centerX = size.width / 2
             val centerY = size.height / 2
-            
+
             drawCube(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f, // Scale down for preview grid
                 centerX = centerX,
@@ -53,7 +55,8 @@ fun DiceStaticPreview(
                 facePath = facePath,
                 dotPath = dotPath,
                 facePaint = facePaint,
-                strokePaint = strokePaint
+                strokePaint = strokePaint,
+                diceColors = diceColors
             )
         }
     }

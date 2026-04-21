@@ -15,18 +15,21 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.geometry.*
+import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.theme.DiceColors
+import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
 fun RollingCubeAnimation() {
+    val diceColors = LocalDiceColors.current
     var targetFace by remember { mutableStateOf(CubeFace.FRONT) }
     var currentRotationX by remember { mutableFloatStateOf(0f) }
     var currentRotationY by remember { mutableFloatStateOf(0f) }
     var targetRotationX by remember { mutableFloatStateOf(0f) }
     var targetRotationY by remember { mutableFloatStateOf(0f) }
 
-    // Optimization: Reuse Path and Paint objects across frames
     val facePath = remember { Path() }
     val dotPath = remember { Path() }
     val facePaint = remember { Paint() }
@@ -84,7 +87,8 @@ fun RollingCubeAnimation() {
                 facePath = facePath,
                 dotPath = dotPath,
                 facePaint = facePaint,
-                strokePaint = strokePaint
+                strokePaint = strokePaint,
+                diceColors = diceColors
             )
         }
 
@@ -129,7 +133,8 @@ fun DrawScope.drawCube(
     facePath: Path,
     dotPath: Path,
     facePaint: Paint,
-    strokePaint: Paint
+    strokePaint: Paint,
+    diceColors: DiceColors
 ) {
     val halfSize = size / 2
 
@@ -152,16 +157,17 @@ fun DrawScope.drawCube(
         projectPoint(vertex, centerX, centerY)
     }
 
-    // Define faces with their dot counts (Standard dice: opposite sides sum to 7)
+    // Standard dice faces: opposite sides sum to 7
     val faces = listOf(
-        Triple(listOf(4, 5, 6, 7), Color(0xFFFF6B6B), 1),  // Front (Z+) - 1 dot
-        Triple(listOf(0, 1, 2, 3), Color(0xFF4ECDC4), 6),  // Back (Z-) - 6 dots
-        Triple(listOf(0, 1, 5, 4), Color(0xFFFFE66D), 2),  // Bottom (Y-) - 2 dots
-        Triple(listOf(2, 3, 7, 6), Color(0xFF95E1D3), 5),  // Top (Y+) - 5 dots
-        Triple(listOf(0, 3, 7, 4), Color(0xFFA8E6CF), 4),  // Left (X-) - 4 dots
-        Triple(listOf(1, 2, 6, 5), Color(0xFFDCCEFF), 3)   // Right (X+) - 3 dots
+        Triple(listOf(4, 5, 6, 7), diceColors.face1, 1),  // Front (Z+) - 1 dot
+        Triple(listOf(0, 1, 2, 3), diceColors.face6, 6),  // Back (Z-) - 6 dots
+        Triple(listOf(0, 1, 5, 4), diceColors.face2, 2),  // Bottom (Y-) - 2 dots
+        Triple(listOf(2, 3, 7, 6), diceColors.face5, 5),  // Top (Y+) - 5 dots
+        Triple(listOf(0, 3, 7, 4), diceColors.face4, 4),  // Left (X-) - 4 dots
+        Triple(listOf(1, 2, 6, 5), diceColors.face3, 3)   // Right (X+) - 3 dots
     )
 
+    // Sort faces by average depth (Painter's Algorithm)
     val facesWithDepth = faces.map { (indices, color, dots) ->
         val avgZ = indices.map { rotatedVertices[it].z }.average()
         Pair(Triple(indices, color, dots), avgZ)
@@ -171,17 +177,14 @@ fun DrawScope.drawCube(
     val lightSource = Point3D(0.5f, -1f, 1.5f).normalize()
     val pathEffect = PathEffect.cornerPathEffect(cornerRadius)
 
-    // Draw each face with its dots
     facesWithDepth.forEach { (faceData, _) ->
         val (indices, color, dotCount) = faceData
 
-        // Calculate face normal
         val v0 = rotatedVertices[indices[0]]
         val v1 = rotatedVertices[indices[1]]
         val v3 = rotatedVertices[indices[3]]
         val normal = (v1 - v0).cross(v3 - v0).normalize()
 
-        // Apply simple shading based on light source
         val intensity = normal.dot(lightSource).coerceIn(
             DiceConstants.MIN_SHADING_INTENSITY,
             DiceConstants.MAX_SHADING_INTENSITY
@@ -200,10 +203,9 @@ fun DrawScope.drawCube(
         }
         facePath.close()
 
-        // Small offset to lift dots slightly above the face (prevents z-fighting)
+        // Tiny offset to prevent "Z-fighting" with the face plane
         val dotOffset = normal * DiceConstants.DOT_OFFSET_FACTOR
 
-        // Draw filled face with rounded corners
         drawIntoCanvas { canvas ->
             facePaint.apply {
                 this.color = shadedColor
@@ -216,7 +218,6 @@ fun DrawScope.drawCube(
             )
         }
 
-        // Draw dots on this face with clipping applied
         clipPath(facePath) {
             drawDiceDotsOnFace(
                 dotCount = dotCount,
@@ -231,7 +232,6 @@ fun DrawScope.drawCube(
             )
         }
 
-        // Draw stroke with rounded corners on top
         drawIntoCanvas { canvas ->
             strokePaint.apply {
                 this.color = Color.White.copy(alpha = 0.5f)
@@ -260,7 +260,7 @@ fun DrawScope.drawCube(
  * @param normalOffset A small vector used to lift dots slightly above the face.
  * @param dotPath Reused [Path] object for dot geometry.
  */
-fun DrawScope.drawDiceDotsOnFace(
+private fun DrawScope.drawDiceDotsOnFace(
     dotCount: Int,
     v0: Point3D,
     v1: Point3D,

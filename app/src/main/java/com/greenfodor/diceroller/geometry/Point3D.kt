@@ -1,6 +1,7 @@
 package com.greenfodor.diceroller.geometry
 
 import androidx.compose.ui.geometry.Offset
+import com.greenfodor.diceroller.ui.DiceConstants
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt

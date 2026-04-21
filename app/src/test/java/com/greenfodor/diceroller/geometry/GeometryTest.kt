@@ -1,5 +1,6 @@
 package com.greenfodor.diceroller.geometry
 
+import com.greenfodor.diceroller.ui.DiceConstants
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
