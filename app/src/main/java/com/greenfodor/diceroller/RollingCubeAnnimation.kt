@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.Outline
@@ -28,6 +29,8 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
     operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
     operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
     operator fun times(scalar: Float) = Point3D(x * scalar, y * scalar, z * scalar)
+
+    fun dot(other: Point3D) = x * other.x + y * other.y + z * other.z
 
     fun normalize(): Point3D {
         val len = sqrt(x * x + y * y + z * z)
@@ -93,6 +96,11 @@ fun RollingCubeAnimation() {
             modifier = Modifier
                 .size(300.dp)
                 .padding(16.dp)
+                .graphicsLayer {
+                    // Using graphicsLayer ensures the drawing is cached in a display list
+                    // and hardware accelerated. It also handles invalidation more efficiently.
+                    clip = false
+                }
         ) {
             val cubeSize = 320f
             val centerX = size.width / 2
@@ -152,14 +160,14 @@ fun DrawScope.drawCube(
         projectPoint(vertex, centerX, centerY)
     }
 
-    // Define faces with their dot counts
+    // Define faces with their dot counts (Standard dice: opposite sides sum to 7)
     val faces = listOf(
-        Triple(listOf(0, 1, 2, 3), Color(0xFFFF6B6B), 1),  // Front - 1 dot
-        Triple(listOf(4, 5, 6, 7), Color(0xFF4ECDC4), 6),  // Back - 6 dots
-        Triple(listOf(0, 1, 5, 4), Color(0xFFFFE66D), 2),  // Bottom - 2 dots
-        Triple(listOf(2, 3, 7, 6), Color(0xFF95E1D3), 5),  // Top - 5 dots
-        Triple(listOf(0, 3, 7, 4), Color(0xFFA8E6CF), 4),  // Left - 4 dots
-        Triple(listOf(1, 2, 6, 5), Color(0xFFDCCEFF), 3)   // Right - 3 dots
+        Triple(listOf(4, 5, 6, 7), Color(0xFFFF6B6B), 1),  // Front (Z+) - 1 dot
+        Triple(listOf(0, 1, 2, 3), Color(0xFF4ECDC4), 6),  // Back (Z-) - 6 dots
+        Triple(listOf(0, 1, 5, 4), Color(0xFFFFE66D), 2),  // Bottom (Y-) - 2 dots
+        Triple(listOf(2, 3, 7, 6), Color(0xFF95E1D3), 5),  // Top (Y+) - 5 dots
+        Triple(listOf(0, 3, 7, 4), Color(0xFFA8E6CF), 4),  // Left (X-) - 4 dots
+        Triple(listOf(1, 2, 6, 5), Color(0xFFDCCEFF), 3)   // Right (X+) - 3 dots
     )
 
     val facesWithDepth = faces.map { (indices, color, dots) ->
@@ -168,10 +176,26 @@ fun DrawScope.drawCube(
     }.sortedBy { it.second }
 
     val cornerRadius = 20f
+    val lightSource = Point3D(0.5f, -1f, 1.5f).normalize()
 
     // Draw each face with its dots
     facesWithDepth.forEach { (faceData, _) ->
         val (indices, color, dotCount) = faceData
+
+        // Calculate face normal
+        val v0 = rotatedVertices[indices[0]]
+        val v1 = rotatedVertices[indices[1]]
+        val v3 = rotatedVertices[indices[3]]
+        val normal = (v1 - v0).cross(v3 - v0).normalize()
+
+        // Apply simple shading based on light source
+        val intensity = normal.dot(lightSource).coerceIn(0.4f, 1f)
+        val shadedColor = Color(
+            red = color.red * intensity,
+            green = color.green * intensity,
+            blue = color.blue * intensity,
+            alpha = color.alpha
+        )
 
         val path = Path().apply {
             moveTo(projectedVertices[indices[0]].x, projectedVertices[indices[0]].y)
@@ -186,38 +210,17 @@ fun DrawScope.drawCube(
             canvas.drawOutline(
                 outline = Outline.Generic(path),
                 paint = Paint().apply {
-                    this.color = color
+                    this.color = shadedColor
                     pathEffect = PathEffect.cornerPathEffect(cornerRadius)
                 }
             )
         }
 
-        // Calculate face normal for offset
-        val v0 = rotatedVertices[indices[0]]
-        val v1 = rotatedVertices[indices[1]]
-        val v2 = rotatedVertices[indices[3]]
-
-        // Calculate two edge vectors
-        val edge1 = v1 - v0
-        val edge2 = v2 - v0
-
-        // Cross product gives us the face normal
-        val normal = edge1.cross(edge2).normalize()
-
         // Small offset to lift dots slightly above the face (prevents z-fighting)
-        val offset = normal * 0.5f
-
-        // Create a clipping path for the face (with rounded corners)
-        val clipPath = Path().apply {
-            moveTo(projectedVertices[indices[0]].x, projectedVertices[indices[0]].y)
-            for (i in 1 until indices.size) {
-                lineTo(projectedVertices[indices[i]].x, projectedVertices[indices[i]].y)
-            }
-            close()
-        }
+        val dotOffset = normal * 0.5f
 
         // Draw dots on this face with clipping applied
-        clipPath(clipPath) {
+        clipPath(path) {
             drawDiceDotsOnFace(
                 dotCount = dotCount,
                 v0 = rotatedVertices[indices[0]],
@@ -226,7 +229,8 @@ fun DrawScope.drawCube(
                 v3 = rotatedVertices[indices[3]],
                 centerX = centerX,
                 centerY = centerY,
-                normalOffset = offset
+                normalOffset = dotOffset,
+                cubeSize = size
             )
         }
 
@@ -235,9 +239,9 @@ fun DrawScope.drawCube(
             canvas.drawOutline(
                 outline = Outline.Generic(path),
                 paint = Paint().apply {
-                    this.color = Color.White.copy(alpha = 0.8f)
+                    this.color = Color.White.copy(alpha = 0.5f)
                     style = PaintingStyle.Stroke
-                    strokeWidth = 4f
+                    strokeWidth = 2f
                     pathEffect = PathEffect.cornerPathEffect(cornerRadius)
                 }
             )
@@ -253,7 +257,8 @@ fun DrawScope.drawDiceDotsOnFace(
     v3: Point3D,
     centerX: Float,
     centerY: Float,
-    normalOffset: Point3D
+    normalOffset: Point3D,
+    cubeSize: Float
 ) {
     // Helper function to get a point on the face using normalized coordinates
     // u and v range from -1 to 1, representing positions on the face
@@ -272,50 +277,35 @@ fun DrawScope.drawDiceDotsOnFace(
         return projectPoint(point, centerX, centerY)
     }
 
-    val dotRadius = 16f
-    val spacing = 0.5f  // Position offset in normalized coordinates
-    val dotColor = Color.White
+    val dotRadius = cubeSize / 20f
+    val spacing = 0.55f  // Position offset in normalized coordinates
+    val dotColor = Color.White.copy(alpha = 0.9f)
 
-    when (dotCount) {
-        1 -> {
-            // Center dot
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(0f, 0f))
-        }
-        2 -> {
-            // Diagonal dots (top-left to bottom-right)
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
-        }
-        3 -> {
-            // Diagonal dots with center
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(0f, 0f))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
-        }
-        4 -> {
-            // Four corners
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, -spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, spacing))
-        }
-        5 -> {
-            // Four corners + center
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, -spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(0f, 0f))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, spacing))
-        }
-        6 -> {
-            // Two columns of three
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, -spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, 0f))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(-spacing, spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, -spacing))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, 0f))
-            drawCircle(color = dotColor, radius = dotRadius, center = getPointOnFace(spacing, spacing))
-        }
+    val positions = when (dotCount) {
+        1 -> listOf(Offset(0f, 0f))
+        2 -> listOf(Offset(-spacing, spacing), Offset(spacing, -spacing))
+        3 -> listOf(Offset(-spacing, spacing), Offset(0f, 0f), Offset(spacing, -spacing))
+        4 -> listOf(
+            Offset(-spacing, -spacing), Offset(spacing, -spacing),
+            Offset(-spacing, spacing), Offset(spacing, spacing)
+        )
+        5 -> listOf(
+            Offset(-spacing, -spacing), Offset(spacing, -spacing), Offset(0f, 0f),
+            Offset(-spacing, spacing), Offset(spacing, spacing)
+        )
+        6 -> listOf(
+            Offset(-spacing, -spacing), Offset(-spacing, 0f), Offset(-spacing, spacing),
+            Offset(spacing, -spacing), Offset(spacing, 0f), Offset(spacing, spacing)
+        )
+        else -> emptyList()
+    }
+
+    positions.forEach { pos ->
+        drawCircle(
+            color = dotColor,
+            radius = dotRadius,
+            center = getPointOnFace(pos.x, pos.y)
+        )
     }
 }
 
