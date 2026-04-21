@@ -1,6 +1,7 @@
 package com.greenfodor.diceroller.ui.theme
 
 import android.app.Activity
+import android.content.Context
 import android.os.Build
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.Transition
@@ -66,70 +67,73 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Pink40
 )
 
-/**
- * Animates all color scheme properties using a single transition to ensure they are perfectly in sync.
- */
+private fun getTargetColorScheme(
+    isDark: Boolean,
+    dynamicColor: Boolean,
+    context: Context
+): ColorScheme {
+    return when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        isDark -> DarkColorScheme
+        else -> LightColorScheme
+    }
+}
+
+@Composable
+private fun Transition<Boolean>.animateColorProp(
+    label: String,
+    dynamicColor: Boolean,
+    context: Context,
+    prop: (ColorScheme) -> Color
+): Color {
+    val duration = DiceConstants.THEME_TRANSITION_DURATION_MILLIS
+    return animateColor(
+        transitionSpec = { tween(duration) },
+        label = label
+    ) { isDark ->
+        prop(getTargetColorScheme(isDark, dynamicColor, context))
+    }.value
+}
+
 @Composable
 private fun Transition<Boolean>.animateColorScheme(
-    darkTheme: Boolean,
     dynamicColor: Boolean
 ): ColorScheme {
     val context = LocalContext.current
-    val duration = DiceConstants.THEME_TRANSITION_DURATION_MILLIS
-
-    // Determine target based on state
-    fun getColorScheme(isDark: Boolean): ColorScheme {
-        return when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
-            isDark -> DarkColorScheme
-            else -> LightColorScheme
-        }
-    }
-
-    val target = getColorScheme(darkTheme)
-    val initial = getColorScheme(!darkTheme)
-
-    // Helper to animate a specific property
-    @Composable
-    fun animateColorProp(label: String, prop: (ColorScheme) -> Color): Color {
-        return animateColor(
-            transitionSpec = { tween(duration) },
-            label = label
-        ) { isDark -> prop(getColorScheme(isDark)) }.value
-    }
+    val target = getTargetColorScheme(targetState, dynamicColor, context)
 
     return target.copy(
-        primary = animateColorProp("primary") { it.primary },
-        onPrimary = animateColorProp("onPrimary") { it.onPrimary },
-        primaryContainer = animateColorProp("primaryContainer") { it.primaryContainer },
-        onPrimaryContainer = animateColorProp("onPrimaryContainer") { it.onPrimaryContainer },
-        inversePrimary = animateColorProp("inversePrimary") { it.inversePrimary },
-        secondary = animateColorProp("secondary") { it.secondary },
-        onSecondary = animateColorProp("onSecondary") { it.onSecondary },
-        secondaryContainer = animateColorProp("secondaryContainer") { it.secondaryContainer },
-        onSecondaryContainer = animateColorProp("onSecondaryContainer") { it.onSecondaryContainer },
-        tertiary = animateColorProp("tertiary") { it.tertiary },
-        onTertiary = animateColorProp("onTertiary") { it.onTertiary },
-        tertiaryContainer = animateColorProp("tertiaryContainer") { it.tertiaryContainer },
-        onTertiaryContainer = animateColorProp("onTertiaryContainer") { it.onTertiaryContainer },
-        background = animateColorProp("background") { it.background },
-        onBackground = animateColorProp("onBackground") { it.onBackground },
-        surface = animateColorProp("surface") { it.surface },
-        onSurface = animateColorProp("onSurface") { it.onSurface },
-        surfaceVariant = animateColorProp("surfaceVariant") { it.surfaceVariant },
-        onSurfaceVariant = animateColorProp("onSurfaceVariant") { it.onSurfaceVariant },
-        surfaceTint = animateColorProp("surfaceTint") { it.surfaceTint },
-        inverseSurface = animateColorProp("inverseSurface") { it.inverseSurface },
-        inverseOnSurface = animateColorProp("inverseOnSurface") { it.inverseOnSurface },
-        error = animateColorProp("error") { it.error },
-        onError = animateColorProp("onError") { it.onError },
-        errorContainer = animateColorProp("errorContainer") { it.errorContainer },
-        onErrorContainer = animateColorProp("onErrorContainer") { it.onErrorContainer },
-        outline = animateColorProp("outline") { it.outline },
-        outlineVariant = animateColorProp("outlineVariant") { it.outlineVariant },
-        scrim = animateColorProp("scrim") { it.scrim }
+        primary = animateColorProp("primary", dynamicColor, context) { it.primary },
+        onPrimary = animateColorProp("onPrimary", dynamicColor, context) { it.onPrimary },
+        primaryContainer = animateColorProp("primaryContainer", dynamicColor, context) { it.primaryContainer },
+        onPrimaryContainer = animateColorProp("onPrimaryContainer", dynamicColor, context) { it.onPrimaryContainer },
+        inversePrimary = animateColorProp("inversePrimary", dynamicColor, context) { it.inversePrimary },
+        secondary = animateColorProp("secondary", dynamicColor, context) { it.secondary },
+        onSecondary = animateColorProp("onSecondary", dynamicColor, context) { it.onSecondary },
+        secondaryContainer = animateColorProp("secondaryContainer", dynamicColor, context) { it.secondaryContainer },
+        onSecondaryContainer = animateColorProp("onSecondaryContainer", dynamicColor, context) { it.onSecondaryContainer },
+        tertiary = animateColorProp("tertiary", dynamicColor, context) { it.tertiary },
+        onTertiary = animateColorProp("onTertiary", dynamicColor, context) { it.onTertiary },
+        tertiaryContainer = animateColorProp("tertiaryContainer", dynamicColor, context) { it.tertiaryContainer },
+        onTertiaryContainer = animateColorProp("onTertiaryContainer", dynamicColor, context) { it.onTertiaryContainer },
+        background = animateColorProp("background", dynamicColor, context) { it.background },
+        onBackground = animateColorProp("onBackground", dynamicColor, context) { it.onBackground },
+        surface = animateColorProp("surface", dynamicColor, context) { it.surface },
+        onSurface = animateColorProp("onSurface", dynamicColor, context) { it.onSurface },
+        surfaceVariant = animateColorProp("surfaceVariant", dynamicColor, context) { it.surfaceVariant },
+        onSurfaceVariant = animateColorProp("onSurfaceVariant", dynamicColor, context) { it.onSurfaceVariant },
+        surfaceTint = animateColorProp("surfaceTint", dynamicColor, context) { it.surfaceTint },
+        inverseSurface = animateColorProp("inverseSurface", dynamicColor, context) { it.inverseSurface },
+        inverseOnSurface = animateColorProp("inverseOnSurface", dynamicColor, context) { it.inverseOnSurface },
+        error = animateColorProp("error", dynamicColor, context) { it.error },
+        onError = animateColorProp("onError", dynamicColor, context) { it.onError },
+        errorContainer = animateColorProp("errorContainer", dynamicColor, context) { it.errorContainer },
+        onErrorContainer = animateColorProp("onErrorContainer", dynamicColor, context) { it.onErrorContainer },
+        outline = animateColorProp("outline", dynamicColor, context) { it.outline },
+        outlineVariant = animateColorProp("outlineVariant", dynamicColor, context) { it.outlineVariant },
+        scrim = animateColorProp("scrim", dynamicColor, context) { it.scrim }
     )
 }
 
@@ -142,9 +146,8 @@ fun DiceRollerTheme(
     val transition = updateTransition(targetState = darkTheme, label = "ThemeTransition")
     val duration = DiceConstants.THEME_TRANSITION_DURATION_MILLIS
 
-    val colorScheme = transition.animateColorScheme(darkTheme, dynamicColor)
+    val colorScheme = transition.animateColorScheme(dynamicColor)
 
-    // Invert contrast: Use vibrant colors in Dark Mode and deeper colors in Light Mode
     val diceColors = DiceColors(
         face1 = transition.animateColor(label = "face1", transitionSpec = { tween(duration) }) { isDark ->
             if (isDark) LightDiceColors.face1 else DarkDiceColors.face1
@@ -168,12 +171,12 @@ fun DiceRollerTheme(
 
     CompositionLocalProvider(LocalDiceColors provides diceColors) {
         val view = LocalView.current
-        if (!view.isInEditMode) {
+        if (view.isInEditMode.not()) {
             SideEffect {
                 val window = (view.context as Activity).window
                 val insetsController = WindowCompat.getInsetsController(window, view)
-                insetsController.isAppearanceLightStatusBars = !darkTheme
-                insetsController.isAppearanceLightNavigationBars = !darkTheme
+                insetsController.isAppearanceLightStatusBars = darkTheme.not()
+                insetsController.isAppearanceLightNavigationBars = darkTheme.not()
             }
         }
         MaterialTheme(

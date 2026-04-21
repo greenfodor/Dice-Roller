@@ -57,14 +57,14 @@ class MainActivity : ComponentActivity() {
                             title = { },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = Color.Transparent,
-                                actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+                                actionIconContentColor = MaterialTheme.colorScheme.onBackground
                             ),
                             actions = {
-                                IconButton(onClick = { isDarkMode = !isDarkMode }) {
+                                IconButton(onClick = { isDarkMode = isDarkMode.not() }) {
                                     Icon(
                                         imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                                         contentDescription = "Toggle Theme",
-                                        modifier = Modifier.rotate(rotation),
+                                        modifier = Modifier.rotate(rotation)
                                     )
                                 }
                             }
