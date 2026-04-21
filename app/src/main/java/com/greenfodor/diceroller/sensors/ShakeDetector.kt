@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.accelerometer
+package com.greenfodor.diceroller.sensors
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent

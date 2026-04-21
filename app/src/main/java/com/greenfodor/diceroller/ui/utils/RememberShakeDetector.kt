@@ -9,7 +9,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
-import com.greenfodor.diceroller.accelerometer.ShakeDetector
+import com.greenfodor.diceroller.sensors.ShakeDetector
 
 @SuppressLint("ComposableNaming")
 @Composable
