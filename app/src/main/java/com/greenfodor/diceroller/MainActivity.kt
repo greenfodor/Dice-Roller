@@ -4,71 +4,48 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
 import com.greenfodor.diceroller.ui.screens.D6Screen
 import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
+enum class DiceType {
+    SINGLE_D6,
+    DOUBLE_D6
+}
+
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val systemInDarkTheme = isSystemInDarkTheme()
             var isDarkMode by remember { mutableStateOf(systemInDarkTheme) }
-            
-            val rotation by animateFloatAsState(
-                targetValue = if (isDarkMode) 180f else 0f,
-                animationSpec = tween(durationMillis = DiceConstants.ICON_ROTATION_DURATION_MILLIS),
-                label = "iconRotation"
-            )
+            var selectedDiceType by remember { mutableStateOf(DiceType.SINGLE_D6) }
 
             DiceRollerTheme(darkTheme = isDarkMode) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     containerColor = MaterialTheme.colorScheme.background,
                     topBar = {
-                        TopAppBar(
-                            title = { },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Color.Transparent,
-                                actionIconContentColor = MaterialTheme.colorScheme.onBackground
-                            ),
-                            actions = {
-                                IconButton(onClick = { isDarkMode = isDarkMode.not() }) {
-                                    Icon(
-                                        imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
-                                        contentDescription = "Toggle Theme",
-                                        modifier = Modifier.rotate(rotation)
-                                    )
-                                }
-                            }
+                        DiceRollerTopBar(
+                            selectedDiceType = selectedDiceType,
+                            onDiceTypeSelected = { selectedDiceType = it },
+                            isDarkMode = isDarkMode,
+                            onToggleTheme = { isDarkMode = isDarkMode.not() }
                         )
                     }
                 ) { innerPadding ->
@@ -77,7 +54,10 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        DoubleD6Screen()
+                        when (selectedDiceType) {
+                            DiceType.SINGLE_D6 -> D6Screen()
+                            DiceType.DOUBLE_D6 -> DoubleD6Screen()
+                        }
                     }
                 }
             }
