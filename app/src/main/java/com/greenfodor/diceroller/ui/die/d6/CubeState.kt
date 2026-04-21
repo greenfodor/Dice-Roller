@@ -33,14 +33,18 @@ class CubeState(private val die: DieDefinition = D6) {
     var targetRotationY by mutableFloatStateOf(0f)
         private set
 
-    // Written by RollingCubeAnimation, read by the screen
     var isRolling by mutableStateOf(false)
         internal set
 
+    private var baseRotationX = 0f
+    private var baseRotationY = 0f
+
     fun roll() {
         currentFace = die.roll()
-        targetRotationX += currentFace.rotationX + DiceConstants.ROTATION_X_OFFSET
-        targetRotationY += currentFace.rotationY + DiceConstants.ROTATION_Y_OFFSET
+        baseRotationX += DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT
+        baseRotationY += DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT
+        targetRotationX = baseRotationX + currentFace.rotationX
+        targetRotationY = baseRotationY + currentFace.rotationY
 
         logD { "rolled ${currentFace.value}" }
     }
