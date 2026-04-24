@@ -5,20 +5,32 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+/**
+ * Represents a point in 3D space.
+ */
 data class Point3D(val x: Float, val y: Float, val z: Float) {
 
     operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
     operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
     operator fun times(scalar: Float) = Point3D(x * scalar, y * scalar, z * scalar)
 
+    /**
+     * Calculates the dot product between this vector and another.
+     */
     fun dot(other: Point3D): Float = x * other.x + y * other.y + z * other.z
 
+    /**
+     * Calculates the cross product between this vector and another.
+     */
     fun cross(other: Point3D) = Point3D(
         y * other.z - z * other.y,
         z * other.x - x * other.z,
         x * other.y - y * other.x
     )
 
+    /**
+     * Returns a unit vector pointing in the same direction as this one.
+     */
     fun normalize(): Point3D {
         val length = sqrt(x * x + y * y + z * z)
         return if (length == 0f) this else Point3D(x / length, y / length, z / length)

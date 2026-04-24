@@ -97,6 +97,12 @@ private fun Transition<Boolean>.animateColorProp(
     }.value
 }
 
+/**
+ * Animates all colors in the [ColorScheme] based on the theme transition.
+ *
+ * This ensures that when the user toggles dark mode, the entire UI smoothly
+ * transitions between color palettes instead of snapping instantly.
+ */
 @Composable
 private fun Transition<Boolean>.animateColorScheme(
     dynamicColor: Boolean
@@ -137,6 +143,17 @@ private fun Transition<Boolean>.animateColorScheme(
     )
 }
 
+/**
+ * Animated theme for the Dice Roller app.
+ *
+ * It supports dynamic color (on Android 12+) and smoothly animates color changes
+ * when switching between light and dark themes. It also provides [LocalDiceColors]
+ * and [LocalSpacing] to the composition tree.
+ *
+ * @param darkTheme Whether the app should use a dark color scheme.
+ * @param dynamicColor Whether to use dynamic color from the system (Android 12+).
+ * @param content The composable content to be themed.
+ */
 @Composable
 fun DiceRollerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

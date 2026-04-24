@@ -11,6 +11,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import com.greenfodor.diceroller.sensors.ShakeDetector
 
+/**
+ * Remembers and manages the lifecycle of a [ShakeDetector].
+ *
+ * This composable registers a sensor listener for the accelerometer when entered and
+ * automatically unregisters it when leaving the composition.
+ *
+ * @param onShake Callback to be invoked when a shake gesture is detected.
+ */
 @SuppressLint("ComposableNaming")
 @Composable
 fun rememberShakeDetector(onShake: () -> Unit) {

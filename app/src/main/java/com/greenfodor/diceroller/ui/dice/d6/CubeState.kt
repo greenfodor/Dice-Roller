@@ -39,6 +39,13 @@ class CubeState(private val die: DieDefinition = D6) {
     private var baseRotationX = 0f
     private var baseRotationY = 0f
 
+    /**
+     * Triggers a new roll.
+     *
+     * It selects a new random face from the die and calculates the new target
+     * rotations. The rotations include multiple full spins to create a
+     * dynamic rolling effect.
+     */
     fun roll() {
         currentFace = die.roll()
         baseRotationX += DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT

@@ -37,6 +37,18 @@ import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
+/**
+ * Custom TopAppBar for the Dice Roller app.
+ *
+ * It features a dropdown menu for selecting the type of die to roll and a toggle button
+ * for switching between light and dark themes with a rotation animation.
+ *
+ * @param selectedDiceType The currently active die type.
+ * @param onDiceTypeSelected Callback when the user selects a different die type.
+ * @param isDarkMode Whether the app is currently in dark mode.
+ * @param onToggleTheme Callback to toggle between light and dark themes.
+ * @param modifier Modifier for the top bar.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiceRollerTopBar(

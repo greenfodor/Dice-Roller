@@ -6,6 +6,15 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import kotlin.math.sqrt
 
+/**
+ * Detects device shake gestures using the accelerometer sensor.
+ *
+ * It calculates the total acceleration (excluding gravity) and compares it against
+ * a threshold. To prevent multiple triggers from a single shake, it implements
+ * a cooldown period.
+ *
+ * @param onShake Callback invoked when a shake is detected.
+ */
 class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
 
     private var lastShakeTime = 0L
