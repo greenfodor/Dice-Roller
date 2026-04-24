@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.utils.logD
+import kotlin.random.Random
 
 /**
  * Holds and mutates the rotation state for the rolling cube animation.
@@ -43,13 +44,22 @@ class CubeState(private val die: DieDefinition = D6) {
      * Triggers a new roll.
      *
      * It selects a new random face from the die and calculates the new target
-     * rotations. The rotations include multiple full spins to create a
-     * dynamic rolling effect.
+     * rotations. The rotations include multiple full spins in random directions
+     * to create a dynamic rolling effect.
      */
     fun roll() {
         currentFace = die.roll()
-        baseRotationX += DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT
-        baseRotationY += DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT
+
+        // Randomize number of full spins and direction (+ or -) for each axis
+        val spinsX = (DiceConstants.ROTATION_SPIN_COUNT..DiceConstants.ROTATION_SPIN_COUNT + 2).random()
+        val spinsY = (DiceConstants.ROTATION_SPIN_COUNT..DiceConstants.ROTATION_SPIN_COUNT + 2).random()
+
+        val directionX = if (Random.nextBoolean()) 1 else -1
+        val directionY = if (Random.nextBoolean()) 1 else -1
+
+        baseRotationX += directionX * DiceConstants.FULL_ROTATION * spinsX
+        baseRotationY += directionY * DiceConstants.FULL_ROTATION * spinsY
+
         targetRotationX = baseRotationX + currentFace.rotationX
         targetRotationY = baseRotationY + currentFace.rotationY
 

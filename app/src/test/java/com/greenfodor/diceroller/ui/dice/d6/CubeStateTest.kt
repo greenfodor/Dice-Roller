@@ -4,6 +4,7 @@ import com.greenfodor.diceroller.ui.DiceConstants
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
+import kotlin.math.abs
 
 class CubeStateTest {
 
@@ -26,14 +27,14 @@ class CubeStateTest {
         assertNotEquals(0f, state.targetRotationX)
         assertNotEquals(0f, state.targetRotationY)
         
-        // Rotations should be at least the spin count * 360
-        val minRotation = DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT
-        assertEquals(true, state.targetRotationX >= minRotation)
-        assertEquals(true, state.targetRotationY >= minRotation)
+        // Absolute rotations should be at least (spin count - 1) * 360
+        val minRotation = DiceConstants.FULL_ROTATION * (DiceConstants.ROTATION_SPIN_COUNT - 1)
+        assertTrue("X rotation should be significant", abs(state.targetRotationX) >= minRotation)
+        assertTrue("Y rotation should be significant", abs(state.targetRotationY) >= minRotation)
     }
 
     @Test
-    fun `multiple rolls increment base rotation correctly`() {
+    fun `multiple rolls change target rotation`() {
         val state = CubeState()
         
         state.roll() // First roll
@@ -42,12 +43,10 @@ class CubeStateTest {
         state.roll() // Second roll
         val secondX = state.targetRotationX
         
-        val rotationIncrement = DiceConstants.FULL_ROTATION * DiceConstants.ROTATION_SPIN_COUNT
-        
-        // The second target should be roughly first + increment
-        // (allowing for difference in face rotation)
-        assertTrue("Second roll should have higher rotation", secondX > firstX)
-        assertTrue("Increment should be at least spin count", secondX - firstX >= rotationIncrement - 360f)
+        // It's extremely unlikely (but mathematically possible if direction flips
+        // and spins change) that they are exactly equal, but for a unit test
+        // this is generally reliable given the large rotation increments.
+        assertNotEquals("Second roll should change rotation", firstX, secondX)
     }
     
     private fun assertTrue(message: String, condition: Boolean) {
