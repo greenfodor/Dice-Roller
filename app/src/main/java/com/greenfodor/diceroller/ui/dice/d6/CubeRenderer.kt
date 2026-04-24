@@ -139,11 +139,11 @@ private val UNIT_CUBE_BASE_VERTICES = listOf(
  */
 private fun createDiceFaceDescriptors(diceColors: DiceColors) = listOf(
     FaceDescriptor(listOf(4, 5, 6, 7), diceColors.face1, 1), // Front  (Z+)
-    FaceDescriptor(listOf(0, 1, 2, 3), diceColors.face6, 6), // Back   (Z-)
+    FaceDescriptor(listOf(1, 0, 3, 2), diceColors.face6, 6), // Back   (Z-)
     FaceDescriptor(listOf(0, 1, 5, 4), diceColors.face2, 2), // Bottom (Y-)
-    FaceDescriptor(listOf(2, 3, 7, 6), diceColors.face5, 5), // Top    (Y+)
-    FaceDescriptor(listOf(0, 3, 7, 4), diceColors.face4, 4), // Left   (X-)
-    FaceDescriptor(listOf(1, 2, 6, 5), diceColors.face3, 3)  // Right  (X+)
+    FaceDescriptor(listOf(7, 6, 2, 3), diceColors.face5, 5), // Top    (Y+)
+    FaceDescriptor(listOf(0, 4, 7, 3), diceColors.face4, 4), // Left   (X-)
+    FaceDescriptor(listOf(5, 1, 2, 6), diceColors.face3, 3)  // Right  (X+)
 )
 
 /**
