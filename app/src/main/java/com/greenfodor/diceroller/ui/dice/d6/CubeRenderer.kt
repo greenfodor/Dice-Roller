@@ -123,7 +123,7 @@ fun DrawScope.drawCube(
             centerY = centerY,
             facePath = facePath,
             dotPath = dotPath,
-            paints = paints,
+            paints = paints
         )
     }
 }
@@ -141,7 +141,7 @@ private val UNIT_CUBE_BASE_VERTICES =
         Point3D(-1f, -1f, 1f),
         Point3D(1f, -1f, 1f),
         Point3D(1f, 1f, 1f),
-        Point3D(-1f, 1f, 1f),
+        Point3D(-1f, 1f, 1f)
     )
 
 /**
@@ -157,7 +157,7 @@ private fun createDiceFaceDescriptors(diceColors: DiceColors) =
         FaceDescriptor(listOf(0, 1, 5, 4), diceColors.face2, 2), // Bottom (Y-)
         FaceDescriptor(listOf(7, 6, 2, 3), diceColors.face5, 5), // Top    (Y+)
         FaceDescriptor(listOf(0, 4, 7, 3), diceColors.face4, 4), // Left   (X-)
-        FaceDescriptor(listOf(5, 1, 2, 6), diceColors.face3, 3), // Right  (X+)
+        FaceDescriptor(listOf(5, 1, 2, 6), diceColors.face3, 3) // Right  (X+)
     )
 
 /**
@@ -187,7 +187,7 @@ private fun DrawScope.renderFace(
     val intensity =
         normal.dot(LIGHT_SOURCE).coerceIn(
             DiceConstants.MIN_SHADING_INTENSITY,
-            DiceConstants.MAX_SHADING_INTENSITY,
+            DiceConstants.MAX_SHADING_INTENSITY
         )
     val shadedColor = face.baseColor.shade(intensity)
 
@@ -218,7 +218,7 @@ private fun DrawScope.renderFace(
             centerX = centerX,
             centerY = centerY,
             normalOffset = dotOffset,
-            dotPath = dotPath,
+            dotPath = dotPath
         )
     }
 

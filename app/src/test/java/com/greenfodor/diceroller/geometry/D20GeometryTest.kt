@@ -20,7 +20,7 @@ class D20GeometryTest {
             val center = (v0 + v1 + v2) * (1f / 3f)
             assertTrue(
                 "Face $index normal should point outward (dot product: ${normal.dot(center)})",
-                normal.dot(center) > 0,
+                normal.dot(center) > 0
             )
         }
     }

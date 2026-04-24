@@ -29,7 +29,7 @@ object IcosahedronGeometry {
             Point3D(PHI, 0f, -1f), // 8
             Point3D(PHI, 0f, 1f), // 9
             Point3D(-PHI, 0f, -1f), // 10
-            Point3D(-PHI, 0f, 1f), // 11
+            Point3D(-PHI, 0f, 1f) // 11
         )
 
     /**
@@ -58,7 +58,7 @@ object IcosahedronGeometry {
             listOf(11, 2, 4), // 16
             listOf(10, 6, 2), // 17
             listOf(7, 8, 6), // 18
-            listOf(1, 9, 8), // 19
+            listOf(1, 9, 8) // 19
         )
 
     /**

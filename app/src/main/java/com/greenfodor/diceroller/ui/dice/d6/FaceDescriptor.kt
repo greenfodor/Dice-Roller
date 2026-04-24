@@ -28,25 +28,25 @@ object DotLayouts {
         mapOf(
             1 to
                 listOf(
-                    Offset(0f, 0f),
+                    Offset(0f, 0f)
                 ),
             2 to
                 listOf(
                     Offset(-S, S),
-                    Offset(S, -S),
+                    Offset(S, -S)
                 ),
             3 to
                 listOf(
                     Offset(-S, S),
                     Offset(0f, 0f),
-                    Offset(S, -S),
+                    Offset(S, -S)
                 ),
             4 to
                 listOf(
                     Offset(-S, -S),
                     Offset(S, -S),
                     Offset(-S, S),
-                    Offset(S, S),
+                    Offset(S, S)
                 ),
             5 to
                 listOf(
@@ -54,7 +54,7 @@ object DotLayouts {
                     Offset(S, -S),
                     Offset(0f, 0f),
                     Offset(-S, S),
-                    Offset(S, S),
+                    Offset(S, S)
                 ),
             6 to
                 listOf(
@@ -63,7 +63,7 @@ object DotLayouts {
                     Offset(-S, S),
                     Offset(S, -S),
                     Offset(S, 0f),
-                    Offset(S, S),
-                ),
+                    Offset(S, S)
+                )
         )
 }

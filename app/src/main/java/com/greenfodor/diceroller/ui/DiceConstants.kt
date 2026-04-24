@@ -51,7 +51,7 @@ object DiceConstants {
             D20_UV_X,
             D20_UV_Y_BOTTOM,
             -D20_UV_X,
-            D20_UV_Y_BOTTOM,
+            D20_UV_Y_BOTTOM
         )
 
     val LIGHT_SOURCE by lazy { Point3D(0.5f, -1f, 1.5f).normalize() }

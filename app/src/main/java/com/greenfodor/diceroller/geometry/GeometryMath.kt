@@ -31,7 +31,7 @@ data class Point3D(
         Point3D(
             y * other.z - z * other.y,
             z * other.x - x * other.z,
-            x * other.y - y * other.x,
+            x * other.y - y * other.x
         )
 
     /**
@@ -94,7 +94,7 @@ fun Point3D.projectPoint(
     val scale = DiceConstants.FIELD_OF_VIEW / (DiceConstants.CAMERA_DISTANCE - z)
     return Point2D(
         x = centerX + x * scale,
-        y = centerY + y * scale,
+        y = centerY + y * scale
     )
 }
 

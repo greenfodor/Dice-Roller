@@ -86,14 +86,14 @@ fun DrawScope.drawD20(
         rotationX = rotationX,
         rotationY = rotationY,
         rotationZ = rotationZ,
-        paints = paints,
+        paints = paints
     )
 
     // 2. Culling and Sorting
     val visibleFaces =
         getVisibleAndSortedFaces(
             color = color,
-            rotatedVertices = paints.rotatedVertices,
+            rotatedVertices = paints.rotatedVertices
         )
 
     // 3. Rendering
@@ -103,7 +103,7 @@ fun DrawScope.drawD20(
             normal = normal,
             projectedVertices = paints.projectedVertices,
             facePath = facePath,
-            paints = paints,
+            paints = paints
         )
     }
 }
@@ -193,7 +193,7 @@ private fun calculateShadedColor(
     val intensity =
         normal.dot(LIGHT_SOURCE).coerceIn(
             DiceConstants.MIN_SHADING_INTENSITY,
-            DiceConstants.MAX_SHADING_INTENSITY,
+            DiceConstants.MAX_SHADING_INTENSITY
         )
     return baseColor.shade(intensity)
 }
@@ -262,7 +262,7 @@ private fun drawFaceLabel(
             label,
             0f,
             -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 + DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT,
-            paints.textPaint,
+            paints.textPaint
         )
     }
 }

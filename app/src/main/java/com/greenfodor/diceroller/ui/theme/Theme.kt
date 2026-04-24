@@ -44,7 +44,7 @@ private val DarkDiceColors =
         face3 = DiceYellowDark,
         face4 = DiceGreenDark,
         face5 = DiceMintDark,
-        face6 = DiceLavenderDark,
+        face6 = DiceLavenderDark
     )
 
 private val LightDiceColors =
@@ -54,21 +54,21 @@ private val LightDiceColors =
         face3 = DiceYellow,
         face4 = DiceGreen,
         face5 = DiceMint,
-        face6 = DiceLavender,
+        face6 = DiceLavender
     )
 
 private val DarkColorScheme =
     darkColorScheme(
         primary = Purple80,
         secondary = PurpleGrey80,
-        tertiary = Pink80,
+        tertiary = Pink80
     )
 
 private val LightColorScheme =
     lightColorScheme(
         primary = Purple40,
         secondary = PurpleGrey40,
-        tertiary = Pink40,
+        tertiary = Pink40
     )
 
 private fun getTargetColorScheme(
@@ -94,7 +94,7 @@ private fun Transition<Boolean>.animateColorProp(
     val duration = DiceConstants.THEME_TRANSITION_DURATION_MILLIS
     return animateColor(
         transitionSpec = { tween(duration) },
-        label = label,
+        label = label
     ) { isDark ->
         prop(getTargetColorScheme(isDark, dynamicColor, context))
     }.value
@@ -145,7 +145,7 @@ private fun Transition<Boolean>.animateColorScheme(dynamicColor: Boolean): Color
         onErrorContainer = animateColorProp("onErrorContainer", dynamicColor, context) { it.onErrorContainer },
         outline = animateColorProp("outline", dynamicColor, context) { it.outline },
         outlineVariant = animateColorProp("outlineVariant", dynamicColor, context) { it.outlineVariant },
-        scrim = animateColorProp("scrim", dynamicColor, context) { it.scrim },
+        scrim = animateColorProp("scrim", dynamicColor, context) { it.scrim }
     )
 }
 
@@ -202,13 +202,13 @@ fun DiceRollerTheme(
                 transition
                     .animateColor(label = "face6", transitionSpec = { tween(duration) }) { isDark ->
                         if (isDark) LightDiceColors.face6 else DarkDiceColors.face6
-                    }.value,
+                    }.value
         )
 
     CompositionLocalProvider(
         LocalDiceColors provides diceColors,
         LocalSpacing provides Spacing(),
-        LocalDiceSpecs provides DiceSpecs(),
+        LocalDiceSpecs provides DiceSpecs()
     ) {
         val view = LocalView.current
         if (view.isInEditMode.not()) {
@@ -222,7 +222,7 @@ fun DiceRollerTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
-            content = content,
+            content = content
         )
     }
 }

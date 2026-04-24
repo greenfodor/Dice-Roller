@@ -93,7 +93,7 @@ class GeometryTest {
                 Point3D(-1f, -1f, 1f), // 4
                 Point3D(1f, -1f, 1f), // 5
                 Point3D(1f, 1f, 1f), // 6
-                Point3D(-1f, 1f, 1f), // 7
+                Point3D(-1f, 1f, 1f) // 7
             )
 
         // Face definitions (must match CubeRenderer.kt)
@@ -104,7 +104,7 @@ class GeometryTest {
                 listOf(0, 1, 5, 4), // Bottom (Y-)
                 listOf(7, 6, 2, 3), // Top    (Y+)
                 listOf(0, 4, 7, 3), // Left   (X-)
-                listOf(5, 1, 2, 6), // Right  (X+)
+                listOf(5, 1, 2, 6) // Right  (X+)
             )
 
         val faceNames = listOf("Front", "Back", "Bottom", "Top", "Left", "Right")
@@ -120,7 +120,7 @@ class GeometryTest {
             // So dot product of normal and any vertex on that face should be positive.
             assertTrue(
                 "Face ${faceNames[index]} normal $normal should point outward",
-                normal.dot(v0) > 0,
+                normal.dot(v0) > 0
             )
         }
     }

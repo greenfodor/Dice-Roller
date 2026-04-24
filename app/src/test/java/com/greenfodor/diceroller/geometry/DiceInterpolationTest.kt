@@ -9,7 +9,7 @@ class DiceInterpolationTest {
             Point3D(-10f, -10f, 0f), // v0: Top-Left (-1, -1 in UV)
             Point3D(10f, -10f, 0f), // v1: Top-Right ( 1, -1 in UV)
             Point3D(10f, 10f, 0f), // v2: Bottom-Right ( 1,  1 in UV)
-            Point3D(-10f, 10f, 0f), // v3: Bottom-Left (-1,  1 in UV)
+            Point3D(-10f, 10f, 0f) // v3: Bottom-Left (-1,  1 in UV)
         )
 
     @Test

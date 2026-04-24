@@ -32,7 +32,7 @@ fun Context.performRollHaptics() {
             // amplitudes =
             waveformAmplitudes,
             // repeat =
-            -1,
-        ),
+            -1
+        )
     )
 }

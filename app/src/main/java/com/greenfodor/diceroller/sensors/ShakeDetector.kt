@@ -28,7 +28,7 @@ class ShakeDetector(
             calculateAcceleration(
                 x = event.values[0],
                 y = event.values[1],
-                z = event.values[2],
+                z = event.values[2]
             )
 
         if (acceleration > SHAKE_THRESHOLD) {

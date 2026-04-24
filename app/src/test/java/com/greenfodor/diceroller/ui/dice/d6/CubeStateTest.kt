@@ -5,6 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import kotlin.math.abs
+import org.junit.Assert.assertTrue
 
 class CubeStateTest {
     @Test
@@ -46,12 +47,5 @@ class CubeStateTest {
         // and spins change) that they are exactly equal, but for a unit test
         // this is generally reliable given the large rotation increments.
         assertNotEquals("Second roll should change rotation", firstX, secondX)
-    }
-
-    private fun assertTrue(
-        message: String,
-        condition: Boolean
-    ) {
-        org.junit.Assert.assertTrue(message, condition)
     }
 }

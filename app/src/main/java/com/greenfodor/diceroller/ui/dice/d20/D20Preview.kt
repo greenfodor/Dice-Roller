@@ -38,14 +38,14 @@ private fun D20StaticPreview(
             modifier
                 .size(150.dp)
                 .background(color = MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Canvas(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .graphicsLayer { clip = false },
+                    .graphicsLayer { clip = false }
         ) {
             drawD20(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
@@ -56,7 +56,7 @@ private fun D20StaticPreview(
                 rotationZ = rotationZ,
                 facePath = facePath,
                 paints = paints,
-                color = primaryColor,
+                color = primaryColor
             )
         }
     }

@@ -42,7 +42,7 @@ fun D20Screen() {
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         RollingD20Animation(diceState = diceState)
 
@@ -50,7 +50,7 @@ fun D20Screen() {
 
         Button(
             onClick = { context.rollDice(diceState) },
-            enabled = diceState.isRolling.not(),
+            enabled = diceState.isRolling.not()
         ) {
             Text(text = stringResource(R.string.roll_button_single))
         }

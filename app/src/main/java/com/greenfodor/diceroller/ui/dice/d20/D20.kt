@@ -21,7 +21,7 @@ object D20 : DieDefinition {
                 value = index + 1,
                 rotationX = rotation.first,
                 rotationY = rotation.second,
-                rotationZ = rotation.third,
+                rotationZ = rotation.third
             )
         }
 }

@@ -40,14 +40,14 @@ private fun D6StaticPreview(
             modifier
                 .size(150.dp)
                 .background(color = MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Center
     ) {
         Canvas(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .graphicsLayer { clip = false },
+                    .graphicsLayer { clip = false }
         ) {
             drawCube(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
@@ -58,7 +58,7 @@ private fun D6StaticPreview(
                 facePath = facePath,
                 dotPath = dotPath,
                 paints = paints,
-                diceColors = diceColors,
+                diceColors = diceColors
             )
         }
     }

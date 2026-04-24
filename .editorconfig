@@ -5,6 +5,5 @@ max_line_length = 120
 ktlint_standard_function-naming = disabled
 ktlint_standard_package-name = disabled
 ktlint_standard_filename = disabled
-ktlint_standard_trailing-comma-on-call-site = disabled
-ktlint_standard_trailing-comma-on-declaration = disabled
 ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false

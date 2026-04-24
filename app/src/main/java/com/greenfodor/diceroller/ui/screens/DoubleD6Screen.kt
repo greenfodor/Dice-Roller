@@ -43,11 +43,11 @@ fun DoubleD6Screen() {
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             RollingCubeAnimation(cubeState = firstCubeState)
             RollingCubeAnimation(cubeState = secondCubeState)
@@ -57,7 +57,7 @@ fun DoubleD6Screen() {
 
         Button(
             onClick = { context.rollDice(firstCubeState, secondCubeState) },
-            enabled = firstCubeState.isRolling.not() && secondCubeState.isRolling.not(),
+            enabled = firstCubeState.isRolling.not() && secondCubeState.isRolling.not()
         ) {
             Text(text = stringResource(R.string.roll_button_multiple))
         }

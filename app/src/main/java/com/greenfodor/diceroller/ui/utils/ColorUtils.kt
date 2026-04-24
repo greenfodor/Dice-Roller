@@ -14,5 +14,5 @@ fun Color.shade(intensity: Float) =
         red = red * intensity,
         green = green * intensity,
         blue = blue * intensity,
-        alpha = alpha,
+        alpha = alpha
     )
