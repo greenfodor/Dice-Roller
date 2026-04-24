@@ -17,7 +17,7 @@ import com.greenfodor.diceroller.ui.DiceConstants
  * @param strokeWidth The thickness of the dice edges.
  */
 data class DiceSpecs(
-    val canvasSize: Dp = 200.dp,
+    val canvasSize: Dp = 150.dp,
     val diceInternalSize: Float = DiceConstants.DEFAULT_CUBE_SIZE,
     val rollDurationMillis: Int = DiceConstants.ROLL_DURATION_MILLIS,
     val strokeWidth: Float = DiceConstants.STROKE_WIDTH
