@@ -5,9 +5,11 @@ import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.ui.dice.DieFace
 
 /**
- * Definition of a D20 die.
+ * Definition of a D20 die using [DieDefinition].
  * 
- * Maps each value (1-20) to a face of the icosahedron and its required rotation.
+ * It automatically maps each of the 20 outcomes to an icosahedron face and
+ * pre-calculates the 3-axis rotation required to bring that face to the center
+ * in an upright position.
  */
 object D20 : DieDefinition {
     override val name = "d20"

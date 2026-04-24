@@ -6,12 +6,15 @@ import kotlin.math.sqrt
 
 /**
  * Defines the geometry of a regular icosahedron (20-sided die).
+ *
+ * An icosahedron is composed of 12 vertices and 20 equilateral triangular faces.
+ * The vertices are defined based on the golden ratio (PHI) to ensure perfect regularity.
  */
 object IcosahedronGeometry {
     private val PHI = (1f + sqrt(5f)) / 2f
 
     /**
-     * The 12 vertices of a regular icosahedron.
+     * The 12 vertices of a regular icosahedron centered at the origin.
      */
     val vertices = listOf(
         Point3D(-1f,  PHI, 0f),  // 0

@@ -19,6 +19,10 @@ object DiceConstants {
     const val CORNER_RADIUS = 20f
     const val STROKE_WIDTH = 2f
 
+    // D6 specific
+    const val D6_STROKE_ALPHA = 0.5f
+    const val D6_DOT_ALPHA = 0.9f
+
     // Face Rendering
     const val DOT_OFFSET_FACTOR = 0.1f
     const val MIN_SHADING_INTENSITY = 0.4f
@@ -28,6 +32,24 @@ object DiceConstants {
     const val DOT_RADIUS_FACTOR = 0.15f
     const val DOT_SPACING_FACTOR = 0.55f
     const val DOT_SEGMENTS = 64
+
+    // D20 specific
+    const val D20_TEXT_SIZE_UV = 65f
+    const val D20_TEXT_BASELINE_ADJUSTMENT = 10f
+    const val D20_FACE_ALPHA = 0.9f
+    const val D20_STROKE_ALPHA = 0.3f
+    
+    // UV space triangle for D20 (radius 100)
+    const val D20_UV_X = 86.6f
+    const val D20_UV_Y_TOP = -100f
+    const val D20_UV_Y_BOTTOM = 50f
+    const val D20_UV_X_TOP = 0f
+
+    val D20_SRC_TRIANGLE = floatArrayOf(
+        D20_UV_X_TOP, D20_UV_Y_TOP,
+        D20_UV_X, D20_UV_Y_BOTTOM,
+        -D20_UV_X, D20_UV_Y_BOTTOM
+    )
 
     val LIGHT_SOURCE by lazy { Point3D(0.5f, -1f, 1.5f).normalize() }
 }

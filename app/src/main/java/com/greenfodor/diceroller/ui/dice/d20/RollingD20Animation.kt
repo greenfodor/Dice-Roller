@@ -17,6 +17,12 @@ import com.greenfodor.diceroller.ui.dice.d6.CubeState
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 
+/**
+ * Animated D20 component that responds to changes in [diceState].
+ *
+ * It uses [animateFloatAsState] for each axis (X, Y, Z) to provide a smooth,
+ * high-framerate 3D rolling effect.
+ */
 @Composable
 fun RollingD20Animation(
     diceState: CubeState,

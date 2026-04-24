@@ -17,7 +17,7 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
     /**
      * Calculates the dot product between this vector and another.
      */
-    fun dot(other: Point3D): Float = x * other.x + y * other.y + z * other.z
+    fun dot(other: Point3D): Float = (x * other.x) + (y * other.y) + (z * other.z)
 
     /**
      * Calculates the cross product between this vector and another.
@@ -25,7 +25,7 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
     fun cross(other: Point3D) = Point3D(
         y * other.z - z * other.y,
         z * other.x - x * other.z,
-        x * other.y - y * other.x
+        x * other.y - y * other.x,
     )
 
     /**
@@ -37,6 +37,9 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
     }
 }
 
+/**
+ * Represents a point in 2D screen space.
+ */
 data class Point2D(val x: Float, val y: Float)
 
 /**
@@ -85,4 +88,26 @@ fun Point3D.projectPoint(centerX: Float, centerY: Float): Point2D {
  */
 fun calculateNormalZ(v0: Point3D, v1: Point3D, v3: Point3D): Float {
     return (v1.x - v0.x) * (v3.y - v0.y) - (v1.y - v0.y) * (v3.x - v0.x)
+}
+
+/**
+ * Maps a 2D face coordinate (u, v in [-1, 1]) to 3D world space
+ * using bilinear interpolation across four face vertices.
+ *
+ * @param normalOffset Small vector that lifts the result slightly above the face surface.
+ */
+fun interpolatePoint3DOnFace(
+    u: Float,
+    v: Float,
+    vVertices: List<Point3D>,
+    normalOffset: Point3D = Point3D(0f, 0f, 0f)
+): Point3D {
+    val s = (u + 1f) / 2f
+    val t = (v + 1f) / 2f
+    val (v0, v1, v2, v3) = vVertices
+    return Point3D(
+        x = (1 - s) * (1 - t) * v0.x + s * (1 - t) * v1.x + s * t * v2.x + (1 - s) * t * v3.x,
+        y = (1 - s) * (1 - t) * v0.y + s * (1 - t) * v1.y + s * t * v2.y + (1 - s) * t * v3.y,
+        z = (1 - s) * (1 - t) * v0.z + s * (1 - t) * v1.z + s * t * v2.z + (1 - s) * t * v3.z
+    ) + normalOffset
 }

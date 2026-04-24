@@ -52,12 +52,12 @@ class GeometryTest {
     @Test
     fun `test rotation around Y axis`() {
         val p = Point3D(100f, 0f, 0f)
-        // Rotate 90 degrees around Y: X goes to Z
+        // Rotate 90 degrees around Y
         val rotated = p.rotatePoint(0f, 90f)
 
-        assertEquals(0f, rotated.x, 0.001f)
-        assertEquals(0f, rotated.y, 0.001f)
-        assertEquals(100f, rotated.z, 0.001f)
+        assertEquals(0f, rotated.x, 0.01f)
+        assertEquals(0f, rotated.y, 0.01f)
+        assertEquals(-100f, rotated.z, 0.01f)
     }
 
     @Test

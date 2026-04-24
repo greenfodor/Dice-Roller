@@ -10,6 +10,11 @@ import com.greenfodor.diceroller.ui.DiceConstants
 
 /**
  * Defines design-system constants for the dice rendering and animation.
+ *
+ * @param canvasSize The bounding box size for the dice animation.
+ * @param diceInternalSize The base scale factor for the 3D geometry.
+ * @param rollDurationMillis Total time for the rolling animation.
+ * @param strokeWidth The thickness of the dice edges.
  */
 data class DiceSpecs(
     val canvasSize: Dp = 200.dp,

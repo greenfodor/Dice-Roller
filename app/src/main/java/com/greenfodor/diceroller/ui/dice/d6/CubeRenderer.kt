@@ -18,6 +18,7 @@ import com.greenfodor.diceroller.geometry.rotatePoint
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.theme.DiceColors
+import com.greenfodor.diceroller.ui.utils.shade
 
 /**
  * Holds reusable [Paint] and [PathEffect] objects used for cube face rendering.
@@ -31,6 +32,12 @@ class CubePaints {
     
     /** Paint used for the face borders (stroke). */
     val stroke = Paint()
+
+    /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
+    val rotatedVertices = ArrayList<Point3D>(8).apply { repeat(8) { add(Point3D(0f, 0f, 0f)) } }
+    
+    /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
+    val projectedVertices = ArrayList<Point2D>(8).apply { repeat(8) { add(Point2D(0f, 0f)) } }
 }
 
 /**
@@ -69,16 +76,16 @@ fun DrawScope.drawCube(
     val halfSize = size / 2
 
     // --- 1. Geometry Calculation ---
-    // Perform rotation and projection in a single pass to minimize allocations
-    val rotatedVertices = ArrayList<Point3D>(8)
-    val projectedVertices = ArrayList<Point2D>(8)
-    
-    UNIT_CUBE_BASE_VERTICES.forEach { baseV ->
+    // Update pre-allocated lists to minimize garbage collection
+    UNIT_CUBE_BASE_VERTICES.forEachIndexed { index, baseV ->
         val v = Point3D(baseV.x * halfSize, baseV.y * halfSize, baseV.z * halfSize)
         val rotated = v.rotatePoint(rotationX, rotationY)
-        rotatedVertices.add(rotated)
-        projectedVertices.add(rotated.projectPoint(centerX, centerY))
+        paints.rotatedVertices[index] = rotated
+        paints.projectedVertices[index] = rotated.projectPoint(centerX, centerY)
     }
+
+    val rotatedVertices = paints.rotatedVertices
+    val projectedVertices = paints.projectedVertices
 
     // --- 2. Culling and Sorting ---
     val faces = createDiceFaceDescriptors(diceColors)
@@ -207,24 +214,10 @@ private fun DrawScope.renderFace(
     // Edge Stroke
     drawIntoCanvas { canvas ->
         paints.stroke.apply {
-            color = Color.White.copy(alpha = 0.5f)
+            color = Color.White.copy(alpha = DiceConstants.D6_STROKE_ALPHA)
             style = PaintingStyle.Stroke
             strokeWidth = DiceConstants.STROKE_WIDTH
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.stroke)
     }
 }
-
-/** 
- * Multiplies the RGB channels of this color by [intensity] while preserving the alpha channel. 
- * Used for dynamic diffuse shading on 3D surfaces.
- * 
- * @param intensity Shading factor (usually between 0.0 and 1.0).
- * @return A new [Color] with adjusted brightness.
- */
-private fun Color.shade(intensity: Float) = Color(
-    red = red * intensity,
-    green = green * intensity,
-    blue = blue * intensity,
-    alpha = alpha
-)
