@@ -17,7 +17,8 @@ object D20 : DieDefinition {
         DieFace(
             value = index + 1,
             rotationX = rotation.first,
-            rotationY = rotation.second
+            rotationY = rotation.second,
+            rotationZ = rotation.third
         )
     }
 }

@@ -34,11 +34,15 @@ class CubeState(private val die: DieDefinition = D6) {
     var targetRotationY by mutableFloatStateOf(0f)
         private set
 
+    var targetRotationZ by mutableFloatStateOf(0f)
+        private set
+
     var isRolling by mutableStateOf(false)
         internal set
 
     private var baseRotationX = 0f
     private var baseRotationY = 0f
+    private var baseRotationZ = 0f
 
     /**
      * Triggers a new roll.
@@ -53,15 +57,19 @@ class CubeState(private val die: DieDefinition = D6) {
         // Randomize number of full spins and direction (+ or -) for each axis
         val spinsX = (DiceConstants.ROTATION_SPIN_COUNT..DiceConstants.ROTATION_SPIN_COUNT + 2).random()
         val spinsY = (DiceConstants.ROTATION_SPIN_COUNT..DiceConstants.ROTATION_SPIN_COUNT + 2).random()
+        val spinsZ = (DiceConstants.ROTATION_SPIN_COUNT..DiceConstants.ROTATION_SPIN_COUNT + 2).random()
 
         val directionX = if (Random.nextBoolean()) 1 else -1
         val directionY = if (Random.nextBoolean()) 1 else -1
+        val directionZ = if (Random.nextBoolean()) 1 else -1
 
         baseRotationX += directionX * DiceConstants.FULL_ROTATION * spinsX
         baseRotationY += directionY * DiceConstants.FULL_ROTATION * spinsY
+        baseRotationZ += directionZ * DiceConstants.FULL_ROTATION * spinsZ
 
         targetRotationX = baseRotationX + currentFace.rotationX
         targetRotationY = baseRotationY + currentFace.rotationY
+        targetRotationZ = baseRotationZ + currentFace.rotationZ
 
         logD { "rolled ${currentFace.value}" }
     }

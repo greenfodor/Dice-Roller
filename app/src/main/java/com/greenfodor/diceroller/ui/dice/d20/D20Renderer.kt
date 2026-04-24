@@ -42,6 +42,7 @@ fun DrawScope.drawD20(
     centerY: Float,
     rotationX: Float,
     rotationY: Float,
+    rotationZ: Float,
     facePath: Path,
     paints: D20Paints,
     color: Color
@@ -54,7 +55,7 @@ fun DrawScope.drawD20(
     
     IcosahedronGeometry.vertices.forEach { baseV ->
         val v = baseV * scaleFactor
-        val rotated = v.rotatePoint(rotationX, rotationY)
+        val rotated = v.rotatePoint(rotationX, rotationY, rotationZ)
         rotatedVertices.add(rotated)
         projectedVertices.add(rotated.projectPoint(centerX, centerY))
     }
@@ -121,9 +122,11 @@ private fun DrawScope.renderD20Face(
         canvas.drawOutline(Outline.Generic(facePath), paints.face)
         
         // Draw label (number) "sitting flat" on the face using a transformation matrix
+        val vIndices = face.vertexIndices
         canvas.nativeCanvas.withSave {
             val matrix = Matrix()
             // Source equilateral triangle points (UV space)
+            // Centered at (0,0), radius 100
             val src = floatArrayOf(
                 0f, -100f,
                 86.6f, 50f,
@@ -140,13 +143,13 @@ private fun DrawScope.renderD20Face(
 
             paints.textPaint.apply {
                 color = Color.White.copy(alpha = 0.9f).toArgb()
-                textSize = 60f // Fixed size in UV space; matrix handles scaling and perspective
+                textSize = 65f // Fixed size in UV space; matrix handles scaling and perspective
             }
             
             drawText(
                 face.label,
                 0f,
-                -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2,
+                -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 + 10f, // Center with small baseline adjustment
                 paints.textPaint
             )
         }

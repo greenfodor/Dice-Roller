@@ -12,5 +12,6 @@ interface DieDefinition {
 data class DieFace(
     val value: Int,
     val rotationX: Float,
-    val rotationY: Float
+    val rotationY: Float,
+    val rotationZ: Float = 0f
 )

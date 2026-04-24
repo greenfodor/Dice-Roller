@@ -45,8 +45,18 @@ fun RollingD20Animation(
         label = "rotationY"
     )
 
+    val rotationZ by animateFloatAsState(
+        targetValue = diceState.targetRotationZ,
+        animationSpec = tween(
+            durationMillis = DiceConstants.ROLL_DURATION_MILLIS,
+            easing = FastOutSlowInEasing
+        ),
+        label = "rotationZ"
+    )
+
     diceState.isRolling = rotationX != diceState.targetRotationX ||
-            rotationY != diceState.targetRotationY
+            rotationY != diceState.targetRotationY ||
+            rotationZ != diceState.targetRotationZ
 
     Canvas(
         modifier = modifier
@@ -60,6 +70,7 @@ fun RollingD20Animation(
             centerY = size.height / 2,
             rotationX = rotationX,
             rotationY = rotationY,
+            rotationZ = rotationZ,
             facePath = facePath,
             paints = paints,
             color = primaryColor

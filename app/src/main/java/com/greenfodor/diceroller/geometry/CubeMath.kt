@@ -40,11 +40,12 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
 data class Point2D(val x: Float, val y: Float)
 
 /**
- * Rotates a 3D point around the X and Y axes.
+ * Rotates a 3D point around the X, Y and Z axes in that order.
  */
-fun Point3D.rotatePoint(rotationX: Float, rotationY: Float): Point3D {
+fun Point3D.rotatePoint(rotationX: Float, rotationY: Float, rotationZ: Float = 0f): Point3D {
     val radX = Math.toRadians(rotationX.toDouble()).toFloat()
     val radY = Math.toRadians(rotationY.toDouble()).toFloat()
+    val radZ = Math.toRadians(rotationZ.toDouble()).toFloat()
 
     // Rotate around X axis
     val cosX = cos(radX)
@@ -55,10 +56,16 @@ fun Point3D.rotatePoint(rotationX: Float, rotationY: Float): Point3D {
     // Rotate around Y axis
     val cosY = cos(radY)
     val sinY = sin(radY)
-    val x2 = x * cosY - z1 * sinY
-    val z2 = x * sinY + z1 * cosY
+    val x2 = x * cosY + z1 * sinY
+    val z2 = -x * sinY + z1 * cosY
 
-    return Point3D(x2, y1, z2)
+    // Rotate around Z axis
+    val cosZ = cos(radZ)
+    val sinZ = sin(radZ)
+    val x3 = x2 * cosZ - y1 * sinZ
+    val y3 = x2 * sinZ + y1 * cosZ
+
+    return Point3D(x3, y3, z2)
 }
 
 /**
