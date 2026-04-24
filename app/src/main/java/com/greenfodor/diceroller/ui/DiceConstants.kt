@@ -16,7 +16,6 @@ object DiceConstants {
 
     // Cube Appearance
     const val DEFAULT_CUBE_SIZE = 320f
-    const val CORNER_RADIUS = 20f
     const val STROKE_WIDTH = 2f
 
     // D6 specific
