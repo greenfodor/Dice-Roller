@@ -33,7 +33,6 @@ class D20Paints {
         isAntiAlias = true
         typeface = Typeface.DEFAULT_BOLD
     }
-    val pathEffect = PathEffect.cornerPathEffect(DiceConstants.CORNER_RADIUS / 2f)
 }
 
 fun DrawScope.drawD20(
@@ -116,7 +115,6 @@ private fun DrawScope.renderD20Face(
     drawIntoCanvas { canvas ->
         paints.face.apply {
             color = shadedColor
-            pathEffect = paints.pathEffect
             style = PaintingStyle.Fill
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.face)
@@ -158,7 +156,6 @@ private fun DrawScope.renderD20Face(
             color = Color.White.copy(alpha = 0.3f)
             style = PaintingStyle.Stroke
             strokeWidth = DiceConstants.STROKE_WIDTH
-            pathEffect = paints.pathEffect
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.stroke)
     }

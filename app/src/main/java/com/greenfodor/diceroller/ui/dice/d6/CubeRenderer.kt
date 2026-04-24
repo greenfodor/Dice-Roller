@@ -31,9 +31,6 @@ class CubePaints {
     
     /** Paint used for the face borders (stroke). */
     val stroke = Paint()
-    
-    /** Reusable corner path effect for rounded die edges. */
-    val pathEffect = PathEffect.cornerPathEffect(DiceConstants.CORNER_RADIUS)
 }
 
 /**
@@ -189,7 +186,6 @@ private fun DrawScope.renderFace(
     drawIntoCanvas { canvas ->
         paints.face.apply {
             color = shadedColor
-            pathEffect = paints.pathEffect
             style = PaintingStyle.Fill
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.face)
@@ -214,7 +210,6 @@ private fun DrawScope.renderFace(
             color = Color.White.copy(alpha = 0.5f)
             style = PaintingStyle.Stroke
             strokeWidth = DiceConstants.STROKE_WIDTH
-            pathEffect = paints.pathEffect
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.stroke)
     }
