@@ -82,4 +82,21 @@ class GeometryTest {
         assertTrue(projectedFar.x > centerX)
         assertTrue(projectedFar.x < centerX + 10f)
     }
+
+    @Test
+    fun `test back-face culling normal calculation`() {
+        // Face on XY plane (Front face)
+        val v0 = Point3D(-1f, -1f, 1f)
+        val v1 = Point3D(1f, -1f, 1f)
+        val v3 = Point3D(-1f, 1f, 1f)
+
+        // Counter-clockwise winding: (1 - (-1)) * (1 - (-1)) - (-1 - (-1)) * (1 - (-1))
+        // = 2 * 2 - 0 * 2 = 4 (Visible)
+        val normalZ = calculateNormalZ(v0, v1, v3)
+        assertTrue("Front face should be visible", normalZ > 0)
+
+        // Same face but reverse winding (Back face)
+        val normalZBack = calculateNormalZ(v0, v3, v1)
+        assertTrue("Reverse winding face should be culled", normalZBack < 0)
+    }
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import com.greenfodor.diceroller.geometry.Point2D
 import com.greenfodor.diceroller.geometry.Point3D
+import com.greenfodor.diceroller.geometry.calculateNormalZ
 import com.greenfodor.diceroller.geometry.projectPoint
 import com.greenfodor.diceroller.geometry.rotatePoint
 import com.greenfodor.diceroller.ui.DiceConstants
@@ -94,7 +95,7 @@ fun DrawScope.drawCube(
         val v3 = rotatedVertices[vIndices[3]]
 
         // Surface normal Z-component determines visibility (+Z is towards camera)
-        val normalZ = (v1.x - v0.x) * (v3.y - v0.y) - (v1.y - v0.y) * (v3.x - v0.x)
+        val normalZ = calculateNormalZ(v0, v1, v3)
         
         if (normalZ > 0) {
             val normal = (v1 - v0).cross(v3 - v0).normalize()

@@ -71,3 +71,11 @@ fun Point3D.projectPoint(centerX: Float, centerY: Float): Point2D {
         y = centerY + y * scale
     )
 }
+
+/**
+ * Calculates the Z-component of the surface normal for a face defined by three vertices.
+ * Used for back-face culling. If the result is positive, the face is pointing towards the camera.
+ */
+fun calculateNormalZ(v0: Point3D, v1: Point3D, v3: Point3D): Float {
+    return (v1.x - v0.x) * (v3.y - v0.y) - (v1.y - v0.y) * (v3.x - v0.x)
+}
