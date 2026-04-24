@@ -1,0 +1,9 @@
+package com.greenfodor.diceroller.ui.screens
+
+import androidx.annotation.StringRes
+import com.greenfodor.diceroller.R
+
+enum class DiceType(@StringRes val labelResId: Int) {
+    SINGLE_D6(labelResId = R.string.d6_label),
+    DOUBLE_D6(labelResId = R.string.double_d6_label)
+}
