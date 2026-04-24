@@ -51,6 +51,19 @@ detekt {
     buildUponDefaultConfig = true
 }
 
+ktlint {
+    additionalEditorconfig.set(
+        mapOf(
+            "ktlint_standard_chain-method-continuation" to "disabled",
+            "ktlint_standard_function-signature" to "disabled",
+            "ktlint_standard_function-naming" to "disabled",
+            "ktlint_standard_package-name" to "disabled",
+            "ktlint_standard_filename" to "disabled",
+            "ktlint_standard_multiline-expression-wrapping" to "disabled"
+        )
+    )
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
