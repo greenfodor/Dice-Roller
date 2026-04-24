@@ -1,6 +1,4 @@
-package com.greenfodor.diceroller.ui.die
-
-import com.greenfodor.diceroller.geometry.CubeFace
+package com.greenfodor.diceroller.ui.dice
 
 interface DieDefinition {
     /** Human-readable name, e.g. "d6", "d4" */

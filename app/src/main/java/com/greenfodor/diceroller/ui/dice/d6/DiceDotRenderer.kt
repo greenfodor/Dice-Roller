@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.die.d6
+package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -66,7 +66,7 @@ internal fun DrawScope.drawDiceDotsOnFace(
             val v = center.y + sin(angle).toFloat() * dotRadiusFactor
 
             val point3D = getPoint3DOnFace(u, v, vVertices, normalOffset)
-            val projected = projectPoint(point3D, centerX, centerY)
+            val projected = point3D.projectPoint(centerX, centerY)
 
             if (i == 0) dotPath.moveTo(projected.x, projected.y)
             else dotPath.lineTo(projected.x, projected.y)

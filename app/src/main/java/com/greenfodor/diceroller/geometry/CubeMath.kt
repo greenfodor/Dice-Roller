@@ -30,21 +30,21 @@ data class Point2D(val x: Float, val y: Float)
 /**
  * Rotates a 3D point around the X and Y axes.
  */
-fun rotatePoint(point: Point3D, rotationX: Float, rotationY: Float): Point3D {
+fun Point3D.rotatePoint(rotationX: Float, rotationY: Float): Point3D {
     val radX = Math.toRadians(rotationX.toDouble()).toFloat()
     val radY = Math.toRadians(rotationY.toDouble()).toFloat()
 
     // Rotate around X axis
     val cosX = cos(radX)
     val sinX = sin(radX)
-    val y1 = point.y * cosX - point.z * sinX
-    val z1 = point.y * sinX + point.z * cosX
+    val y1 = y * cosX - z * sinX
+    val z1 = y * sinX + z * cosX
 
     // Rotate around Y axis
     val cosY = cos(radY)
     val sinY = sin(radY)
-    val x2 = point.x * cosY - z1 * sinY
-    val z2 = point.x * sinY + z1 * cosY
+    val x2 = x * cosY - z1 * sinY
+    val z2 = x * sinY + z1 * cosY
 
     return Point3D(x2, y1, z2)
 }
@@ -52,10 +52,10 @@ fun rotatePoint(point: Point3D, rotationX: Float, rotationY: Float): Point3D {
 /**
  * Projects a 3D point onto 2D screen space using perspective projection.
  */
-fun projectPoint(point: Point3D, centerX: Float, centerY: Float): Point2D {
-    val scale = DiceConstants.FIELD_OF_VIEW / (DiceConstants.CAMERA_DISTANCE - point.z)
+fun Point3D.projectPoint(centerX: Float, centerY: Float): Point2D {
+    val scale = DiceConstants.FIELD_OF_VIEW / (DiceConstants.CAMERA_DISTANCE - z)
     return Point2D(
-        x = centerX + point.x * scale,
-        y = centerY + point.y * scale
+        x = centerX + x * scale,
+        y = centerY + y * scale
     )
 }

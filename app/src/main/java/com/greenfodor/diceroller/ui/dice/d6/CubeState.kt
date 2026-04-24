@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.die.d6
+package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.greenfodor.diceroller.ui.DiceConstants
-import com.greenfodor.diceroller.ui.die.DieDefinition
+import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.utils.logD
 
 /**

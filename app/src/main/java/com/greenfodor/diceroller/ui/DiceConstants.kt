@@ -1,5 +1,7 @@
 package com.greenfodor.diceroller.ui
 
+import com.greenfodor.diceroller.geometry.Point3D
+
 object DiceConstants {
     // Camera and Projection
     const val CAMERA_DISTANCE = 800f
@@ -16,14 +18,16 @@ object DiceConstants {
     const val DEFAULT_CUBE_SIZE = 320f
     const val CORNER_RADIUS = 20f
     const val STROKE_WIDTH = 2f
-    
+
     // Face Rendering
     const val DOT_OFFSET_FACTOR = 0.1f
     const val MIN_SHADING_INTENSITY = 0.4f
     const val MAX_SHADING_INTENSITY = 1.0f
-    
+
     // Dots
     const val DOT_RADIUS_FACTOR = 0.15f
     const val DOT_SPACING_FACTOR = 0.55f
     const val DOT_SEGMENTS = 64
+
+    val LIGHT_SOURCE by lazy { Point3D(0.5f, -1f, 1.5f).normalize() }
 }

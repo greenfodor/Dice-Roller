@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.die.d6
+package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset

@@ -1,8 +1,8 @@
-package com.greenfodor.diceroller.ui.die.d6
+package com.greenfodor.diceroller.ui.dice.d6
 
 import com.greenfodor.diceroller.geometry.CubeFace
-import com.greenfodor.diceroller.ui.die.DieDefinition
-import com.greenfodor.diceroller.ui.die.DieFace
+import com.greenfodor.diceroller.ui.dice.DieDefinition
+import com.greenfodor.diceroller.ui.dice.DieFace
 
 object D6 : DieDefinition {
     override val name = "d6"

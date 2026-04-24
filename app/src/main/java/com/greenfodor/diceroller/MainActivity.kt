@@ -19,13 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
 import com.greenfodor.diceroller.ui.screens.D6Screen
+import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
-
-enum class DiceType {
-    SINGLE_D6,
-    DOUBLE_D6
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,13 +58,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DiceRollerPreview() {
-    DiceRollerTheme {
-        D6Screen()
     }
 }

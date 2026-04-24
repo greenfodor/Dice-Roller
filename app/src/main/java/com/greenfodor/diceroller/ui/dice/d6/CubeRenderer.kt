@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.die.d6
+package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
@@ -14,6 +14,7 @@ import com.greenfodor.diceroller.geometry.Point3D
 import com.greenfodor.diceroller.geometry.projectPoint
 import com.greenfodor.diceroller.geometry.rotatePoint
 import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.theme.DiceColors
 
 /**
@@ -70,8 +71,8 @@ fun DrawScope.drawCube(
         Point3D(-halfSize, halfSize, halfSize)  // 7
     )
 
-    val rotatedVertices = vertices.map { rotatePoint(it, rotationX, rotationY) }
-    val projectedVertices = rotatedVertices.map { projectPoint(it, centerX, centerY) }
+    val rotatedVertices = vertices.map { it.rotatePoint(rotationX, rotationY) }
+    val projectedVertices = rotatedVertices.map { it.projectPoint(centerX, centerY) }
 
     // Standard dice layout: opposite faces sum to 7
     val faces = listOf(
@@ -92,7 +93,6 @@ fun DrawScope.drawCube(
 
     val cornerRadius = DiceConstants.CORNER_RADIUS
     val pathEffect = PathEffect.cornerPathEffect(cornerRadius)
-    val lightSource = Point3D(0.5f, -1f, 1.5f).normalize()
 
     sortedFaces.forEach { face ->
         val v0 = rotatedVertices[face.vertexIndices[0]]
@@ -101,7 +101,7 @@ fun DrawScope.drawCube(
 
         // Compute surface normal for diffuse shading
         val normal = (v1 - v0).cross(v3 - v0).normalize()
-        val intensity = normal.dot(lightSource).coerceIn(
+        val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
             DiceConstants.MIN_SHADING_INTENSITY,
             DiceConstants.MAX_SHADING_INTENSITY
         )
@@ -159,8 +159,8 @@ fun DrawScope.drawCube(
 
 /** Multiplies RGB channels by [intensity] while preserving alpha. */
 private fun Color.shade(intensity: Float) = Color(
-    red   = red   * intensity,
+    red = red * intensity,
     green = green * intensity,
-    blue  = blue  * intensity,
+    blue = blue * intensity,
     alpha = alpha
 )

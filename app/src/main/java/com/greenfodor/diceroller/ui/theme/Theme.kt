@@ -169,7 +169,10 @@ fun DiceRollerTheme(
         }.value
     )
 
-    CompositionLocalProvider(LocalDiceColors provides diceColors) {
+    CompositionLocalProvider(
+        LocalDiceColors provides diceColors,
+        LocalSpacing provides Spacing()
+    ) {
         val view = LocalView.current
         if (view.isInEditMode.not()) {
             SideEffect {

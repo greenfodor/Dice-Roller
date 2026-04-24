@@ -33,7 +33,7 @@ class GeometryTest {
         // unit vectors along X and Y
         val vX = Point3D(1f, 0f, 0f)
         val vY = Point3D(0f, 1f, 0f)
-        
+
         // Cross product of X and Y should be Z
         val vZ = vX.cross(vY)
         assertEquals(Point3D(0f, 0f, 1f), vZ)
@@ -42,8 +42,8 @@ class GeometryTest {
     @Test
     fun `test rotation at 0 degrees returns same point`() {
         val p = Point3D(10f, 20f, 30f)
-        val rotated = rotatePoint(p, 0f, 0f)
-        
+        val rotated = p.rotatePoint(0f, 0f)
+
         assertEquals(p.x, rotated.x, 0.001f)
         assertEquals(p.y, rotated.y, 0.001f)
         assertEquals(p.z, rotated.z, 0.001f)
@@ -53,8 +53,8 @@ class GeometryTest {
     fun `test rotation around Y axis`() {
         val p = Point3D(100f, 0f, 0f)
         // Rotate 90 degrees around Y: X goes to Z
-        val rotated = rotatePoint(p, 0f, 90f)
-        
+        val rotated = p.rotatePoint(0f, 90f)
+
         assertEquals(0f, rotated.x, 0.001f)
         assertEquals(0f, rotated.y, 0.001f)
         assertEquals(100f, rotated.z, 0.001f)
@@ -66,17 +66,17 @@ class GeometryTest {
         val p = Point3D(0f, 0f, 0f)
         val centerX = 500f
         val centerY = 500f
-        
-        val projected = projectPoint(p, centerX, centerY)
-        
+
+        val projected = p.projectPoint(centerX, centerY)
+
         // Should be exactly at the center
         assertEquals(centerX, projected.x, 0.001f)
         assertEquals(centerY, projected.y, 0.001f)
-        
+
         // Point further away (smaller factor)
         val pFar = Point3D(10f, 0f, -100f)
-        val projectedFar = projectPoint(pFar, centerX, centerY)
-        
+        val projectedFar = pFar.projectPoint(centerX, centerY)
+
         // Factor = 500 / (800 - (-100)) = 500 / 900 = 0.555...
         // x = 500 + 10 * 0.555 = 505.555...
         assertTrue(projectedFar.x > centerX)

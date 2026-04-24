@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.die.d6
+package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background

@@ -19,13 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.R
-import com.greenfodor.diceroller.sensors.performRollHaptics
-import com.greenfodor.diceroller.ui.die.d6.RollingCubeAnimation
-import com.greenfodor.diceroller.ui.die.d6.rememberCubeState
+import com.greenfodor.diceroller.ui.dice.d6.RollingCubeAnimation
+import com.greenfodor.diceroller.ui.dice.d6.rememberCubeState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
+import com.greenfodor.diceroller.ui.utils.rollDice
 
 @Composable
 fun DoubleD6Screen() {
@@ -34,11 +34,7 @@ fun DoubleD6Screen() {
     val secondCubeState = rememberCubeState()
 
     rememberShakeDetector(onShake = {
-        if (firstCubeState.isRolling.not() && secondCubeState.isRolling.not()) {
-            performRollHaptics(context)
-            firstCubeState.roll()
-            secondCubeState.roll()
-        }
+        context.rollDice(firstCubeState, secondCubeState)
     })
 
     Column(
@@ -56,20 +52,16 @@ fun DoubleD6Screen() {
             RollingCubeAnimation(cubeState = secondCubeState)
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
         Button(
-            onClick = {
-                performRollHaptics(context)
-                firstCubeState.roll()
-                secondCubeState.roll()
-            },
+            onClick = { context.rollDice(firstCubeState, secondCubeState) },
             enabled = firstCubeState.isRolling.not() && secondCubeState.isRolling.not()
         ) {
             Text(text = stringResource(R.string.roll_button_multiple))
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
     }
 }
 
