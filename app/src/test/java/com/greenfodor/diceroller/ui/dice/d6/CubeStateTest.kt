@@ -3,9 +3,9 @@ package com.greenfodor.diceroller.ui.dice.d6
 import com.greenfodor.diceroller.ui.DiceConstants
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.abs
-import org.junit.Assert.assertTrue
 
 class CubeStateTest {
     @Test
