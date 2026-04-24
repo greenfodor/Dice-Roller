@@ -26,9 +26,12 @@ fun Context.performRollHaptics() {
 
     vibrator.vibrate(
         VibrationEffect.createWaveform(
-            /* timings = */ waveformTimings,
-            /* amplitudes = */ waveformAmplitudes,
-            /* repeat = */ -1
+            // timings =
+            waveformTimings,
+            // amplitudes =
+            waveformAmplitudes,
+            // repeat =
+            -1
         )
     )
 }

@@ -73,10 +73,11 @@ fun DiceRollerTopBar(
                 onDiceTypeSelected = onDiceTypeSelected
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-        ),
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                actionIconContentColor = MaterialTheme.colorScheme.onBackground
+            ),
         actions = {
             IconButton(onClick = onToggleTheme) {
                 Icon(

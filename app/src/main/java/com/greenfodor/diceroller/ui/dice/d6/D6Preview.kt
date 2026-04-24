@@ -25,7 +25,7 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 
 @Composable
-private fun DiceStaticPreview(
+private fun D6StaticPreview(
     rotationX: Float,
     rotationY: Float,
     modifier: Modifier = Modifier
@@ -42,10 +42,11 @@ private fun DiceStaticPreview(
         contentAlignment = Alignment.Center
     ) {
         Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .graphicsLayer { clip = false }
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .graphicsLayer { clip = false }
         ) {
             drawCube(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
@@ -65,47 +66,47 @@ private fun DiceStaticPreview(
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Front Face Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Front Face Dark")
 @Composable
-fun PreviewFront() {
+fun D6PreviewFront() {
     DiceRollerTheme {
-        DiceStaticPreview(rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY)
+        D6StaticPreview(rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY)
     }
 }
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Angled View Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Angled View Dark")
 @Composable
-fun PreviewAngled() {
+fun D6PreviewAngled() {
     DiceRollerTheme {
-        DiceStaticPreview(rotationX = 45f, rotationY = 45f)
+        D6StaticPreview(rotationX = 45f, rotationY = 45f)
     }
 }
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Top-Right Edge Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Top-Right Edge Dark")
 @Composable
-fun PreviewTopRight() {
+fun D6PreviewTopRight() {
     DiceRollerTheme {
-        DiceStaticPreview(rotationX = 30f, rotationY = -30f)
+        D6StaticPreview(rotationX = 30f, rotationY = -30f)
     }
 }
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Dice Faces Grid Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dice Faces Grid Dark")
 @Composable
-fun PreviewDiceGrid() {
+fun D6PreviewDiceGrid() {
     DiceRollerTheme {
         Column {
             Row {
-                DiceStaticPreview(rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY)
-                DiceStaticPreview(rotationX = CubeFace.BACK.rotationX, rotationY = CubeFace.BACK.rotationY)
+                D6StaticPreview(rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY)
+                D6StaticPreview(rotationX = CubeFace.BACK.rotationX, rotationY = CubeFace.BACK.rotationY)
             }
             Row {
-                DiceStaticPreview(rotationX = CubeFace.TOP.rotationX, rotationY = CubeFace.TOP.rotationY)
-                DiceStaticPreview(rotationX = CubeFace.BOTTOM.rotationX, rotationY = CubeFace.BOTTOM.rotationY)
+                D6StaticPreview(rotationX = CubeFace.TOP.rotationX, rotationY = CubeFace.TOP.rotationY)
+                D6StaticPreview(rotationX = CubeFace.BOTTOM.rotationX, rotationY = CubeFace.BOTTOM.rotationY)
             }
             Row {
-                DiceStaticPreview(rotationX = CubeFace.LEFT.rotationX, rotationY = CubeFace.LEFT.rotationY)
-                DiceStaticPreview(rotationX = CubeFace.RIGHT.rotationX, rotationY = CubeFace.RIGHT.rotationY)
+                D6StaticPreview(rotationX = CubeFace.LEFT.rotationX, rotationY = CubeFace.LEFT.rotationY)
+                D6StaticPreview(rotationX = CubeFace.RIGHT.rotationX, rotationY = CubeFace.RIGHT.rotationY)
             }
         }
     }

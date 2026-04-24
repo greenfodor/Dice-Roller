@@ -18,6 +18,7 @@ import com.greenfodor.diceroller.geometry.rotatePoint
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.theme.DiceColors
+import com.greenfodor.diceroller.ui.utils.shade
 
 /**
  * Holds reusable [Paint] and [PathEffect] objects used for cube face rendering.
@@ -28,21 +29,24 @@ import com.greenfodor.diceroller.ui.theme.DiceColors
 class CubePaints {
     /** Paint used for the main face surface (fill). */
     val face = Paint()
-    
+
     /** Paint used for the face borders (stroke). */
     val stroke = Paint()
-    
-    /** Reusable corner path effect for rounded die edges. */
-    val pathEffect = PathEffect.cornerPathEffect(DiceConstants.CORNER_RADIUS)
+
+    /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
+    val rotatedVertices = ArrayList<Point3D>(8).apply { repeat(8) { add(Point3D(0f, 0f, 0f)) } }
+
+    /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
+    val projectedVertices = ArrayList<Point2D>(8).apply { repeat(8) { add(Point2D(0f, 0f)) } }
 }
 
 /**
  * Performs the full 3D cube draw onto the canvas.
  *
  * This function handles the entire 3D-to-2D pipeline:
- * 1. **Geometry Calculation**: Scales, rotates, and projects the 8 vertices of the cube in a 
+ * 1. **Geometry Calculation**: Scales, rotates, and projects the 8 vertices of the cube in a
  *    single pass to minimize list allocations.
- * 2. **Back-face Culling**: Calculates the surface normal for each face and skips rendering 
+ * 2. **Back-face Culling**: Calculates the surface normal for each face and skips rendering
  *    those pointing away from the camera (at most 3 faces are visible for a convex cube).
  * 3. **Painter's Algorithm Sorting**: Sorts the visible faces by their average Z-depth (back-to-front)
  *    to ensure correct overlapping.
@@ -72,37 +76,41 @@ fun DrawScope.drawCube(
     val halfSize = size / 2
 
     // --- 1. Geometry Calculation ---
-    // Perform rotation and projection in a single pass to minimize allocations
-    val rotatedVertices = ArrayList<Point3D>(8)
-    val projectedVertices = ArrayList<Point2D>(8)
-    
-    UNIT_CUBE_BASE_VERTICES.forEach { baseV ->
+    // Update pre-allocated lists to minimize garbage collection
+    UNIT_CUBE_BASE_VERTICES.forEachIndexed { index, baseV ->
         val v = Point3D(baseV.x * halfSize, baseV.y * halfSize, baseV.z * halfSize)
         val rotated = v.rotatePoint(rotationX, rotationY)
-        rotatedVertices.add(rotated)
-        projectedVertices.add(rotated.projectPoint(centerX, centerY))
+        paints.rotatedVertices[index] = rotated
+        paints.projectedVertices[index] = rotated.projectPoint(centerX, centerY)
     }
+
+    val rotatedVertices = paints.rotatedVertices
+    val projectedVertices = paints.projectedVertices
 
     // --- 2. Culling and Sorting ---
     val faces = createDiceFaceDescriptors(diceColors)
 
     // Back-face Culling: Skip faces pointing away from the camera.
     // For a convex cube, at most 3 faces are visible at once.
-    val visibleFaces = faces.mapNotNull { face ->
-        val vIndices = face.vertexIndices
-        val v0 = rotatedVertices[vIndices[0]]
-        val v1 = rotatedVertices[vIndices[1]]
-        val v3 = rotatedVertices[vIndices[3]]
+    val visibleFaces =
+        faces
+            .mapNotNull { face ->
+                val vIndices = face.vertexIndices
+                val v0 = rotatedVertices[vIndices[0]]
+                val v1 = rotatedVertices[vIndices[1]]
+                val v3 = rotatedVertices[vIndices[3]]
 
-        // Surface normal Z-component determines visibility (+Z is towards camera)
-        val normalZ = calculateNormalZ(v0, v1, v3)
-        
-        if (normalZ > 0) {
-            val normal = (v1 - v0).cross(v3 - v0).normalize()
-            val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
-            Triple(face, normal, avgDepth)
-        } else null
-    }.sortedBy { it.third } // Sort back-to-front (Painter's Algorithm)
+                // Surface normal Z-component determines visibility (+Z is towards camera)
+                val normalZ = calculateNormalZ(v0, v1, v3)
+
+                if (normalZ > 0) {
+                    val normal = (v1 - v0).cross(v3 - v0).normalize()
+                    val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
+                    Triple(face, normal, avgDepth)
+                } else {
+                    null
+                }
+            }.sortedBy { it.third } // Sort back-to-front (Painter's Algorithm)
 
     // --- 3. Rendering ---
     visibleFaces.forEach { (face, normal, _) ->
@@ -120,15 +128,19 @@ fun DrawScope.drawCube(
     }
 }
 
-/** 
+/**
  * Unit cube vertices centered at the origin.
  * Indices follow a specific winding order used to define face surfaces.
  */
 private val UNIT_CUBE_BASE_VERTICES = listOf(
-    Point3D(-1f, -1f, -1f), Point3D(1f, -1f, -1f),
-    Point3D(1f, 1f, -1f), Point3D(-1f, 1f, -1f),
-    Point3D(-1f, -1f, 1f), Point3D(1f, -1f, 1f),
-    Point3D(1f, 1f, 1f), Point3D(-1f, 1f, 1f)
+    Point3D(-1f, -1f, -1f),
+    Point3D(1f, -1f, -1f),
+    Point3D(1f, 1f, -1f),
+    Point3D(-1f, 1f, -1f),
+    Point3D(-1f, -1f, 1f),
+    Point3D(1f, -1f, 1f),
+    Point3D(1f, 1f, 1f),
+    Point3D(-1f, 1f, 1f)
 )
 
 /**
@@ -137,24 +149,25 @@ private val UNIT_CUBE_BASE_VERTICES = listOf(
  *
  * @param diceColors The theme colors to apply to each face value.
  */
-private fun createDiceFaceDescriptors(diceColors: DiceColors) = listOf(
-    FaceDescriptor(listOf(4, 5, 6, 7), diceColors.face1, 1), // Front  (Z+)
-    FaceDescriptor(listOf(1, 0, 3, 2), diceColors.face6, 6), // Back   (Z-)
-    FaceDescriptor(listOf(0, 1, 5, 4), diceColors.face2, 2), // Bottom (Y-)
-    FaceDescriptor(listOf(7, 6, 2, 3), diceColors.face5, 5), // Top    (Y+)
-    FaceDescriptor(listOf(0, 4, 7, 3), diceColors.face4, 4), // Left   (X-)
-    FaceDescriptor(listOf(5, 1, 2, 6), diceColors.face3, 3)  // Right  (X+)
-)
+private fun createDiceFaceDescriptors(diceColors: DiceColors) =
+    listOf(
+        FaceDescriptor(listOf(4, 5, 6, 7), diceColors.face1, 1), // Front  (Z+)
+        FaceDescriptor(listOf(1, 0, 3, 2), diceColors.face6, 6), // Back   (Z-)
+        FaceDescriptor(listOf(0, 1, 5, 4), diceColors.face2, 2), // Bottom (Y-)
+        FaceDescriptor(listOf(7, 6, 2, 3), diceColors.face5, 5), // Top    (Y+)
+        FaceDescriptor(listOf(0, 4, 7, 3), diceColors.face4, 4), // Left   (X-)
+        FaceDescriptor(listOf(5, 1, 2, 6), diceColors.face3, 3) // Right  (X+)
+    )
 
 /**
  * Renders a single face of the cube onto the canvas.
- * 
+ *
  * The rendering process includes:
- * 1. **Shading**: Calculates light intensity based on the angle between the surface normal 
+ * 1. **Shading**: Calculates light intensity based on the angle between the surface normal
  *    and the global light source.
  * 2. **Geometry Construction**: Resets and builds a [Path] for the face polygon using projected 2D points.
  * 3. **Surface Fill**: Draws the shaded face surface with rounded corners using the provided path effect.
- * 4. **Pip Rendering**: Draws the dice dots, clipped to the face boundary and slightly offset 
+ * 4. **Pip Rendering**: Draws the dice dots, clipped to the face boundary and slightly offset
  *    to prevent Z-fighting artifacts.
  * 5. **Edge Stroke**: Draws a subtle semi-transparent border around the face to enhance definition.
  */
@@ -170,10 +183,11 @@ private fun DrawScope.renderFace(
     paints: CubePaints
 ) {
     // 1. Shading
-    val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
-        DiceConstants.MIN_SHADING_INTENSITY,
-        DiceConstants.MAX_SHADING_INTENSITY
-    )
+    val intensity =
+        normal.dot(LIGHT_SOURCE).coerceIn(
+            DiceConstants.MIN_SHADING_INTENSITY,
+            DiceConstants.MAX_SHADING_INTENSITY
+        )
     val shadedColor = face.baseColor.shade(intensity)
 
     // 2. Build Face Geometry
@@ -189,7 +203,6 @@ private fun DrawScope.renderFace(
     drawIntoCanvas { canvas ->
         paints.face.apply {
             color = shadedColor
-            pathEffect = paints.pathEffect
             style = PaintingStyle.Fill
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.face)
@@ -211,25 +224,10 @@ private fun DrawScope.renderFace(
     // Edge Stroke
     drawIntoCanvas { canvas ->
         paints.stroke.apply {
-            color = Color.White.copy(alpha = 0.5f)
+            color = Color.White.copy(alpha = DiceConstants.D6_STROKE_ALPHA)
             style = PaintingStyle.Stroke
             strokeWidth = DiceConstants.STROKE_WIDTH
-            pathEffect = paints.pathEffect
         }
         canvas.drawOutline(Outline.Generic(facePath), paints.stroke)
     }
 }
-
-/** 
- * Multiplies the RGB channels of this color by [intensity] while preserving the alpha channel. 
- * Used for dynamic diffuse shading on 3D surfaces.
- * 
- * @param intensity Shading factor (usually between 0.0 and 1.0).
- * @return A new [Color] with adjusted brightness.
- */
-private fun Color.shade(intensity: Float) = Color(
-    red = red * intensity,
-    green = green * intensity,
-    blue = blue * intensity,
-    alpha = alpha
-)
