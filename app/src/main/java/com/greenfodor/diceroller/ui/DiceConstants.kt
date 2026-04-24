@@ -33,10 +33,13 @@ object DiceConstants {
     const val DOT_SEGMENTS = 64
 
     // D20 specific
-    const val D20_TEXT_SIZE_UV = 65f
-    const val D20_TEXT_BASELINE_ADJUSTMENT = 10f
+    const val D20_TEXT_SIZE_UV = 55f
+    const val D20_TEXT_BASELINE_ADJUSTMENT = -10f
     const val D20_FACE_ALPHA = 0.9f
     const val D20_STROKE_ALPHA = 0.3f
+    const val D20_UNDERLINE_WIDTH_UV = 28f
+    const val D20_UNDERLINE_HEIGHT_UV = 4f
+    const val D20_UNDERLINE_TOP_OFFSET_UV = 2f
 
     // UV space triangle for D20 (radius 100)
     const val D20_UV_X = 86.6f
