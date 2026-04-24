@@ -35,31 +35,28 @@ fun RollingD20Animation(
 
     val rotationX by animateFloatAsState(
         targetValue = diceState.targetRotationX,
-        animationSpec =
-            tween(
-                durationMillis = diceSpecs.rollDurationMillis,
-                easing = FastOutSlowInEasing
-            ),
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
         label = "rotationX"
     )
 
     val rotationY by animateFloatAsState(
         targetValue = diceState.targetRotationY,
-        animationSpec =
-            tween(
-                durationMillis = diceSpecs.rollDurationMillis,
-                easing = FastOutSlowInEasing
-            ),
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
         label = "rotationY"
     )
 
     val rotationZ by animateFloatAsState(
         targetValue = diceState.targetRotationZ,
-        animationSpec =
-            tween(
-                durationMillis = diceSpecs.rollDurationMillis,
-                easing = FastOutSlowInEasing
-            ),
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
         label = "rotationZ"
     )
 
@@ -68,11 +65,10 @@ fun RollingD20Animation(
         rotationZ != diceState.targetRotationZ
 
     Canvas(
-        modifier =
-            modifier
-                .size(diceSpecs.canvasSize)
-                .padding(MaterialTheme.spacing.medium)
-                .graphicsLayer { clip = false }
+        modifier = modifier
+            .size(diceSpecs.canvasSize)
+            .padding(MaterialTheme.spacing.medium)
+            .graphicsLayer { clip = false }
     ) {
         drawD20(
             size = diceSpecs.diceInternalSize,

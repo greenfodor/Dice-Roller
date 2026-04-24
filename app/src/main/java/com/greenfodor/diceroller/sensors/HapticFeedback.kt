@@ -14,14 +14,13 @@ fun Context.performRollHaptics() {
     val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
     if (audioManager.ringerMode == AudioManager.RINGER_MODE_SILENT) return
 
-    val vibrator =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
+    val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibratorManager.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
 
     if (vibrator.hasVibrator().not()) return
 

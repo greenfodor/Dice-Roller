@@ -132,17 +132,16 @@ fun DrawScope.drawCube(
  * Unit cube vertices centered at the origin.
  * Indices follow a specific winding order used to define face surfaces.
  */
-private val UNIT_CUBE_BASE_VERTICES =
-    listOf(
-        Point3D(-1f, -1f, -1f),
-        Point3D(1f, -1f, -1f),
-        Point3D(1f, 1f, -1f),
-        Point3D(-1f, 1f, -1f),
-        Point3D(-1f, -1f, 1f),
-        Point3D(1f, -1f, 1f),
-        Point3D(1f, 1f, 1f),
-        Point3D(-1f, 1f, 1f)
-    )
+private val UNIT_CUBE_BASE_VERTICES = listOf(
+    Point3D(-1f, -1f, -1f),
+    Point3D(1f, -1f, -1f),
+    Point3D(1f, 1f, -1f),
+    Point3D(-1f, 1f, -1f),
+    Point3D(-1f, -1f, 1f),
+    Point3D(1f, -1f, 1f),
+    Point3D(1f, 1f, 1f),
+    Point3D(-1f, 1f, 1f)
+)
 
 /**
  * Defines the six faces of a D6, mapping vertex indices to colors and pip counts.

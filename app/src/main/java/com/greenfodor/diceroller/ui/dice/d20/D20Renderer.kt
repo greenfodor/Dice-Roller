@@ -37,21 +37,24 @@ class D20Paints {
     val stroke = Paint()
 
     /** Native Paint for number rendering with high-quality antialiasing. */
-    val textPaint =
-        NativePaint().apply {
-            textAlign = NativePaint.Align.CENTER
-            isAntiAlias = true
-            typeface = Typeface.DEFAULT_BOLD
-        }
+    val textPaint = NativePaint().apply {
+        textAlign = NativePaint.Align.CENTER
+        isAntiAlias = true
+        typeface = Typeface.DEFAULT_BOLD
+    }
 
     /** Temporary buffer for matrix destination coordinates to avoid allocations. */
     val dstArray = FloatArray(6)
 
     /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
-    val rotatedVertices = ArrayList<Point3D>(12).apply { repeat(12) { add(Point3D(0f, 0f, 0f)) } }
+    val rotatedVertices = ArrayList<Point3D>(12).apply {
+        repeat(12) { add(Point3D(0f, 0f, 0f)) }
+    }
 
     /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
-    val projectedVertices = ArrayList<Point2D>(12).apply { repeat(12) { add(Point2D(0f, 0f)) } }
+    val projectedVertices = ArrayList<Point2D>(12).apply {
+        repeat(12) { add(Point2D(0f, 0f)) }
+    }
 }
 
 /**
@@ -90,11 +93,10 @@ fun DrawScope.drawD20(
     )
 
     // 2. Culling and Sorting
-    val visibleFaces =
-        getVisibleAndSortedFaces(
-            color = color,
-            rotatedVertices = paints.rotatedVertices
-        )
+    val visibleFaces = getVisibleAndSortedFaces(
+        color = color,
+        rotatedVertices = paints.rotatedVertices
+    )
 
     // 3. Rendering
     visibleFaces.forEach { (face, normal, _) ->
@@ -138,28 +140,26 @@ private fun getVisibleAndSortedFaces(
     color: Color,
     rotatedVertices: List<Point3D>
 ): List<Triple<PolyhedronFace, Point3D, Double>> {
-    val faces =
-        IcosahedronGeometry.faceIndices.mapIndexed { index, indices ->
-            PolyhedronFace(indices, color, (index + 1).toString())
+    val faces = IcosahedronGeometry.faceIndices.mapIndexed { index, indices ->
+        PolyhedronFace(indices, color, (index + 1).toString())
+    }
+
+    return faces.mapNotNull { face ->
+        val vIndices = face.vertexIndices
+        val v0 = rotatedVertices[vIndices[0]]
+        val v1 = rotatedVertices[vIndices[1]]
+        val v2 = rotatedVertices[vIndices[2]]
+
+        val normalZ = calculateNormalZ(v0, v1, v2)
+
+        if (normalZ > 0) {
+            val normal = (v1 - v0).cross(v2 - v0).normalize()
+            val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
+            Triple(face, normal, avgDepth)
+        } else {
+            null
         }
-
-    return faces
-        .mapNotNull { face ->
-            val vIndices = face.vertexIndices
-            val v0 = rotatedVertices[vIndices[0]]
-            val v1 = rotatedVertices[vIndices[1]]
-            val v2 = rotatedVertices[vIndices[2]]
-
-            val normalZ = calculateNormalZ(v0, v1, v2)
-
-            if (normalZ > 0) {
-                val normal = (v1 - v0).cross(v2 - v0).normalize()
-                val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
-                Triple(face, normal, avgDepth)
-            } else {
-                null
-            }
-        }.sortedBy { it.third }
+    }.sortedBy { it.third }
 }
 
 /**
@@ -190,11 +190,10 @@ private fun calculateShadedColor(
     baseColor: Color,
     normal: Point3D
 ): Color {
-    val intensity =
-        normal.dot(LIGHT_SOURCE).coerceIn(
-            DiceConstants.MIN_SHADING_INTENSITY,
-            DiceConstants.MAX_SHADING_INTENSITY
-        )
+    val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
+        DiceConstants.MIN_SHADING_INTENSITY,
+        DiceConstants.MAX_SHADING_INTENSITY
+    )
     return baseColor.shade(intensity)
 }
 
@@ -267,9 +266,10 @@ private fun drawFaceLabel(
 
         // Draw underline for 6 and 9 to distinguish them
         if (label == "6" || label == "9") {
-            val textY = -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 + DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT
+            val textY =
+                -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 + DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT
             val underlineY = textY + paints.textPaint.descent() + DiceConstants.D20_UNDERLINE_TOP_OFFSET_UV
-            
+
             drawRect(
                 -DiceConstants.D20_UNDERLINE_WIDTH_UV / 2,
                 underlineY,

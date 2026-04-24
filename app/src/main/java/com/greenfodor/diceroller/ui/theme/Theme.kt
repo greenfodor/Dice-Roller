@@ -37,52 +37,48 @@ data class DiceColors(
 
 val LocalDiceColors = staticCompositionLocalOf { DiceColors() }
 
-private val DarkDiceColors =
-    DiceColors(
-        face1 = DiceRedDark,
-        face2 = DiceTealDark,
-        face3 = DiceYellowDark,
-        face4 = DiceGreenDark,
-        face5 = DiceMintDark,
-        face6 = DiceLavenderDark
-    )
+private val DarkDiceColors = DiceColors(
+    face1 = DiceRedDark,
+    face2 = DiceTealDark,
+    face3 = DiceYellowDark,
+    face4 = DiceGreenDark,
+    face5 = DiceMintDark,
+    face6 = DiceLavenderDark
+)
 
-private val LightDiceColors =
-    DiceColors(
-        face1 = DiceRed,
-        face2 = DiceTeal,
-        face3 = DiceYellow,
-        face4 = DiceGreen,
-        face5 = DiceMint,
-        face6 = DiceLavender
-    )
+private val LightDiceColors = DiceColors(
+    face1 = DiceRed,
+    face2 = DiceTeal,
+    face3 = DiceYellow,
+    face4 = DiceGreen,
+    face5 = DiceMint,
+    face6 = DiceLavender
+)
 
-private val DarkColorScheme =
-    darkColorScheme(
-        primary = Purple80,
-        secondary = PurpleGrey80,
-        tertiary = Pink80
-    )
+private val DarkColorScheme = darkColorScheme(
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80
+)
 
-private val LightColorScheme =
-    lightColorScheme(
-        primary = Purple40,
-        secondary = PurpleGrey40,
-        tertiary = Pink40
-    )
+private val LightColorScheme = lightColorScheme(
+    primary = Purple40,
+    secondary = PurpleGrey40,
+    tertiary = Pink40
+)
 
 private fun getTargetColorScheme(
     isDark: Boolean,
     dynamicColor: Boolean,
     context: Context
-): ColorScheme =
-    when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        isDark -> DarkColorScheme
-        else -> LightColorScheme
+): ColorScheme = when {
+    dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     }
+
+    isDark -> DarkColorScheme
+    else -> LightColorScheme
+}
 
 @Composable
 private fun Transition<Boolean>.animateColorProp(
@@ -120,12 +116,11 @@ private fun Transition<Boolean>.animateColorScheme(dynamicColor: Boolean): Color
         secondary = animateColorProp("secondary", dynamicColor, context) { it.secondary },
         onSecondary = animateColorProp("onSecondary", dynamicColor, context) { it.onSecondary },
         secondaryContainer = animateColorProp("secondaryContainer", dynamicColor, context) { it.secondaryContainer },
-        onSecondaryContainer =
-            animateColorProp(
-                "onSecondaryContainer",
-                dynamicColor,
-                context
-            ) { it.onSecondaryContainer },
+        onSecondaryContainer = animateColorProp(
+            "onSecondaryContainer",
+            dynamicColor,
+            context
+        ) { it.onSecondaryContainer },
         tertiary = animateColorProp("tertiary", dynamicColor, context) { it.tertiary },
         onTertiary = animateColorProp("onTertiary", dynamicColor, context) { it.onTertiary },
         tertiaryContainer = animateColorProp("tertiaryContainer", dynamicColor, context) { it.tertiaryContainer },

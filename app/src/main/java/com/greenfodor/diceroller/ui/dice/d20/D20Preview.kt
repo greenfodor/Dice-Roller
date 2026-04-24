@@ -34,18 +34,16 @@ private fun D20StaticPreview(
     val primaryColor = MaterialTheme.colorScheme.primary
 
     Box(
-        modifier =
-            modifier
-                .size(150.dp)
-                .background(color = MaterialTheme.colorScheme.background),
+        modifier = modifier
+            .size(150.dp)
+            .background(color = MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Canvas(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .graphicsLayer { clip = false }
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .graphicsLayer { clip = false }
         ) {
             drawD20(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,

@@ -36,10 +36,9 @@ private fun D6StaticPreview(
     val paints = remember { CubePaints() }
 
     Box(
-        modifier =
-            modifier
-                .size(150.dp)
-                .background(color = MaterialTheme.colorScheme.background),
+        modifier = modifier
+            .size(150.dp)
+            .background(color = MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Canvas(

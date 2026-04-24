@@ -37,10 +37,9 @@ fun D20Screen() {
     })
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.background),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

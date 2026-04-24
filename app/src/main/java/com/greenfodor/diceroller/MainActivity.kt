@@ -45,10 +45,9 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     Column(
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
                     ) {
                         when (selectedDiceType) {
                             DiceType.SINGLE_D6 -> D6Screen()
