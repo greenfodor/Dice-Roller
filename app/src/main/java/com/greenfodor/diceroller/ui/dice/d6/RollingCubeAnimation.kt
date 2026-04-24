@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
+import com.greenfodor.diceroller.ui.theme.spacing
 
 @Composable
 fun RollingCubeAnimation(
@@ -51,7 +53,7 @@ fun RollingCubeAnimation(
     Canvas(
         modifier = modifier
             .size(150.dp)
-            .padding(16.dp)
+            .padding(MaterialTheme.spacing.medium)
             .graphicsLayer { clip = false }
     ) {
         drawCube(

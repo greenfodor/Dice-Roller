@@ -32,6 +32,6 @@ class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
 
     companion object {
         private const val SHAKE_THRESHOLD = 12f  // m/s²
-        private const val SHAKE_COOLDOWN_MS = 1000L
+        private const val SHAKE_COOLDOWN_MS = 1_000L
     }
 }
