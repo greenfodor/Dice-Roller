@@ -7,7 +7,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DieDefinitionTest {
-
     @Test
     fun `D6 definition is valid`() {
         validateDie(D6, expectedFaceCount = 6)
@@ -18,15 +17,25 @@ class DieDefinitionTest {
         validateDie(D20, expectedFaceCount = 20)
     }
 
-    private fun validateDie(die: DieDefinition, expectedFaceCount: Int) {
+    private fun validateDie(
+        die: DieDefinition,
+        expectedFaceCount: Int
+    ) {
         assertEquals("Die ${die.name} should have $expectedFaceCount faces", expectedFaceCount, die.faces.size)
-        
+
         val values = die.faces.map { it.value }
-        
+
         // Check for correct range
-        assertTrue("Die ${die.name} values should be in range 1..$expectedFaceCount", values.all { it in 1..expectedFaceCount })
-        
+        assertTrue(
+            "Die ${die.name} values should be in range 1..$expectedFaceCount",
+            values.all { it in 1..expectedFaceCount }
+        )
+
         // Check for duplicates
-        assertEquals("Die ${die.name} should not have duplicate face values", expectedFaceCount, values.distinct().size)
+        assertEquals(
+            "Die ${die.name} should not have duplicate face values",
+            expectedFaceCount,
+            values.distinct().size
+        )
     }
 }

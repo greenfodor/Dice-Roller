@@ -37,18 +37,22 @@ object DiceConstants {
     const val D20_TEXT_BASELINE_ADJUSTMENT = 10f
     const val D20_FACE_ALPHA = 0.9f
     const val D20_STROKE_ALPHA = 0.3f
-    
+
     // UV space triangle for D20 (radius 100)
     const val D20_UV_X = 86.6f
     const val D20_UV_Y_TOP = -100f
     const val D20_UV_Y_BOTTOM = 50f
     const val D20_UV_X_TOP = 0f
 
-    val D20_SRC_TRIANGLE = floatArrayOf(
-        D20_UV_X_TOP, D20_UV_Y_TOP,
-        D20_UV_X, D20_UV_Y_BOTTOM,
-        -D20_UV_X, D20_UV_Y_BOTTOM
-    )
+    val D20_SRC_TRIANGLE =
+        floatArrayOf(
+            D20_UV_X_TOP,
+            D20_UV_Y_TOP,
+            D20_UV_X,
+            D20_UV_Y_BOTTOM,
+            -D20_UV_X,
+            D20_UV_Y_BOTTOM,
+        )
 
     val LIGHT_SOURCE by lazy { Point3D(0.5f, -1f, 1.5f).normalize() }
 }

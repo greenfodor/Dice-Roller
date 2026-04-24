@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ShakeDetectorTest {
-
     @Test
     fun `static gravity results in zero acceleration`() {
         // Device sitting flat on table
@@ -18,7 +17,7 @@ class ShakeDetectorTest {
     fun `shake on X axis results in positive acceleration`() {
         // Device moved quickly sideways
         val acc = ShakeDetector.calculateAcceleration(15f, 0f, SensorManager.GRAVITY_EARTH)
-        
+
         // sqrt(15^2 + 9.8^2) - 9.8 = sqrt(225 + 96.04) - 9.8 = 17.91 - 9.8 = 8.11
         assertEquals(8.11f, acc, 0.01f)
     }

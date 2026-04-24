@@ -32,23 +32,24 @@ import android.graphics.Paint as NativePaint
 class D20Paints {
     /** Paint for the main face surface (fill). */
     val face = Paint()
-    
+
     /** Paint for the face borders (stroke). */
     val stroke = Paint()
-    
+
     /** Native Paint for number rendering with high-quality antialiasing. */
-    val textPaint = NativePaint().apply {
-        textAlign = NativePaint.Align.CENTER
-        isAntiAlias = true
-        typeface = Typeface.DEFAULT_BOLD
-    }
-    
+    val textPaint =
+        NativePaint().apply {
+            textAlign = NativePaint.Align.CENTER
+            isAntiAlias = true
+            typeface = Typeface.DEFAULT_BOLD
+        }
+
     /** Temporary buffer for matrix destination coordinates to avoid allocations. */
     val dstArray = FloatArray(6)
 
     /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
     val rotatedVertices = ArrayList<Point3D>(12).apply { repeat(12) { add(Point3D(0f, 0f, 0f)) } }
-    
+
     /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
     val projectedVertices = ArrayList<Point2D>(12).apply { repeat(12) { add(Point2D(0f, 0f)) } }
 }
@@ -85,14 +86,15 @@ fun DrawScope.drawD20(
         rotationX = rotationX,
         rotationY = rotationY,
         rotationZ = rotationZ,
-        paints = paints
+        paints = paints,
     )
 
     // 2. Culling and Sorting
-    val visibleFaces = getVisibleAndSortedFaces(
-        color = color,
-        rotatedVertices = paints.rotatedVertices
-    )
+    val visibleFaces =
+        getVisibleAndSortedFaces(
+            color = color,
+            rotatedVertices = paints.rotatedVertices,
+        )
 
     // 3. Rendering
     visibleFaces.forEach { (face, normal, _) ->
@@ -101,7 +103,7 @@ fun DrawScope.drawD20(
             normal = normal,
             projectedVertices = paints.projectedVertices,
             facePath = facePath,
-            paints = paints
+            paints = paints,
         )
     }
 }
@@ -120,7 +122,7 @@ private fun calculateGeometry(
     paints: D20Paints
 ) {
     val scaleFactor = size / 2f
-    
+
     IcosahedronGeometry.vertices.forEachIndexed { index, baseV ->
         val v = baseV * scaleFactor
         val rotated = v.rotatePoint(rotationX, rotationY, rotationZ)
@@ -136,24 +138,28 @@ private fun getVisibleAndSortedFaces(
     color: Color,
     rotatedVertices: List<Point3D>
 ): List<Triple<PolyhedronFace, Point3D, Double>> {
-    val faces = IcosahedronGeometry.faceIndices.mapIndexed { index, indices ->
-        PolyhedronFace(indices, color, (index + 1).toString())
-    }
+    val faces =
+        IcosahedronGeometry.faceIndices.mapIndexed { index, indices ->
+            PolyhedronFace(indices, color, (index + 1).toString())
+        }
 
-    return faces.mapNotNull { face ->
-        val vIndices = face.vertexIndices
-        val v0 = rotatedVertices[vIndices[0]]
-        val v1 = rotatedVertices[vIndices[1]]
-        val v2 = rotatedVertices[vIndices[2]]
+    return faces
+        .mapNotNull { face ->
+            val vIndices = face.vertexIndices
+            val v0 = rotatedVertices[vIndices[0]]
+            val v1 = rotatedVertices[vIndices[1]]
+            val v2 = rotatedVertices[vIndices[2]]
 
-        val normalZ = calculateNormalZ(v0, v1, v2)
-        
-        if (normalZ > 0) {
-            val normal = (v1 - v0).cross(v2 - v0).normalize()
-            val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
-            Triple(face, normal, avgDepth)
-        } else null
-    }.sortedBy { it.third }
+            val normalZ = calculateNormalZ(v0, v1, v2)
+
+            if (normalZ > 0) {
+                val normal = (v1 - v0).cross(v2 - v0).normalize()
+                val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
+                Triple(face, normal, avgDepth)
+            } else {
+                null
+            }
+        }.sortedBy { it.third }
 }
 
 /**
@@ -180,11 +186,15 @@ private fun DrawScope.renderD20Face(
 /**
  * Calculates the face color based on its normal relative to the light source.
  */
-private fun calculateShadedColor(baseColor: Color, normal: Point3D): Color {
-    val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
-        DiceConstants.MIN_SHADING_INTENSITY,
-        DiceConstants.MAX_SHADING_INTENSITY
-    )
+private fun calculateShadedColor(
+    baseColor: Color,
+    normal: Point3D
+): Color {
+    val intensity =
+        normal.dot(LIGHT_SOURCE).coerceIn(
+            DiceConstants.MIN_SHADING_INTENSITY,
+            DiceConstants.MAX_SHADING_INTENSITY,
+        )
     return baseColor.shade(intensity)
 }
 
@@ -247,12 +257,12 @@ private fun drawFaceLabel(
             color = Color.White.copy(alpha = DiceConstants.D20_FACE_ALPHA).toArgb()
             textSize = DiceConstants.D20_TEXT_SIZE_UV
         }
-        
+
         drawText(
             label,
             0f,
             -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 + DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT,
-            paints.textPaint
+            paints.textPaint,
         )
     }
 }

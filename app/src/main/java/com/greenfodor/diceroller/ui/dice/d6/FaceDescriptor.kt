@@ -1,7 +1,7 @@
 package com.greenfodor.diceroller.ui.dice.d6
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import com.greenfodor.diceroller.ui.DiceConstants
 
 /**
@@ -24,27 +24,46 @@ data class FaceDescriptor(
 object DotLayouts {
     private const val S = DiceConstants.DOT_SPACING_FACTOR
 
-    val positions: Map<Int, List<Offset>> = mapOf(
-        1 to listOf(
-            Offset(0f, 0f)
-        ),
-        2 to listOf(
-            Offset(-S, S), Offset(S, -S)
-        ),
-        3 to listOf(
-            Offset(-S, S), Offset(0f, 0f), Offset(S, -S)
-        ),
-        4 to listOf(
-            Offset(-S, -S), Offset(S, -S),
-            Offset(-S, S),  Offset(S, S)
-        ),
-        5 to listOf(
-            Offset(-S, -S), Offset(S, -S), Offset(0f, 0f),
-            Offset(-S, S),  Offset(S, S)
-        ),
-        6 to listOf(
-            Offset(-S, -S), Offset(-S, 0f), Offset(-S, S),
-            Offset(S, -S),  Offset(S, 0f),  Offset(S, S)
+    val positions: Map<Int, List<Offset>> =
+        mapOf(
+            1 to
+                listOf(
+                    Offset(0f, 0f),
+                ),
+            2 to
+                listOf(
+                    Offset(-S, S),
+                    Offset(S, -S),
+                ),
+            3 to
+                listOf(
+                    Offset(-S, S),
+                    Offset(0f, 0f),
+                    Offset(S, -S),
+                ),
+            4 to
+                listOf(
+                    Offset(-S, -S),
+                    Offset(S, -S),
+                    Offset(-S, S),
+                    Offset(S, S),
+                ),
+            5 to
+                listOf(
+                    Offset(-S, -S),
+                    Offset(S, -S),
+                    Offset(0f, 0f),
+                    Offset(-S, S),
+                    Offset(S, S),
+                ),
+            6 to
+                listOf(
+                    Offset(-S, -S),
+                    Offset(-S, 0f),
+                    Offset(-S, S),
+                    Offset(S, -S),
+                    Offset(S, 0f),
+                    Offset(S, S),
+                ),
         )
-    )
 }

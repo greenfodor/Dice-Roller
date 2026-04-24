@@ -27,6 +27,8 @@ proguard/
 # Android Studio captures folder
 captures/
 
+# Kotlin
+.kotlin/sessions
 # IntelliJ
 .idea/
 *.iml

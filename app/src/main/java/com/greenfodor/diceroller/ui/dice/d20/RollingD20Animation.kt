@@ -35,40 +35,44 @@ fun RollingD20Animation(
 
     val rotationX by animateFloatAsState(
         targetValue = diceState.targetRotationX,
-        animationSpec = tween(
-            durationMillis = diceSpecs.rollDurationMillis,
-            easing = FastOutSlowInEasing
-        ),
-        label = "rotationX"
+        animationSpec =
+            tween(
+                durationMillis = diceSpecs.rollDurationMillis,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "rotationX",
     )
 
     val rotationY by animateFloatAsState(
         targetValue = diceState.targetRotationY,
-        animationSpec = tween(
-            durationMillis = diceSpecs.rollDurationMillis,
-            easing = FastOutSlowInEasing
-        ),
-        label = "rotationY"
+        animationSpec =
+            tween(
+                durationMillis = diceSpecs.rollDurationMillis,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "rotationY",
     )
 
     val rotationZ by animateFloatAsState(
         targetValue = diceState.targetRotationZ,
-        animationSpec = tween(
-            durationMillis = diceSpecs.rollDurationMillis,
-            easing = FastOutSlowInEasing
-        ),
-        label = "rotationZ"
+        animationSpec =
+            tween(
+                durationMillis = diceSpecs.rollDurationMillis,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "rotationZ",
     )
 
     diceState.isRolling = rotationX != diceState.targetRotationX ||
-            rotationY != diceState.targetRotationY ||
-            rotationZ != diceState.targetRotationZ
+        rotationY != diceState.targetRotationY ||
+        rotationZ != diceState.targetRotationZ
 
     Canvas(
-        modifier = modifier
-            .size(diceSpecs.canvasSize)
-            .padding(MaterialTheme.spacing.medium)
-            .graphicsLayer { clip = false }
+        modifier =
+            modifier
+                .size(diceSpecs.canvasSize)
+                .padding(MaterialTheme.spacing.medium)
+                .graphicsLayer { clip = false },
     ) {
         drawD20(
             size = diceSpecs.diceInternalSize,
@@ -79,7 +83,7 @@ fun RollingD20Animation(
             rotationZ = rotationZ,
             facePath = facePath,
             paints = paints,
-            color = primaryColor
+            color = primaryColor,
         )
     }
 }

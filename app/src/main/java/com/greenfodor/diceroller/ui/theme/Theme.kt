@@ -37,49 +37,52 @@ data class DiceColors(
 
 val LocalDiceColors = staticCompositionLocalOf { DiceColors() }
 
-private val DarkDiceColors = DiceColors(
-    face1 = DiceRedDark,
-    face2 = DiceTealDark,
-    face3 = DiceYellowDark,
-    face4 = DiceGreenDark,
-    face5 = DiceMintDark,
-    face6 = DiceLavenderDark
-)
+private val DarkDiceColors =
+    DiceColors(
+        face1 = DiceRedDark,
+        face2 = DiceTealDark,
+        face3 = DiceYellowDark,
+        face4 = DiceGreenDark,
+        face5 = DiceMintDark,
+        face6 = DiceLavenderDark,
+    )
 
-private val LightDiceColors = DiceColors(
-    face1 = DiceRed,
-    face2 = DiceTeal,
-    face3 = DiceYellow,
-    face4 = DiceGreen,
-    face5 = DiceMint,
-    face6 = DiceLavender
-)
+private val LightDiceColors =
+    DiceColors(
+        face1 = DiceRed,
+        face2 = DiceTeal,
+        face3 = DiceYellow,
+        face4 = DiceGreen,
+        face5 = DiceMint,
+        face6 = DiceLavender,
+    )
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
+private val DarkColorScheme =
+    darkColorScheme(
+        primary = Purple80,
+        secondary = PurpleGrey80,
+        tertiary = Pink80,
+    )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-)
+private val LightColorScheme =
+    lightColorScheme(
+        primary = Purple40,
+        secondary = PurpleGrey40,
+        tertiary = Pink40,
+    )
 
 private fun getTargetColorScheme(
     isDark: Boolean,
     dynamicColor: Boolean,
     context: Context
-): ColorScheme {
-    return when {
+): ColorScheme =
+    when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         isDark -> DarkColorScheme
         else -> LightColorScheme
     }
-}
 
 @Composable
 private fun Transition<Boolean>.animateColorProp(
@@ -91,7 +94,7 @@ private fun Transition<Boolean>.animateColorProp(
     val duration = DiceConstants.THEME_TRANSITION_DURATION_MILLIS
     return animateColor(
         transitionSpec = { tween(duration) },
-        label = label
+        label = label,
     ) { isDark ->
         prop(getTargetColorScheme(isDark, dynamicColor, context))
     }.value
@@ -104,9 +107,7 @@ private fun Transition<Boolean>.animateColorProp(
  * transitions between color palettes instead of snapping instantly.
  */
 @Composable
-private fun Transition<Boolean>.animateColorScheme(
-    dynamicColor: Boolean
-): ColorScheme {
+private fun Transition<Boolean>.animateColorScheme(dynamicColor: Boolean): ColorScheme {
     val context = LocalContext.current
     val target = getTargetColorScheme(targetState, dynamicColor, context)
 
@@ -119,7 +120,12 @@ private fun Transition<Boolean>.animateColorScheme(
         secondary = animateColorProp("secondary", dynamicColor, context) { it.secondary },
         onSecondary = animateColorProp("onSecondary", dynamicColor, context) { it.onSecondary },
         secondaryContainer = animateColorProp("secondaryContainer", dynamicColor, context) { it.secondaryContainer },
-        onSecondaryContainer = animateColorProp("onSecondaryContainer", dynamicColor, context) { it.onSecondaryContainer },
+        onSecondaryContainer =
+            animateColorProp(
+                "onSecondaryContainer",
+                dynamicColor,
+                context
+            ) { it.onSecondaryContainer },
         tertiary = animateColorProp("tertiary", dynamicColor, context) { it.tertiary },
         onTertiary = animateColorProp("onTertiary", dynamicColor, context) { it.onTertiary },
         tertiaryContainer = animateColorProp("tertiaryContainer", dynamicColor, context) { it.tertiaryContainer },
@@ -139,7 +145,7 @@ private fun Transition<Boolean>.animateColorScheme(
         onErrorContainer = animateColorProp("onErrorContainer", dynamicColor, context) { it.onErrorContainer },
         outline = animateColorProp("outline", dynamicColor, context) { it.outline },
         outlineVariant = animateColorProp("outlineVariant", dynamicColor, context) { it.outlineVariant },
-        scrim = animateColorProp("scrim", dynamicColor, context) { it.scrim }
+        scrim = animateColorProp("scrim", dynamicColor, context) { it.scrim },
     )
 }
 
@@ -165,31 +171,44 @@ fun DiceRollerTheme(
 
     val colorScheme = transition.animateColorScheme(dynamicColor)
 
-    val diceColors = DiceColors(
-        face1 = transition.animateColor(label = "face1", transitionSpec = { tween(duration) }) { isDark ->
-            if (isDark) LightDiceColors.face1 else DarkDiceColors.face1
-        }.value,
-        face2 = transition.animateColor(label = "face2", transitionSpec = { tween(duration) }) { isDark ->
-            if (isDark) LightDiceColors.face2 else DarkDiceColors.face2
-        }.value,
-        face3 = transition.animateColor(label = "face3", transitionSpec = { tween(duration) }) { isDark ->
-            if (isDark) LightDiceColors.face3 else DarkDiceColors.face3
-        }.value,
-        face4 = transition.animateColor(label = "face4", transitionSpec = { tween(duration) }) { isDark ->
-            if (isDark) LightDiceColors.face4 else DarkDiceColors.face4
-        }.value,
-        face5 = transition.animateColor(label = "face5", transitionSpec = { tween(duration) }) { isDark ->
-            if (isDark) LightDiceColors.face5 else DarkDiceColors.face5
-        }.value,
-        face6 = transition.animateColor(label = "face6", transitionSpec = { tween(duration) }) { isDark ->
-            if (isDark) LightDiceColors.face6 else DarkDiceColors.face6
-        }.value
-    )
+    val diceColors =
+        DiceColors(
+            face1 =
+                transition
+                    .animateColor(label = "face1", transitionSpec = { tween(duration) }) { isDark ->
+                        if (isDark) LightDiceColors.face1 else DarkDiceColors.face1
+                    }.value,
+            face2 =
+                transition
+                    .animateColor(label = "face2", transitionSpec = { tween(duration) }) { isDark ->
+                        if (isDark) LightDiceColors.face2 else DarkDiceColors.face2
+                    }.value,
+            face3 =
+                transition
+                    .animateColor(label = "face3", transitionSpec = { tween(duration) }) { isDark ->
+                        if (isDark) LightDiceColors.face3 else DarkDiceColors.face3
+                    }.value,
+            face4 =
+                transition
+                    .animateColor(label = "face4", transitionSpec = { tween(duration) }) { isDark ->
+                        if (isDark) LightDiceColors.face4 else DarkDiceColors.face4
+                    }.value,
+            face5 =
+                transition
+                    .animateColor(label = "face5", transitionSpec = { tween(duration) }) { isDark ->
+                        if (isDark) LightDiceColors.face5 else DarkDiceColors.face5
+                    }.value,
+            face6 =
+                transition
+                    .animateColor(label = "face6", transitionSpec = { tween(duration) }) { isDark ->
+                        if (isDark) LightDiceColors.face6 else DarkDiceColors.face6
+                    }.value,
+        )
 
     CompositionLocalProvider(
         LocalDiceColors provides diceColors,
         LocalSpacing provides Spacing(),
-        LocalDiceSpecs provides DiceSpecs()
+        LocalDiceSpecs provides DiceSpecs(),
     ) {
         val view = LocalView.current
         if (view.isInEditMode.not()) {
@@ -203,7 +222,7 @@ fun DiceRollerTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
-            content = content
+            content = content,
         )
     }
 }

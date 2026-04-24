@@ -36,16 +36,18 @@ private fun D6StaticPreview(
     val paints = remember { CubePaints() }
 
     Box(
-        modifier = modifier
-            .size(150.dp)
-            .background(color = MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .size(150.dp)
+                .background(color = MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center,
     ) {
         Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .graphicsLayer { clip = false }
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .graphicsLayer { clip = false },
         ) {
             drawCube(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
@@ -56,7 +58,7 @@ private fun D6StaticPreview(
                 facePath = facePath,
                 dotPath = dotPath,
                 paints = paints,
-                diceColors = diceColors
+                diceColors = diceColors,
             )
         }
     }

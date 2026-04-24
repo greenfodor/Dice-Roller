@@ -40,14 +40,15 @@ class MainActivity : ComponentActivity() {
                             selectedDiceType = selectedDiceType,
                             onDiceTypeSelected = { selectedDiceType = it },
                             isDarkMode = isDarkMode,
-                            onToggleTheme = { isDarkMode = isDarkMode.not() }
+                            onToggleTheme = { isDarkMode = isDarkMode.not() },
                         )
-                    }
+                    },
                 ) { innerPadding ->
                     Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
                     ) {
                         when (selectedDiceType) {
                             DiceType.SINGLE_D6 -> D6Screen()

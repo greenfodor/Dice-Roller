@@ -61,7 +61,7 @@ fun DiceRollerTopBar(
     val rotation by animateFloatAsState(
         targetValue = if (isDarkMode) 180f else 0f,
         animationSpec = tween(durationMillis = DiceConstants.ICON_ROTATION_DURATION_MILLIS),
-        label = "iconRotation"
+        label = "iconRotation",
     )
 
     TopAppBar(
@@ -70,22 +70,23 @@ fun DiceRollerTopBar(
         navigationIcon = {
             DiceTypeDropDown(
                 selectedDiceType = selectedDiceType,
-                onDiceTypeSelected = onDiceTypeSelected
+                onDiceTypeSelected = onDiceTypeSelected,
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            actionIconContentColor = MaterialTheme.colorScheme.onBackground,
-        ),
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                actionIconContentColor = MaterialTheme.colorScheme.onBackground,
+            ),
         actions = {
             IconButton(onClick = onToggleTheme) {
                 Icon(
                     imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                     contentDescription = "Toggle Theme",
-                    modifier = Modifier.rotate(rotation)
+                    modifier = Modifier.rotate(rotation),
                 )
             }
-        }
+        },
     )
 }
 
@@ -103,18 +104,18 @@ private fun DiceTypeDropDown(
                 Text(
                     text = stringResource(selectedDiceType.labelResId),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = MaterialTheme.colorScheme.onBackground,
                 )
             }
         }
         DropdownMenu(
             expanded = isMenuExpanded,
-            onDismissRequest = { isMenuExpanded = false }
+            onDismissRequest = { isMenuExpanded = false },
         ) {
             DiceType.entries.forEach { dice ->
                 DropdownMenuItem(
@@ -122,7 +123,7 @@ private fun DiceTypeDropDown(
                     onClick = {
                         onDiceTypeSelected(dice)
                         isMenuExpanded = false
-                    }
+                    },
                 )
             }
         }
@@ -138,7 +139,7 @@ private fun DiceRollerTopBarPreview() {
             selectedDiceType = DiceType.SINGLE_D6,
             onDiceTypeSelected = {},
             isDarkMode = isSystemInDarkTheme(),
-            onToggleTheme = {}
+            onToggleTheme = {},
         )
     }
 }

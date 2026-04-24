@@ -16,18 +16,20 @@ import kotlin.math.sqrt
  *
  * @param onShake Callback invoked when a shake is detected.
  */
-class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
-
+class ShakeDetector(
+    private val onShake: () -> Unit
+) : SensorEventListener {
     private var lastShakeTime = 0L
 
     override fun onSensorChanged(event: SensorEvent) {
         if (event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
 
-        val acceleration = calculateAcceleration(
-            x = event.values[0],
-            y = event.values[1],
-            z = event.values[2]
-        )
+        val acceleration =
+            calculateAcceleration(
+                x = event.values[0],
+                y = event.values[1],
+                z = event.values[2],
+            )
 
         if (acceleration > SHAKE_THRESHOLD) {
             val now = System.currentTimeMillis()
@@ -38,18 +40,23 @@ class ShakeDetector(private val onShake: () -> Unit) : SensorEventListener {
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+    override fun onAccuracyChanged(
+        sensor: Sensor?,
+        accuracy: Int
+    ) = Unit
 
     companion object {
-        private const val SHAKE_THRESHOLD = 12f  // m/s²
+        private const val SHAKE_THRESHOLD = 12f // m/s²
         private const val SHAKE_COOLDOWN_MS = 1_000L
 
         /**
          * Calculates the net acceleration felt by the device, excluding gravity.
          */
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        fun calculateAcceleration(x: Float, y: Float, z: Float): Float {
-            return sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH
-        }
+        fun calculateAcceleration(
+            x: Float,
+            y: Float,
+            z: Float
+        ): Float = sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH
     }
 }

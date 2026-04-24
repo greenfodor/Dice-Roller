@@ -33,7 +33,7 @@ fun rememberShakeDetector(onShake: () -> Unit) {
         sensorManager?.registerListener(
             detector,
             accelerometer,
-            SensorManager.SENSOR_DELAY_UI
+            SensorManager.SENSOR_DELAY_UI,
         )
 
         onDispose {

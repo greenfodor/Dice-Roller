@@ -30,31 +30,34 @@ fun RollingCubeAnimation(
 
     val rotationX by animateFloatAsState(
         targetValue = cubeState.targetRotationX,
-        animationSpec = tween(
-            durationMillis = diceSpecs.rollDurationMillis,
-            easing = FastOutSlowInEasing
-        ),
-        label = "rotationX"
+        animationSpec =
+            tween(
+                durationMillis = diceSpecs.rollDurationMillis,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "rotationX",
     )
 
     val rotationY by animateFloatAsState(
         targetValue = cubeState.targetRotationY,
-        animationSpec = tween(
-            durationMillis = diceSpecs.rollDurationMillis,
-            easing = FastOutSlowInEasing
-        ),
-        label = "rotationY"
+        animationSpec =
+            tween(
+                durationMillis = diceSpecs.rollDurationMillis,
+                easing = FastOutSlowInEasing,
+            ),
+        label = "rotationY",
     )
 
     // Publish rolling state back to the caller via the state object
     cubeState.isRolling = rotationX != cubeState.targetRotationX ||
-            rotationY != cubeState.targetRotationY
+        rotationY != cubeState.targetRotationY
 
     Canvas(
-        modifier = modifier
-            .size(diceSpecs.canvasSize)
-            .padding(MaterialTheme.spacing.medium)
-            .graphicsLayer { clip = false }
+        modifier =
+            modifier
+                .size(diceSpecs.canvasSize)
+                .padding(MaterialTheme.spacing.medium)
+                .graphicsLayer { clip = false },
     ) {
         drawCube(
             size = diceSpecs.diceInternalSize,
@@ -65,7 +68,7 @@ fun RollingCubeAnimation(
             facePath = facePath,
             dotPath = dotPath,
             paints = paints,
-            diceColors = diceColors
+            diceColors = diceColors,
         )
     }
 }

@@ -34,16 +34,18 @@ private fun D20StaticPreview(
     val primaryColor = MaterialTheme.colorScheme.primary
 
     Box(
-        modifier = modifier
-            .size(150.dp)
-            .background(color = MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
+        modifier =
+            modifier
+                .size(150.dp)
+                .background(color = MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center,
     ) {
         Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .graphicsLayer { clip = false }
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .graphicsLayer { clip = false },
         ) {
             drawD20(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
@@ -54,7 +56,7 @@ private fun D20StaticPreview(
                 rotationZ = rotationZ,
                 facePath = facePath,
                 paints = paints,
-                color = primaryColor
+                color = primaryColor,
             )
         }
     }
@@ -96,14 +98,38 @@ fun D20PreviewGrid() {
     DiceRollerTheme {
         Column {
             Row {
-                D20StaticPreview(rotationX = D20.faces[0].rotationX, rotationY = D20.faces[0].rotationY, rotationZ = D20.faces[0].rotationZ)
-                D20StaticPreview(rotationX = D20.faces[1].rotationX, rotationY = D20.faces[1].rotationY, rotationZ = D20.faces[1].rotationZ)
-                D20StaticPreview(rotationX = D20.faces[2].rotationX, rotationY = D20.faces[2].rotationY, rotationZ = D20.faces[2].rotationZ)
+                D20StaticPreview(
+                    rotationX = D20.faces[0].rotationX,
+                    rotationY = D20.faces[0].rotationY,
+                    rotationZ = D20.faces[0].rotationZ
+                )
+                D20StaticPreview(
+                    rotationX = D20.faces[1].rotationX,
+                    rotationY = D20.faces[1].rotationY,
+                    rotationZ = D20.faces[1].rotationZ
+                )
+                D20StaticPreview(
+                    rotationX = D20.faces[2].rotationX,
+                    rotationY = D20.faces[2].rotationY,
+                    rotationZ = D20.faces[2].rotationZ
+                )
             }
             Row {
-                D20StaticPreview(rotationX = D20.faces[3].rotationX, rotationY = D20.faces[3].rotationY, rotationZ = D20.faces[3].rotationZ)
-                D20StaticPreview(rotationX = D20.faces[4].rotationX, rotationY = D20.faces[4].rotationY, rotationZ = D20.faces[4].rotationZ)
-                D20StaticPreview(rotationX = D20.faces[5].rotationX, rotationY = D20.faces[5].rotationY, rotationZ = D20.faces[5].rotationZ)
+                D20StaticPreview(
+                    rotationX = D20.faces[3].rotationX,
+                    rotationY = D20.faces[3].rotationY,
+                    rotationZ = D20.faces[3].rotationZ
+                )
+                D20StaticPreview(
+                    rotationX = D20.faces[4].rotationX,
+                    rotationY = D20.faces[4].rotationY,
+                    rotationZ = D20.faces[4].rotationZ
+                )
+                D20StaticPreview(
+                    rotationX = D20.faces[5].rotationX,
+                    rotationY = D20.faces[5].rotationY,
+                    rotationZ = D20.faces[5].rotationZ
+                )
             }
         }
     }

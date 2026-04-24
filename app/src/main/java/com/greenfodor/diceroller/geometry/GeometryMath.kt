@@ -8,10 +8,15 @@ import kotlin.math.sqrt
 /**
  * Represents a point in 3D space.
  */
-data class Point3D(val x: Float, val y: Float, val z: Float) {
-
+data class Point3D(
+    val x: Float,
+    val y: Float,
+    val z: Float
+) {
     operator fun plus(other: Point3D) = Point3D(x + other.x, y + other.y, z + other.z)
+
     operator fun minus(other: Point3D) = Point3D(x - other.x, y - other.y, z - other.z)
+
     operator fun times(scalar: Float) = Point3D(x * scalar, y * scalar, z * scalar)
 
     /**
@@ -22,11 +27,12 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
     /**
      * Calculates the cross product between this vector and another.
      */
-    fun cross(other: Point3D) = Point3D(
-        y * other.z - z * other.y,
-        z * other.x - x * other.z,
-        x * other.y - y * other.x,
-    )
+    fun cross(other: Point3D) =
+        Point3D(
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x,
+        )
 
     /**
      * Returns a unit vector pointing in the same direction as this one.
@@ -40,12 +46,19 @@ data class Point3D(val x: Float, val y: Float, val z: Float) {
 /**
  * Represents a point in 2D screen space.
  */
-data class Point2D(val x: Float, val y: Float)
+data class Point2D(
+    val x: Float,
+    val y: Float
+)
 
 /**
  * Rotates a 3D point around the X, Y and Z axes in that order.
  */
-fun Point3D.rotatePoint(rotationX: Float, rotationY: Float, rotationZ: Float = 0f): Point3D {
+fun Point3D.rotatePoint(
+    rotationX: Float,
+    rotationY: Float,
+    rotationZ: Float = 0f
+): Point3D {
     val radX = Math.toRadians(rotationX.toDouble()).toFloat()
     val radY = Math.toRadians(rotationY.toDouble()).toFloat()
     val radZ = Math.toRadians(rotationZ.toDouble()).toFloat()
@@ -74,11 +87,14 @@ fun Point3D.rotatePoint(rotationX: Float, rotationY: Float, rotationZ: Float = 0
 /**
  * Projects a 3D point onto 2D screen space using perspective projection.
  */
-fun Point3D.projectPoint(centerX: Float, centerY: Float): Point2D {
+fun Point3D.projectPoint(
+    centerX: Float,
+    centerY: Float
+): Point2D {
     val scale = DiceConstants.FIELD_OF_VIEW / (DiceConstants.CAMERA_DISTANCE - z)
     return Point2D(
         x = centerX + x * scale,
-        y = centerY + y * scale
+        y = centerY + y * scale,
     )
 }
 
@@ -86,9 +102,11 @@ fun Point3D.projectPoint(centerX: Float, centerY: Float): Point2D {
  * Calculates the Z-component of the surface normal for a face defined by three vertices.
  * Used for back-face culling. If the result is positive, the face is pointing towards the camera.
  */
-fun calculateNormalZ(v0: Point3D, v1: Point3D, v3: Point3D): Float {
-    return (v1.x - v0.x) * (v3.y - v0.y) - (v1.y - v0.y) * (v3.x - v0.x)
-}
+fun calculateNormalZ(
+    v0: Point3D,
+    v1: Point3D,
+    v3: Point3D
+): Float = (v1.x - v0.x) * (v3.y - v0.y) - (v1.y - v0.y) * (v3.x - v0.x)
 
 /**
  * Maps a 2D face coordinate (u, v in [-1, 1]) to 3D world space

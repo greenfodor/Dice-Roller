@@ -5,7 +5,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GeometryTest {
-
     @Test
     fun `test Point3D vector operations`() {
         val p1 = Point3D(1f, 2f, 3f)
@@ -85,26 +84,28 @@ class GeometryTest {
 
     @Test
     fun `test back-face culling normal calculation for all faces`() {
-        val vertices = listOf(
-            Point3D(-1f, -1f, -1f), // 0
-            Point3D(1f, -1f, -1f),  // 1
-            Point3D(1f, 1f, -1f),   // 2
-            Point3D(-1f, 1f, -1f),  // 3
-            Point3D(-1f, -1f, 1f),  // 4
-            Point3D(1f, -1f, 1f),   // 5
-            Point3D(1f, 1f, 1f),    // 6
-            Point3D(-1f, 1f, 1f)    // 7
-        )
+        val vertices =
+            listOf(
+                Point3D(-1f, -1f, -1f), // 0
+                Point3D(1f, -1f, -1f), // 1
+                Point3D(1f, 1f, -1f), // 2
+                Point3D(-1f, 1f, -1f), // 3
+                Point3D(-1f, -1f, 1f), // 4
+                Point3D(1f, -1f, 1f), // 5
+                Point3D(1f, 1f, 1f), // 6
+                Point3D(-1f, 1f, 1f), // 7
+            )
 
         // Face definitions (must match CubeRenderer.kt)
-        val faceIndices = listOf(
-            listOf(4, 5, 6, 7), // Front  (Z+)
-            listOf(1, 0, 3, 2), // Back   (Z-)
-            listOf(0, 1, 5, 4), // Bottom (Y-)
-            listOf(7, 6, 2, 3), // Top    (Y+)
-            listOf(0, 4, 7, 3), // Left   (X-)
-            listOf(5, 1, 2, 6)  // Right  (X+)
-        )
+        val faceIndices =
+            listOf(
+                listOf(4, 5, 6, 7), // Front  (Z+)
+                listOf(1, 0, 3, 2), // Back   (Z-)
+                listOf(0, 1, 5, 4), // Bottom (Y-)
+                listOf(7, 6, 2, 3), // Top    (Y+)
+                listOf(0, 4, 7, 3), // Left   (X-)
+                listOf(5, 1, 2, 6), // Right  (X+)
+            )
 
         val faceNames = listOf("Front", "Back", "Bottom", "Top", "Left", "Right")
 
@@ -114,12 +115,12 @@ class GeometryTest {
             val v3 = vertices[indices[3]]
 
             val normal = (v1 - v0).cross(v3 - v0)
-            
+
             // For each face, the normal should point OUTWARD from the origin (0,0,0)
             // So dot product of normal and any vertex on that face should be positive.
             assertTrue(
                 "Face ${faceNames[index]} normal $normal should point outward",
-                normal.dot(v0) > 0
+                normal.dot(v0) > 0,
             )
         }
     }

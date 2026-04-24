@@ -46,8 +46,11 @@ internal fun DrawScope.drawDiceDotsOnFace(
             val point3D = interpolatePoint3DOnFace(u, v, vVertices, normalOffset)
             val projected = point3D.projectPoint(centerX, centerY)
 
-            if (i == 0) dotPath.moveTo(projected.x, projected.y)
-            else dotPath.lineTo(projected.x, projected.y)
+            if (i == 0) {
+                dotPath.moveTo(projected.x, projected.y)
+            } else {
+                dotPath.lineTo(projected.x, projected.y)
+            }
         }
         dotPath.close()
         drawPath(path = dotPath, color = dotColor)

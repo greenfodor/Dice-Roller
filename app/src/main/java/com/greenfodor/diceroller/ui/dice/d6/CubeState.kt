@@ -24,7 +24,9 @@ import kotlin.random.Random
  * Button(onClick = { cubeState.roll() })
  * ```
  */
-class CubeState(private val die: DieDefinition = D6) {
+class CubeState(
+    private val die: DieDefinition = D6
+) {
     var currentFace by mutableStateOf(die.faces.first())
         private set
 

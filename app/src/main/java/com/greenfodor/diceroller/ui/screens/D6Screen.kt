@@ -35,11 +35,12 @@ fun D6Screen() {
     })
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         RollingCubeAnimation(cubeState = cubeState)
 
@@ -47,7 +48,7 @@ fun D6Screen() {
 
         Button(
             onClick = { context.rollDice(cubeState) },
-            enabled = cubeState.isRolling.not()
+            enabled = cubeState.isRolling.not(),
         ) {
             Text(text = stringResource(R.string.roll_button_single))
         }
