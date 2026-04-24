@@ -13,9 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
-import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
+import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 
 @Composable
@@ -24,6 +23,7 @@ fun RollingCubeAnimation(
     modifier: Modifier = Modifier
 ) {
     val diceColors = LocalDiceColors.current
+    val diceSpecs = MaterialTheme.diceSpecs
     val facePath = remember { Path() }
     val dotPath = remember { Path() }
     val paints = remember { CubePaints() }
@@ -31,7 +31,7 @@ fun RollingCubeAnimation(
     val rotationX by animateFloatAsState(
         targetValue = cubeState.targetRotationX,
         animationSpec = tween(
-            durationMillis = DiceConstants.ROLL_DURATION_MILLIS,
+            durationMillis = diceSpecs.rollDurationMillis,
             easing = FastOutSlowInEasing
         ),
         label = "rotationX"
@@ -40,7 +40,7 @@ fun RollingCubeAnimation(
     val rotationY by animateFloatAsState(
         targetValue = cubeState.targetRotationY,
         animationSpec = tween(
-            durationMillis = DiceConstants.ROLL_DURATION_MILLIS,
+            durationMillis = diceSpecs.rollDurationMillis,
             easing = FastOutSlowInEasing
         ),
         label = "rotationY"
@@ -52,12 +52,12 @@ fun RollingCubeAnimation(
 
     Canvas(
         modifier = modifier
-            .size(150.dp)
+            .size(diceSpecs.canvasSize)
             .padding(MaterialTheme.spacing.medium)
             .graphicsLayer { clip = false }
     ) {
         drawCube(
-            size = DiceConstants.DEFAULT_CUBE_SIZE,
+            size = diceSpecs.diceInternalSize,
             centerX = size.width / 2,
             centerY = size.height / 2,
             rotationX = rotationX,

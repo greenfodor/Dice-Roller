@@ -188,7 +188,8 @@ fun DiceRollerTheme(
 
     CompositionLocalProvider(
         LocalDiceColors provides diceColors,
-        LocalSpacing provides Spacing()
+        LocalSpacing provides Spacing(),
+        LocalDiceSpecs provides DiceSpecs()
     ) {
         val view = LocalView.current
         if (view.isInEditMode.not()) {

@@ -18,6 +18,7 @@ data class Spacing(
 
 val LocalSpacing = staticCompositionLocalOf { Spacing() }
 
+@Suppress("UnusedReceiverParameter")
 val MaterialTheme.spacing: Spacing
     @Composable
     @ReadOnlyComposable
