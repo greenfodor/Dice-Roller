@@ -266,8 +266,8 @@ private fun drawFaceLabel(
 
         // Draw underline for 6 and 9 to distinguish them
         if (label == "6" || label == "9") {
-            val textY =
-                -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 + DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT
+            val textY = -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 +
+                DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT
             val underlineY = textY + paints.textPaint.descent() + DiceConstants.D20_UNDERLINE_TOP_OFFSET_UV
 
             drawRect(
