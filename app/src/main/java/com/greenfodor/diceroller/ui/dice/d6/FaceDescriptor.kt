@@ -1,7 +1,7 @@
 package com.greenfodor.diceroller.ui.dice.d6
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import com.greenfodor.diceroller.ui.DiceConstants
 
 /**
@@ -24,27 +24,20 @@ data class FaceDescriptor(
 object DotLayouts {
     private const val S = DiceConstants.DOT_SPACING_FACTOR
 
+    private val topLeft = Offset(-S, -S)
+    private val topRight = Offset(S, -S)
+    private val middleLeft = Offset(-S, 0f)
+    private val middleRight = Offset(S, 0f)
+    private val bottomLeft = Offset(-S, S)
+    private val bottomRight = Offset(S, S)
+    private val center = Offset(0f, 0f)
+
     val positions: Map<Int, List<Offset>> = mapOf(
-        1 to listOf(
-            Offset(0f, 0f)
-        ),
-        2 to listOf(
-            Offset(-S, S), Offset(S, -S)
-        ),
-        3 to listOf(
-            Offset(-S, S), Offset(0f, 0f), Offset(S, -S)
-        ),
-        4 to listOf(
-            Offset(-S, -S), Offset(S, -S),
-            Offset(-S, S),  Offset(S, S)
-        ),
-        5 to listOf(
-            Offset(-S, -S), Offset(S, -S), Offset(0f, 0f),
-            Offset(-S, S),  Offset(S, S)
-        ),
-        6 to listOf(
-            Offset(-S, -S), Offset(-S, 0f), Offset(-S, S),
-            Offset(S, -S),  Offset(S, 0f),  Offset(S, S)
-        )
+        1 to listOf(center),
+        2 to listOf(bottomLeft, topRight),
+        3 to listOf(bottomLeft, center, topRight),
+        4 to listOf(topLeft, topRight, bottomLeft, bottomRight),
+        5 to listOf(topLeft, topRight, center, bottomLeft, bottomRight),
+        6 to listOf(topLeft, middleLeft, bottomLeft, topRight, middleRight, bottomRight)
     )
 }

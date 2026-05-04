@@ -3,6 +3,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -43,6 +45,25 @@ android {
     }
 }
 
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
+ktlint {
+    additionalEditorconfig.set(
+        mapOf(
+            "ktlint_standard_chain-method-continuation" to "disabled",
+            "ktlint_standard_function-signature" to "disabled",
+            "ktlint_standard_function-naming" to "disabled",
+            "ktlint_standard_package-name" to "disabled",
+            "ktlint_standard_filename" to "disabled",
+            "ktlint_standard_multiline-expression-wrapping" to "disabled"
+        )
+    )
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
@@ -51,6 +72,8 @@ kotlin {
 }
 
 dependencies {
+    detektPlugins(libs.detekt.compose.rules)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

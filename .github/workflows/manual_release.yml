@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     # Restrict to master branch
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout code

@@ -27,6 +27,8 @@ proguard/
 # Android Studio captures folder
 captures/
 
+# Kotlin
+.kotlin/sessions
 # IntelliJ
 .idea/
 *.iml
@@ -67,3 +69,4 @@ gradle/
 *.swp
 /.idea/workspace.xml
 /.idea/libraries
+CLAUDE.md
