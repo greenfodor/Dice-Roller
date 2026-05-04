@@ -3,9 +3,9 @@ package com.greenfodor.diceroller.ui.dice
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.dice.d4.D4
 import com.greenfodor.diceroller.ui.dice.d6.D6
-import kotlin.math.abs
 import org.junit.Assert
 import org.junit.Test
+import kotlin.math.abs
 
 class DieStateTest {
     @Test
