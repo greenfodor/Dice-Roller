@@ -15,13 +15,8 @@ object D20 : DieDefinition {
     override val name = "d20"
 
     override val faces =
-        (0 until 20).map { index ->
-            val rotation = IcosahedronGeometry.getFaceRotation(index)
-            DieFace(
-                value = index + 1,
-                rotationX = rotation.first,
-                rotationY = rotation.second,
-                rotationZ = rotation.third
-            )
+        IcosahedronGeometry.faces.map { face ->
+            val (rx, ry, rz) = IcosahedronGeometry.getFaceRotation(face)
+            DieFace(value = face.value, rotationX = rx, rotationY = ry, rotationZ = rz)
         }
 }

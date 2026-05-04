@@ -32,42 +32,41 @@ object IcosahedronGeometry {
     )
 
     /**
-     * The 20 triangular faces of the icosahedron, defined by vertex indices.
-     * Order is counter-clockwise when viewed from the outside.
+     * The 20 triangular faces of the icosahedron, each mapped to a die value.
+     * Vertex order is counter-clockwise when viewed from the outside.
      * The FIRST vertex in each list is considered the "top" of the face.
      */
-    val faceIndices = listOf(
-        listOf(5, 0, 11), // 0
-        listOf(1, 0, 5), // 1
-        listOf(7, 0, 1), // 2
-        listOf(10, 0, 7), // 3
-        listOf(11, 0, 10), // 4
-        listOf(9, 1, 5), // 5
-        listOf(4, 5, 11), // 6
-        listOf(2, 11, 10), // 7
-        listOf(6, 10, 7), // 8
-        listOf(8, 7, 1), // 9
-        listOf(3, 9, 4), // 10
-        listOf(3, 4, 2), // 11
-        listOf(3, 2, 6), // 12
-        listOf(3, 6, 8), // 13
-        listOf(3, 8, 9), // 14
-        listOf(5, 4, 9), // 15
-        listOf(11, 2, 4), // 16
-        listOf(10, 6, 2), // 17
-        listOf(7, 8, 6), // 18
-        listOf(1, 9, 8) // 19
+    val faces = listOf(
+        GeometryFace(value = 1, vertexIndices = listOf(5, 0, 11)),
+        GeometryFace(value = 2, vertexIndices = listOf(1, 0, 5)),
+        GeometryFace(value = 3, vertexIndices = listOf(7, 0, 1)),
+        GeometryFace(value = 4, vertexIndices = listOf(10, 0, 7)),
+        GeometryFace(value = 5, vertexIndices = listOf(11, 0, 10)),
+        GeometryFace(value = 6, vertexIndices = listOf(9, 1, 5)),
+        GeometryFace(value = 7, vertexIndices = listOf(4, 5, 11)),
+        GeometryFace(value = 8, vertexIndices = listOf(2, 11, 10)),
+        GeometryFace(value = 9, vertexIndices = listOf(6, 10, 7)),
+        GeometryFace(value = 10, vertexIndices = listOf(8, 7, 1)),
+        GeometryFace(value = 11, vertexIndices = listOf(3, 9, 4)),
+        GeometryFace(value = 12, vertexIndices = listOf(3, 4, 2)),
+        GeometryFace(value = 13, vertexIndices = listOf(3, 2, 6)),
+        GeometryFace(value = 14, vertexIndices = listOf(3, 6, 8)),
+        GeometryFace(value = 15, vertexIndices = listOf(3, 8, 9)),
+        GeometryFace(value = 16, vertexIndices = listOf(5, 4, 9)),
+        GeometryFace(value = 17, vertexIndices = listOf(11, 2, 4)),
+        GeometryFace(value = 18, vertexIndices = listOf(10, 6, 2)),
+        GeometryFace(value = 19, vertexIndices = listOf(7, 8, 6)),
+        GeometryFace(value = 20, vertexIndices = listOf(1, 9, 8))
     )
 
     /**
      * Calculates the rotation (X, Y, Z) required to make a specific face front-facing and upright.
      * Upright means the FIRST vertex of the face is directly above the face's center.
      */
-    fun getFaceRotation(faceIndex: Int): Triple<Float, Float, Float> {
-        val indices = faceIndices[faceIndex]
-        val v0 = vertices[indices[0]]
-        val v1 = vertices[indices[1]]
-        val v2 = vertices[indices[2]]
+    fun getFaceRotation(face: GeometryFace): Triple<Float, Float, Float> {
+        val v0 = vertices[face.vertexIndices[0]]
+        val v1 = vertices[face.vertexIndices[1]]
+        val v2 = vertices[face.vertexIndices[2]]
 
         // Outward normal
         val normal = (v1 - v0).cross(v2 - v0).normalize()

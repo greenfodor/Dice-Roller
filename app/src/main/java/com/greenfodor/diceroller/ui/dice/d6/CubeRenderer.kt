@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import com.greenfodor.diceroller.geometry.CubeGeometry
 import com.greenfodor.diceroller.geometry.Point2D
 import com.greenfodor.diceroller.geometry.Point3D
 import com.greenfodor.diceroller.geometry.calculateNormalZ
@@ -34,10 +35,14 @@ class CubePaints {
     val stroke = Paint()
 
     /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
-    val rotatedVertices = ArrayList<Point3D>(8).apply { repeat(8) { add(Point3D(0f, 0f, 0f)) } }
+    val rotatedVertices = ArrayList<Point3D>(CubeGeometry.vertices.size).apply {
+        repeat(CubeGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
+    }
 
     /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
-    val projectedVertices = ArrayList<Point2D>(8).apply { repeat(8) { add(Point2D(0f, 0f)) } }
+    val projectedVertices = ArrayList<Point2D>(CubeGeometry.vertices.size).apply {
+        repeat(CubeGeometry.vertices.size) { add(Point2D(0f, 0f)) }
+    }
 }
 
 /**
@@ -77,8 +82,8 @@ fun DrawScope.drawCube(
 
     // --- 1. Geometry Calculation ---
     // Update pre-allocated lists to minimize garbage collection
-    UNIT_CUBE_BASE_VERTICES.forEachIndexed { index, baseV ->
-        val v = Point3D(baseV.x * halfSize, baseV.y * halfSize, baseV.z * halfSize)
+    CubeGeometry.vertices.forEachIndexed { index, baseV ->
+        val v = baseV * halfSize
         val rotated = v.rotatePoint(rotationX, rotationY)
         paints.rotatedVertices[index] = rotated
         paints.projectedVertices[index] = rotated.projectPoint(centerX, centerY)
@@ -129,35 +134,18 @@ fun DrawScope.drawCube(
 }
 
 /**
- * Unit cube vertices centered at the origin.
- * Indices follow a specific winding order used to define face surfaces.
- */
-private val UNIT_CUBE_BASE_VERTICES = listOf(
-    Point3D(-1f, -1f, -1f),
-    Point3D(1f, -1f, -1f),
-    Point3D(1f, 1f, -1f),
-    Point3D(-1f, 1f, -1f),
-    Point3D(-1f, -1f, 1f),
-    Point3D(1f, -1f, 1f),
-    Point3D(1f, 1f, 1f),
-    Point3D(-1f, 1f, 1f)
-)
-
-/**
- * Defines the six faces of a D6, mapping vertex indices to colors and pip counts.
- * Follows the standard dice layout where opposite faces sum to 7.
+ * Maps [CubeGeometry.faces] to render descriptors by injecting the theme color for each value.
  *
  * @param diceColors The theme colors to apply to each face value.
  */
 private fun createDiceFaceDescriptors(diceColors: DiceColors) =
-    listOf(
-        FaceDescriptor(listOf(4, 5, 6, 7), diceColors.face1, 1), // Front  (Z+)
-        FaceDescriptor(listOf(1, 0, 3, 2), diceColors.face6, 6), // Back   (Z-)
-        FaceDescriptor(listOf(0, 1, 5, 4), diceColors.face2, 2), // Bottom (Y-)
-        FaceDescriptor(listOf(7, 6, 2, 3), diceColors.face5, 5), // Top    (Y+)
-        FaceDescriptor(listOf(0, 4, 7, 3), diceColors.face4, 4), // Left   (X-)
-        FaceDescriptor(listOf(5, 1, 2, 6), diceColors.face3, 3) // Right  (X+)
-    )
+    CubeGeometry.faces.map { face ->
+        FaceDescriptor(
+            vertexIndices = face.vertexIndices,
+            baseColor = diceColors.colorForValue(face.value),
+            dotCount = face.value
+        )
+    }
 
 /**
  * Renders a single face of the cube onto the canvas.

@@ -47,13 +47,13 @@ class D20Paints {
     val dstArray = FloatArray(6)
 
     /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
-    val rotatedVertices = ArrayList<Point3D>(12).apply {
-        repeat(12) { add(Point3D(0f, 0f, 0f)) }
+    val rotatedVertices = ArrayList<Point3D>(IcosahedronGeometry.vertices.size).apply {
+        repeat(IcosahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
     }
 
     /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
-    val projectedVertices = ArrayList<Point2D>(12).apply {
-        repeat(12) { add(Point2D(0f, 0f)) }
+    val projectedVertices = ArrayList<Point2D>(IcosahedronGeometry.vertices.size).apply {
+        repeat(IcosahedronGeometry.vertices.size) { add(Point2D(0f, 0f)) }
     }
 }
 
@@ -140,8 +140,8 @@ private fun getVisibleAndSortedFaces(
     color: Color,
     rotatedVertices: List<Point3D>
 ): List<Triple<PolyhedronFace, Point3D, Double>> {
-    val faces = IcosahedronGeometry.faceIndices.mapIndexed { index, indices ->
-        PolyhedronFace(indices, color, (index + 1).toString())
+    val faces = IcosahedronGeometry.faces.map { face ->
+        PolyhedronFace(face.vertexIndices, color, face.value.toString())
     }
 
     return faces.mapNotNull { face ->

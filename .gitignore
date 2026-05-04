@@ -69,3 +69,4 @@ gradle/
 *.swp
 /.idea/workspace.xml
 /.idea/libraries
+CLAUDE.md

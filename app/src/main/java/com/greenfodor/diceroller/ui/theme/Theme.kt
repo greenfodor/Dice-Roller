@@ -33,7 +33,17 @@ data class DiceColors(
     val face4: Color = Color.Unspecified,
     val face5: Color = Color.Unspecified,
     val face6: Color = Color.Unspecified
-)
+) {
+    fun colorForValue(value: Int): Color = when (value) {
+        1 -> face1
+        2 -> face2
+        3 -> face3
+        4 -> face4
+        5 -> face5
+        6 -> face6
+        else -> Color.Unspecified
+    }
+}
 
 val LocalDiceColors = staticCompositionLocalOf { DiceColors() }
 
