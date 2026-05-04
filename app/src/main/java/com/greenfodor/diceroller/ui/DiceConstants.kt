@@ -33,6 +33,7 @@ object DiceConstants {
     const val DOT_SEGMENTS = 64
 
     // D20 specific
+    val D20_AMBIGUOUS_LABELS = setOf("6", "9")
     const val D20_TEXT_SIZE_UV = 55f
     const val D20_TEXT_BASELINE_ADJUSTMENT = -10f
     const val D20_FACE_ALPHA = 0.9f
