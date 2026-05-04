@@ -1,7 +1,5 @@
 package com.greenfodor.diceroller.geometry
 
-import kotlin.math.PI
-import kotlin.math.atan2
 import kotlin.math.sqrt
 
 /**
@@ -59,42 +57,6 @@ object IcosahedronGeometry {
         GeometryFace(value = 20, vertexIndices = listOf(1, 9, 8))
     )
 
-    /**
-     * Calculates the rotation (X, Y, Z) required to make a specific face front-facing and upright.
-     * Upright means the FIRST vertex of the face is directly above the face's center.
-     */
-    fun getFaceRotation(face: GeometryFace): Triple<Float, Float, Float> {
-        val v0 = vertices[face.vertexIndices[0]]
-        val v1 = vertices[face.vertexIndices[1]]
-        val v2 = vertices[face.vertexIndices[2]]
-
-        // Outward normal
-        val normal = (v1 - v0).cross(v2 - v0).normalize()
-
-        // 1. Calculate X rotation to make normal's Y = 0
-        // Standard rotation: y' = y cos - z sin = 0 => tan rx = y/z
-        val rx = atan2(normal.y, normal.z)
-        val rxDeg = rx * 180f / PI.toFloat()
-
-        // 2. Calculate Y rotation to make normal's X = 0
-        // After Rx, nz' = sqrt(ny^2 + nz^2). x' = nx.
-        // Rotation: x'' = x' cos + z' sin = 0 => tan ry = -x'/z'
-        val ry = atan2(-normal.x, sqrt(normal.y * normal.y + normal.z * normal.z))
-        val ryDeg = ry * 180f / PI.toFloat()
-
-        // 3. Calculate Z rotation to make the first vertex point "up"
-        val center = (v0 + v1 + v2) * (1f / 3f)
-        val v0Rotated = v0.rotatePoint(rxDeg, ryDeg, 0f)
-        val centerRotated = center.rotatePoint(rxDeg, ryDeg, 0f)
-
-        // Vector from center to first vertex in the XY plane
-        val dir = v0Rotated - centerRotated
-        val currentAngle = atan2(dir.y, dir.x)
-
-        // Target angle is -PI/2 (straight up in screen space)
-        val rz = -(PI.toFloat() / 2f + currentAngle)
-        val rzDeg = rz * 180f / PI.toFloat()
-
-        return Triple(rxDeg, ryDeg, rzDeg)
-    }
+    fun getFaceRotation(face: GeometryFace): Triple<Float, Float, Float> =
+        calculateFaceRotation(vertices, face)
 }

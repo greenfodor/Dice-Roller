@@ -13,19 +13,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
-import com.greenfodor.diceroller.ui.dice.d6.CubeState
+import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 
 /**
- * Animated D20 component that responds to changes in [diceState].
+ * Animated D20 component that responds to changes in [dieState].
  *
  * It uses [animateFloatAsState] for each axis (X, Y, Z) to provide a smooth,
  * high-framerate 3D rolling effect.
  */
 @Composable
 fun RollingD20Animation(
-    diceState: CubeState,
+    dieState: DieState,
     modifier: Modifier = Modifier
 ) {
     val diceSpecs = MaterialTheme.diceSpecs
@@ -34,7 +34,7 @@ fun RollingD20Animation(
     val primaryColor = MaterialTheme.colorScheme.primary
 
     val rotationX by animateFloatAsState(
-        targetValue = diceState.targetRotationX,
+        targetValue = dieState.targetRotationX,
         animationSpec = tween(
             durationMillis = diceSpecs.rollDurationMillis,
             easing = FastOutSlowInEasing
@@ -43,7 +43,7 @@ fun RollingD20Animation(
     )
 
     val rotationY by animateFloatAsState(
-        targetValue = diceState.targetRotationY,
+        targetValue = dieState.targetRotationY,
         animationSpec = tween(
             durationMillis = diceSpecs.rollDurationMillis,
             easing = FastOutSlowInEasing
@@ -52,7 +52,7 @@ fun RollingD20Animation(
     )
 
     val rotationZ by animateFloatAsState(
-        targetValue = diceState.targetRotationZ,
+        targetValue = dieState.targetRotationZ,
         animationSpec = tween(
             durationMillis = diceSpecs.rollDurationMillis,
             easing = FastOutSlowInEasing
@@ -60,9 +60,9 @@ fun RollingD20Animation(
         label = "rotationZ"
     )
 
-    diceState.isRolling = rotationX != diceState.targetRotationX ||
-        rotationY != diceState.targetRotationY ||
-        rotationZ != diceState.targetRotationZ
+    dieState.isRolling = rotationX != dieState.targetRotationX ||
+        rotationY != dieState.targetRotationY ||
+        rotationZ != dieState.targetRotationZ
 
     Canvas(
         modifier = modifier

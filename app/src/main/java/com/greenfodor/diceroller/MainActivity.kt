@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
 import com.greenfodor.diceroller.ui.screens.D20Screen
+import com.greenfodor.diceroller.ui.screens.D4Screen
 import com.greenfodor.diceroller.ui.screens.D6Screen
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                     ) {
                         when (selectedDiceType) {
+                            DiceType.SINGLE_D4 -> D4Screen()
                             DiceType.SINGLE_D6 -> D6Screen()
                             DiceType.DOUBLE_D6 -> DoubleD6Screen()
                             DiceType.SINGLE_D20 -> D20Screen()

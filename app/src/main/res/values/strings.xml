@@ -5,4 +5,5 @@
     <string name="d6_label">Single D6</string>
     <string name="double_d6_label">Double D6</string>
     <string name="d20_label">Single D20</string>
+    <string name="d4_label">Single D4</string>
 </resources>

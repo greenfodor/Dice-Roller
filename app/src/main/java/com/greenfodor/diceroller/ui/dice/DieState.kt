@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.dice.d6
+package com.greenfodor.diceroller.ui.dice
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,36 +7,37 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.greenfodor.diceroller.ui.DiceConstants
-import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.utils.logD
 import kotlin.random.Random
 
 /**
- * Holds and mutates the rotation state for the rolling cube animation.
+ * Holds and mutates the rotation state for the rolling die animation.
  *
  * Extracting this logic out of the composable means the roll math is
  * independently readable and testable.
  *
  * Usage:
  * ```kotlin
- * val cubeState = rememberCubeState()
+ * val dieState = rememberDieState()
  * // ...
- * Button(onClick = { cubeState.roll() })
+ * Button(onClick = { dieState.roll() })
  * ```
  */
-class CubeState(
-    private val die: DieDefinition = D6
+class DieState(
+    private val die: DieDefinition
 ) {
-    var currentFace by mutableStateOf(die.faces.first())
+    private val initialFace = die.faces.first()
+
+    var currentFace by mutableStateOf(initialFace)
         private set
 
-    var targetRotationX by mutableFloatStateOf(0f)
+    var targetRotationX by mutableFloatStateOf(initialFace.rotationX)
         private set
 
-    var targetRotationY by mutableFloatStateOf(0f)
+    var targetRotationY by mutableFloatStateOf(initialFace.rotationY)
         private set
 
-    var targetRotationZ by mutableFloatStateOf(0f)
+    var targetRotationZ by mutableFloatStateOf(initialFace.rotationZ)
         private set
 
     var isRolling by mutableStateOf(false)
@@ -78,4 +79,4 @@ class CubeState(
 }
 
 @Composable
-fun rememberCubeState(): CubeState = remember { CubeState() }
+fun rememberDieState(die: DieDefinition): DieState = remember { DieState(die) }

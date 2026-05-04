@@ -18,8 +18,8 @@ import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import com.greenfodor.diceroller.R
-import com.greenfodor.diceroller.ui.dice.d6.D6
-import com.greenfodor.diceroller.ui.dice.d6.RollingCubeAnimation
+import com.greenfodor.diceroller.ui.dice.d4.D4
+import com.greenfodor.diceroller.ui.dice.d4.RollingD4Animation
 import com.greenfodor.diceroller.ui.dice.rememberDieState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
@@ -27,12 +27,12 @@ import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 import com.greenfodor.diceroller.ui.utils.rollDice
 
 @Composable
-fun D6Screen() {
+fun D4Screen() {
     val context = LocalContext.current
-    val cubeState = rememberDieState(die = D6)
+    val diceState = rememberDieState(die = D4)
 
     rememberShakeDetector(onShake = {
-        context.rollDice(cubeState)
+        context.rollDice(diceState)
     })
 
     Column(
@@ -42,13 +42,13 @@ fun D6Screen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        RollingCubeAnimation(cubeState = cubeState)
+        RollingD4Animation(dieState = diceState)
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
         Button(
-            onClick = { context.rollDice(cubeState) },
-            enabled = cubeState.isRolling.not()
+            onClick = { context.rollDice(diceState) },
+            enabled = diceState.isRolling.not()
         ) {
             Text(text = stringResource(R.string.roll_button_single))
         }
@@ -60,8 +60,8 @@ fun D6Screen() {
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun D6ScreenPreview() {
+private fun D4ScreenPreview() {
     DiceRollerTheme {
-        D6Screen()
+        D4Screen()
     }
 }
