@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.DiceRoller" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.DiceRoller" parent="android:Theme.Material.NoActionBar" />
 
     <style name="Theme.DiceRoller.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_animated</item>
-        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
         <item name="postSplashScreenTheme">@style/Theme.DiceRoller</item>
     </style>
 </resources>
