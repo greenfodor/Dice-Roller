@@ -4,6 +4,13 @@ import com.greenfodor.diceroller.geometry.CubeFace
 import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.ui.dice.DieFace
 
+/**
+ * Definition of a D6 die using [DieDefinition].
+ *
+ * Each of the 6 outcomes maps directly to a [CubeFace] enum entry, which holds
+ * the pre-baked X/Y rotation angles required to bring that face to the center
+ * in an upright position.
+ */
 object D6 : DieDefinition {
     override val faces = listOf(
         DieFace(value = 1, rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY),
