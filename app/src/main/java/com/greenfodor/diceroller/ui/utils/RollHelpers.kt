@@ -2,19 +2,19 @@ package com.greenfodor.diceroller.ui.utils
 
 import android.content.Context
 import com.greenfodor.diceroller.sensors.performRollHaptics
-import com.greenfodor.diceroller.ui.dice.d6.CubeState
+import com.greenfodor.diceroller.ui.dice.DieState
 
 /**
- * Orchestrates a die roll for one or more [CubeState] instances.
+ * Orchestrates a die roll for one or more [DieState] instances.
  *
  * It validates that no dice are currently rolling before triggering a new roll on each
  * provided state and performing haptic feedback.
  *
- * @param cubeStates The states of the dice to be rolled.
+ * @param dieStates The states of the dice to be rolled.
  */
-fun Context.rollDice(vararg cubeStates: CubeState) {
-    if (cubeStates.any { it.isRolling }) return
+fun Context.rollDice(vararg dieStates: DieState) {
+    if (dieStates.any { it.isRolling }) return
 
-    cubeStates.forEach { it.roll() }
+    dieStates.forEach { it.roll() }
     performRollHaptics()
 }

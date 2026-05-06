@@ -20,8 +20,9 @@ import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.ui.dice.d6.D6
 import com.greenfodor.diceroller.ui.dice.d6.RollingCubeAnimation
-import com.greenfodor.diceroller.ui.dice.d6.rememberCubeState
+import com.greenfodor.diceroller.ui.dice.rememberDieState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
@@ -30,8 +31,8 @@ import com.greenfodor.diceroller.ui.utils.rollDice
 @Composable
 fun DoubleD6Screen() {
     val context = LocalContext.current
-    val firstCubeState = rememberCubeState()
-    val secondCubeState = rememberCubeState()
+    val firstCubeState = rememberDieState(die = D6)
+    val secondCubeState = rememberDieState(die = D6)
 
     rememberShakeDetector(onShake = {
         context.rollDice(firstCubeState, secondCubeState)

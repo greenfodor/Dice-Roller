@@ -5,7 +5,6 @@ import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.ui.dice.DieFace
 
 object D6 : DieDefinition {
-    override val name = "d6"
     override val faces = listOf(
         DieFace(value = 1, rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY),
         DieFace(value = 2, rotationX = CubeFace.TOP.rotationX, rotationY = CubeFace.TOP.rotationY),

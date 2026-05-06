@@ -1,0 +1,38 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!--
+      The Splash Screen API crops the icon to a circle.
+      The diameter of this circle is 2/3 of the icon size (approx 72dp).
+      I am scaling the die down further and centering it precisely to ensure no clipping.
+    -->
+    <group
+        android:name="rotationGroup"
+        android:pivotX="54"
+        android:pivotY="54">
+
+        <group
+            android:translateX="31"
+            android:translateY="31">
+            <group android:scaleX="0.42" android:scaleY="0.42">
+
+                <!-- Die Body -->
+                <path
+                    android:fillColor="@color/ic_launcher_die_body"
+                    android:pathData="M16,24 A12,12 0 0 1 28,12 H80 A12,12 0 0 1 92,24 V76 A12,12 0 0 1 80,88 H28 A12,12 0 0 1 16,76 Z" />
+
+                <!-- Pips -->
+                <group>
+                    <path android:fillColor="@color/ic_launcher_pips" android:pathData="M34,30m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+                    <path android:fillColor="@color/ic_launcher_pips" android:pathData="M74,30m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+                    <path android:fillColor="@color/ic_launcher_pips" android:pathData="M54,50m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+                    <path android:fillColor="@color/ic_launcher_pips" android:pathData="M34,70m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+                    <path android:fillColor="@color/ic_launcher_pips" android:pathData="M74,70m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+                </group>
+            </group>
+        </group>
+    </group>
+</vector>

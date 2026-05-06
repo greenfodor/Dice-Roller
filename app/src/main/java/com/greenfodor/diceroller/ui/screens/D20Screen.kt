@@ -10,7 +10,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.dice.d20.D20
 import com.greenfodor.diceroller.ui.dice.d20.RollingD20Animation
-import com.greenfodor.diceroller.ui.dice.d6.CubeState
+import com.greenfodor.diceroller.ui.dice.rememberDieState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
@@ -30,7 +29,7 @@ import com.greenfodor.diceroller.ui.utils.rollDice
 @Composable
 fun D20Screen() {
     val context = LocalContext.current
-    val diceState = remember { CubeState(die = D20) }
+    val diceState = rememberDieState(die = D20)
 
     rememberShakeDetector(onShake = {
         context.rollDice(diceState)
@@ -43,7 +42,7 @@ fun D20Screen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        RollingD20Animation(diceState = diceState)
+        RollingD20Animation(dieState = diceState)
 
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 

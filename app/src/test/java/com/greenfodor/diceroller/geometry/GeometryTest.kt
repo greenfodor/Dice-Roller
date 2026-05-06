@@ -83,6 +83,30 @@ class GeometryTest {
     }
 
     @Test
+    fun `calculateNormalZ positive when face points toward camera`() {
+        val v0 = Point3D(0f, 0f, 0f)
+        val v1 = Point3D(1f, 0f, 0f)
+        val v3 = Point3D(0f, 1f, 0f)
+        assertTrue(calculateNormalZ(v0, v1, v3) > 0f)
+    }
+
+    @Test
+    fun `calculateNormalZ negative for reversed winding`() {
+        val v0 = Point3D(0f, 0f, 0f)
+        val v1 = Point3D(0f, 1f, 0f)
+        val v3 = Point3D(1f, 0f, 0f)
+        assertTrue(calculateNormalZ(v0, v1, v3) < 0f)
+    }
+
+    @Test
+    fun `calculateNormalZ zero for collinear points`() {
+        val v0 = Point3D(0f, 0f, 0f)
+        val v1 = Point3D(1f, 0f, 0f)
+        val v3 = Point3D(2f, 0f, 0f)
+        assertEquals(0f, calculateNormalZ(v0, v1, v3), 0.001f)
+    }
+
+    @Test
     fun `test back-face culling normal calculation for all faces`() {
         CubeGeometry.faces.forEach { face ->
             val v0 = CubeGeometry.vertices[face.vertexIndices[0]]

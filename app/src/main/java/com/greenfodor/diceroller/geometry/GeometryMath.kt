@@ -1,6 +1,8 @@
 package com.greenfodor.diceroller.geometry
 
 import com.greenfodor.diceroller.ui.DiceConstants
+import kotlin.math.PI
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -96,6 +98,38 @@ fun Point3D.projectPoint(
         x = centerX + x * scale,
         y = centerY + y * scale
     )
+}
+
+/**
+ * Calculates the Euler rotation (X, Y, Z degrees) required to bring a triangular face
+ * front-facing and upright. The first vertex in [face] is oriented to point straight up.
+ *
+ * Shared by all polyhedra that use triangular faces (icosahedron, tetrahedron, etc.).
+ */
+fun calculateFaceRotation(vertices: List<Point3D>, face: GeometryFace): Triple<Float, Float, Float> {
+    val v0 = vertices[face.vertexIndices[0]]
+    val v1 = vertices[face.vertexIndices[1]]
+    val v2 = vertices[face.vertexIndices[2]]
+
+    val normal = (v1 - v0).cross(v2 - v0).normalize()
+
+    val rx = atan2(normal.y, normal.z)
+    val rxDeg = rx * 180f / PI.toFloat()
+
+    val ry = atan2(-normal.x, sqrt(normal.y * normal.y + normal.z * normal.z))
+    val ryDeg = ry * 180f / PI.toFloat()
+
+    val center = (v0 + v1 + v2) * (1f / 3f)
+    val v0Rotated = v0.rotatePoint(rxDeg, ryDeg, 0f)
+    val centerRotated = center.rotatePoint(rxDeg, ryDeg, 0f)
+
+    val dir = v0Rotated - centerRotated
+    val currentAngle = atan2(dir.y, dir.x)
+
+    val rz = -(PI.toFloat() / 2f + currentAngle)
+    val rzDeg = rz * 180f / PI.toFloat()
+
+    return Triple(rxDeg, ryDeg, rzDeg)
 }
 
 /**

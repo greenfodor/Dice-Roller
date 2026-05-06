@@ -1,2 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources />
+<resources>
+    <!-- Light Mode -->
+    <color name="ic_launcher_background">#4ECDC4</color> <!-- DiceTeal -->
+    <color name="ic_launcher_background_gradient_start">#95E1D3</color> <!-- DiceGreen -->
+    <color name="ic_launcher_die_body">#E0F7F5</color> <!-- Very light teal -->
+    <color name="ic_launcher_pips">#FF8A8A</color> <!-- Softened DiceRed -->
+</resources>
