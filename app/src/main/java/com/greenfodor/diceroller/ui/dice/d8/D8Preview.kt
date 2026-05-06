@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.dice.d4
+package com.greenfodor.diceroller.ui.dice.d8
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -20,14 +20,14 @@ import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
 @Composable
-private fun D4StaticPreview(
+private fun D8StaticPreview(
     rotationX: Float,
     rotationY: Float,
     rotationZ: Float,
     modifier: Modifier = Modifier
 ) {
-    val paints = remember { D4Paints() }
-    val color = MaterialTheme.colorScheme.tertiary
+    val paints = remember { D8Paints() }
+    val color = MaterialTheme.colorScheme.secondary
 
     Box(
         modifier = modifier
@@ -41,7 +41,7 @@ private fun D4StaticPreview(
                 .padding(16.dp)
                 .graphicsLayer { clip = false }
         ) {
-            drawD4(
+            drawD8(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
                 centerX = size.width / 2,
                 centerY = size.height / 2,
@@ -58,28 +58,28 @@ private fun D4StaticPreview(
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Face 1 Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Face 1 Dark")
 @Composable
-fun D4PreviewFace1() {
+fun D8PreviewFace1() {
     DiceRollerTheme {
-        val face = D4.faces[0]
-        D4StaticPreview(rotationX = face.rotationX, rotationY = face.rotationY, rotationZ = face.rotationZ)
+        val face = D8.faces[0]
+        D8StaticPreview(rotationX = face.rotationX, rotationY = face.rotationY, rotationZ = face.rotationZ)
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Face 4 Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Face 4 Dark")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Face 8 Light")
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Face 8 Dark")
 @Composable
-fun D4PreviewFace4() {
+fun D8PreviewFace8() {
     DiceRollerTheme {
-        val face = D4.faces[3]
-        D4StaticPreview(rotationX = face.rotationX, rotationY = face.rotationY, rotationZ = face.rotationZ)
+        val face = D8.faces[7]
+        D8StaticPreview(rotationX = face.rotationX, rotationY = face.rotationY, rotationZ = face.rotationZ)
     }
 }
 
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Angled View Light")
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Angled View Dark")
 @Composable
-fun D4PreviewAngled() {
+fun D8PreviewAngled() {
     DiceRollerTheme {
-        D4StaticPreview(rotationX = 30f, rotationY = 45f, rotationZ = 0f)
+        D8StaticPreview(rotationX = 30f, rotationY = 45f, rotationZ = 0f)
     }
 }

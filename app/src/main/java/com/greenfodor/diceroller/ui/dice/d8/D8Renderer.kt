@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.dice.d4
+package com.greenfodor.diceroller.ui.dice.d8
 
 import android.graphics.Matrix
 import android.graphics.Typeface
@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.withSave
+import com.greenfodor.diceroller.geometry.OctahedronGeometry
 import com.greenfodor.diceroller.geometry.Point2D
 import com.greenfodor.diceroller.geometry.Point3D
-import com.greenfodor.diceroller.geometry.TetrahedronGeometry
 import com.greenfodor.diceroller.geometry.calculateNormalZ
 import com.greenfodor.diceroller.geometry.projectPoint
 import com.greenfodor.diceroller.geometry.rotatePoint
@@ -23,9 +23,9 @@ import android.graphics.Paint as NativePaint
 import android.graphics.Path as NativePath
 
 /**
- * Holds reusable [NativePaint] objects and temporary buffers used for D4 face rendering.
+ * Holds reusable [NativePaint] objects and temporary buffers used for D8 face rendering.
  */
-class D4Paints {
+class D8Paints {
     val fillPaint = NativePaint().apply { isAntiAlias = true }
     val strokePaint = NativePaint().apply { isAntiAlias = true }
     val textPaint = NativePaint().apply {
@@ -35,28 +35,28 @@ class D4Paints {
     }
     val nativeFacePath = NativePath()
     val dstArray = FloatArray(6)
-    val rotatedVertices = ArrayList<Point3D>(TetrahedronGeometry.vertices.size).apply {
-        repeat(TetrahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
+    val rotatedVertices = ArrayList<Point3D>(OctahedronGeometry.vertices.size).apply {
+        repeat(OctahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
     }
-    val projectedVertices = ArrayList<Point2D>(TetrahedronGeometry.vertices.size).apply {
-        repeat(TetrahedronGeometry.vertices.size) { add(Point2D(0f, 0f)) }
+    val projectedVertices = ArrayList<Point2D>(OctahedronGeometry.vertices.size).apply {
+        repeat(OctahedronGeometry.vertices.size) { add(Point2D(0f, 0f)) }
     }
 }
 
-fun DrawScope.drawD4(
+fun DrawScope.drawD8(
     size: Float,
     centerX: Float,
     centerY: Float,
     rotationX: Float,
     rotationY: Float,
     rotationZ: Float,
-    paints: D4Paints,
+    paints: D8Paints,
     color: Color
 ) {
     calculateGeometry(size, centerX, centerY, rotationX, rotationY, rotationZ, paints)
     val visibleFaces = getVisibleAndSortedFaces(color, paints.rotatedVertices)
     visibleFaces.forEach { (face, normal, _) ->
-        renderD4Face(face, normal, paints.projectedVertices, paints)
+        renderD8Face(face, normal, paints.projectedVertices, paints)
     }
 }
 
@@ -67,11 +67,10 @@ private fun calculateGeometry(
     rotationX: Float,
     rotationY: Float,
     rotationZ: Float,
-    paints: D4Paints
+    paints: D8Paints
 ) {
     val scaleFactor = size / 2f
-
-    TetrahedronGeometry.vertices.forEachIndexed { index, baseV ->
+    OctahedronGeometry.vertices.forEachIndexed { index, baseV ->
         val v = baseV * scaleFactor
         val rotated = v.rotatePoint(rotationX, rotationY, rotationZ)
         paints.rotatedVertices[index] = rotated
@@ -83,7 +82,7 @@ private fun getVisibleAndSortedFaces(
     color: Color,
     rotatedVertices: List<Point3D>
 ): List<Triple<PolyhedronFace, Point3D, Double>> {
-    val faces = TetrahedronGeometry.faces.map { face ->
+    val faces = OctahedronGeometry.faces.map { face ->
         PolyhedronFace(face.vertexIndices, color, face.value.toString())
     }
 
@@ -94,7 +93,6 @@ private fun getVisibleAndSortedFaces(
         val v2 = rotatedVertices[vIndices[2]]
 
         val normalZ = calculateNormalZ(v0, v1, v2)
-
         if (normalZ > 0) {
             val normal = (v1 - v0).cross(v2 - v0).normalize()
             val avgDepth = vIndices.sumOf { rotatedVertices[it].z.toDouble() }
@@ -105,11 +103,11 @@ private fun getVisibleAndSortedFaces(
     }.sortedBy { it.third }
 }
 
-private fun DrawScope.renderD4Face(
+private fun DrawScope.renderD8Face(
     face: PolyhedronFace,
     normal: Point3D,
     projectedVertices: List<Point2D>,
-    paints: D4Paints
+    paints: D8Paints
 ) {
     val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
         DiceConstants.MIN_SHADING_INTENSITY,
@@ -146,7 +144,7 @@ private fun drawFaceLabel(
     label: String,
     vIndices: List<Int>,
     projectedVertices: List<Point2D>,
-    paints: D4Paints
+    paints: D8Paints
 ) {
     canvas.nativeCanvas.withSave {
         val matrix = Matrix()

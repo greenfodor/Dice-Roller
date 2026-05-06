@@ -108,10 +108,10 @@ class GeometryTest {
 
     @Test
     fun `test back-face culling normal calculation for all faces`() {
-        CubeGeometry.faces.forEach { face ->
-            val v0 = CubeGeometry.vertices[face.vertexIndices[0]]
-            val v1 = CubeGeometry.vertices[face.vertexIndices[1]]
-            val v3 = CubeGeometry.vertices[face.vertexIndices[3]]
+        HexahedronGeometry.faces.forEach { face ->
+            val v0 = HexahedronGeometry.vertices[face.vertexIndices[0]]
+            val v1 = HexahedronGeometry.vertices[face.vertexIndices[1]]
+            val v3 = HexahedronGeometry.vertices[face.vertexIndices[3]]
 
             val normal = (v1 - v0).cross(v3 - v0)
 

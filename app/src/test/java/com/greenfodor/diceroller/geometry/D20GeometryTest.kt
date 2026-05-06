@@ -6,6 +6,18 @@ import org.junit.Test
 
 class D20GeometryTest {
     @Test
+    fun `icosahedron has 12 vertices and 20 faces`() {
+        assertEquals(12, IcosahedronGeometry.vertices.size)
+        assertEquals(20, IcosahedronGeometry.faces.size)
+    }
+
+    @Test
+    fun `face values cover 1 through 20 without duplicates`() {
+        val values = IcosahedronGeometry.faces.map { it.value }.sorted()
+        assertEquals("Should have 20 faces", (1..20).toList(), values)
+    }
+
+    @Test
     fun `all D20 faces have outward pointing normals`() {
         IcosahedronGeometry.faces.forEach { face ->
             val v0 = IcosahedronGeometry.vertices[face.vertexIndices[0]]

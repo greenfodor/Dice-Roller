@@ -1,4 +1,4 @@
-package com.greenfodor.diceroller.ui.dice.d4
+package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -13,39 +13,50 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.greenfodor.diceroller.ui.dice.DieState
+import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 
 @Composable
-fun RollingD4Animation(
-    dieState: DieState,
+fun RollingCubeAnimation(
+    cubeState: DieState,
     modifier: Modifier = Modifier
 ) {
+    val diceColors = LocalDiceColors.current
     val diceSpecs = MaterialTheme.diceSpecs
-    val paints = remember { D4Paints() }
-    val color = MaterialTheme.colorScheme.tertiary
+    val paints = remember { D6Paints() }
 
     val rotationX by animateFloatAsState(
-        targetValue = dieState.targetRotationX,
-        animationSpec = tween(durationMillis = diceSpecs.rollDurationMillis, easing = FastOutSlowInEasing),
+        targetValue = cubeState.targetRotationX,
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
         label = "rotationX"
     )
 
     val rotationY by animateFloatAsState(
-        targetValue = dieState.targetRotationY,
-        animationSpec = tween(durationMillis = diceSpecs.rollDurationMillis, easing = FastOutSlowInEasing),
+        targetValue = cubeState.targetRotationY,
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
         label = "rotationY"
     )
 
     val rotationZ by animateFloatAsState(
-        targetValue = dieState.targetRotationZ,
-        animationSpec = tween(durationMillis = diceSpecs.rollDurationMillis, easing = FastOutSlowInEasing),
+        targetValue = cubeState.targetRotationZ,
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
         label = "rotationZ"
     )
 
-    dieState.isRolling = rotationX != dieState.targetRotationX ||
-        rotationY != dieState.targetRotationY ||
-        rotationZ != dieState.targetRotationZ
+    // Publish rolling state back to the caller via the state object
+    cubeState.isRolling = rotationX != cubeState.targetRotationX ||
+        rotationY != cubeState.targetRotationY ||
+        rotationZ != cubeState.targetRotationZ
 
     Canvas(
         modifier = modifier
@@ -53,7 +64,7 @@ fun RollingD4Animation(
             .padding(MaterialTheme.spacing.medium)
             .graphicsLayer { clip = false }
     ) {
-        drawD4(
+        drawD6(
             size = diceSpecs.diceInternalSize,
             centerX = size.width / 2,
             centerY = size.height / 2,
@@ -61,7 +72,7 @@ fun RollingD4Animation(
             rotationY = rotationY,
             rotationZ = rotationZ,
             paints = paints,
-            color = color
+            diceColors = diceColors
         )
     }
 }

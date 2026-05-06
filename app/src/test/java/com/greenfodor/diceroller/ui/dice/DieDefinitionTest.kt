@@ -3,6 +3,7 @@ package com.greenfodor.diceroller.ui.dice
 import com.greenfodor.diceroller.ui.dice.d20.D20
 import com.greenfodor.diceroller.ui.dice.d4.D4
 import com.greenfodor.diceroller.ui.dice.d6.D6
+import com.greenfodor.diceroller.ui.dice.d8.D8
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -16,6 +17,11 @@ class DieDefinitionTest {
     @Test
     fun `D4 definition is valid`() {
         validateDie(D4, expectedFaceCount = 4)
+    }
+
+    @Test
+    fun `D8 definition is valid`() {
+        validateDie(D8, expectedFaceCount = 8)
     }
 
     @Test

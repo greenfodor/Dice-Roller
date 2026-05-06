@@ -1,12 +1,12 @@
 package com.greenfodor.diceroller.geometry
 
 /**
- * Defines the geometry of a regular cube (D6).
+ * Defines the geometry of a regular hexahedron (D6).
  *
  * Vertices are indexed 0–7 and faces follow the standard dice layout where
  * opposite faces sum to 7 (1/6, 2/5, 3/4).
  */
-object CubeGeometry {
+object HexahedronGeometry {
     val vertices = listOf(
         Point3D(-1f, -1f, -1f), // 0
         Point3D(1f, -1f, -1f), // 1
@@ -26,4 +26,7 @@ object CubeGeometry {
         GeometryFace(value = 5, vertexIndices = listOf(7, 6, 2, 3)), // Top    (Y+)
         GeometryFace(value = 6, vertexIndices = listOf(1, 0, 3, 2)) // Back   (Z-)
     )
+
+    fun getFaceRotation(face: GeometryFace): Triple<Float, Float, Float> =
+        calculateFaceRotation(vertices, face)
 }
