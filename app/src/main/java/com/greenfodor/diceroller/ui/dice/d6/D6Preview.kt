@@ -13,13 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.greenfodor.diceroller.geometry.CubeFace
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
@@ -28,12 +26,11 @@ import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 private fun D6StaticPreview(
     rotationX: Float,
     rotationY: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rotationZ: Float = 0f
 ) {
     val diceColors = LocalDiceColors.current
-    val facePath = remember { Path() }
-    val dotPath = remember { Path() }
-    val paints = remember { CubePaints() }
+    val paints = remember { D6Paints() }
 
     Box(
         modifier = modifier
@@ -48,14 +45,13 @@ private fun D6StaticPreview(
                     .padding(16.dp)
                     .graphicsLayer { clip = false }
         ) {
-            drawCube(
+            drawD6(
                 size = DiceConstants.DEFAULT_CUBE_SIZE * 0.6f,
                 centerX = size.width / 2,
                 centerY = size.height / 2,
                 rotationX = rotationX,
                 rotationY = rotationY,
-                facePath = facePath,
-                dotPath = dotPath,
+                rotationZ = rotationZ,
                 paints = paints,
                 diceColors = diceColors
             )
@@ -68,7 +64,8 @@ private fun D6StaticPreview(
 @Composable
 fun D6PreviewFront() {
     DiceRollerTheme {
-        D6StaticPreview(rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY)
+        val face = D6.faces[0]
+        D6StaticPreview(rotationX = face.rotationX, rotationY = face.rotationY, rotationZ = face.rotationZ)
     }
 }
 
@@ -97,16 +94,22 @@ fun D6PreviewDiceGrid() {
     DiceRollerTheme {
         Column {
             Row {
-                D6StaticPreview(rotationX = CubeFace.FRONT.rotationX, rotationY = CubeFace.FRONT.rotationY)
-                D6StaticPreview(rotationX = CubeFace.BACK.rotationX, rotationY = CubeFace.BACK.rotationY)
+                val f1 = D6.faces[0]
+                val f6 = D6.faces[5]
+                D6StaticPreview(rotationX = f1.rotationX, rotationY = f1.rotationY, rotationZ = f1.rotationZ)
+                D6StaticPreview(rotationX = f6.rotationX, rotationY = f6.rotationY, rotationZ = f6.rotationZ)
             }
             Row {
-                D6StaticPreview(rotationX = CubeFace.TOP.rotationX, rotationY = CubeFace.TOP.rotationY)
-                D6StaticPreview(rotationX = CubeFace.BOTTOM.rotationX, rotationY = CubeFace.BOTTOM.rotationY)
+                val f5 = D6.faces[4]
+                val f2 = D6.faces[1]
+                D6StaticPreview(rotationX = f5.rotationX, rotationY = f5.rotationY, rotationZ = f5.rotationZ)
+                D6StaticPreview(rotationX = f2.rotationX, rotationY = f2.rotationY, rotationZ = f2.rotationZ)
             }
             Row {
-                D6StaticPreview(rotationX = CubeFace.LEFT.rotationX, rotationY = CubeFace.LEFT.rotationY)
-                D6StaticPreview(rotationX = CubeFace.RIGHT.rotationX, rotationY = CubeFace.RIGHT.rotationY)
+                val f4 = D6.faces[3]
+                val f3 = D6.faces[2]
+                D6StaticPreview(rotationX = f4.rotationX, rotationY = f4.rotationY, rotationZ = f4.rotationZ)
+                D6StaticPreview(rotationX = f3.rotationX, rotationY = f3.rotationY, rotationZ = f3.rotationZ)
             }
         }
     }

@@ -6,6 +6,18 @@ import org.junit.Test
 
 class D4GeometryTest {
     @Test
+    fun `tetrahedron has 4 vertices and 4 faces`() {
+        assertEquals(4, TetrahedronGeometry.vertices.size)
+        assertEquals(4, TetrahedronGeometry.faces.size)
+    }
+
+    @Test
+    fun `face values cover 1 through 4 without duplicates`() {
+        val values = TetrahedronGeometry.faces.map { it.value }.sorted()
+        assertEquals("Should have 4 faces", listOf(1, 2, 3, 4), values)
+    }
+
+    @Test
     fun `all D4 faces have outward pointing normals`() {
         TetrahedronGeometry.faces.forEach { face ->
             val v0 = TetrahedronGeometry.vertices[face.vertexIndices[0]]

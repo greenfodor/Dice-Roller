@@ -119,12 +119,24 @@ fun calculateFaceRotation(vertices: List<Point3D>, face: GeometryFace): Triple<F
     val ry = atan2(-normal.x, sqrt(normal.y * normal.y + normal.z * normal.z))
     val ryDeg = ry * 180f / PI.toFloat()
 
-    val center = (v0 + v1 + v2) * (1f / 3f)
-    val v0Rotated = v0.rotatePoint(rxDeg, ryDeg, 0f)
+    val faceVertices = face.vertexIndices.map { vertices[it] }
+    val center = faceVertices.reduce { acc, v -> acc + v } * (1f / faceVertices.size)
+
+    // For upright orientation:
+    // If triangular (D4, D8, D20), point the first vertex "up".
+    // If quadrilateral (D6), point the midpoint of the 'top' edge (indices 2 & 3) "up"
+    // to keep the cube face axis-aligned ("flat").
+    val topRef = if (face.vertexIndices.size == 4) {
+        (vertices[face.vertexIndices[2]] + vertices[face.vertexIndices[3]]) * 0.5f
+    } else {
+        vertices[face.vertexIndices[0]]
+    }
+
+    val topRefRotated = topRef.rotatePoint(rxDeg, ryDeg, 0f)
     val centerRotated = center.rotatePoint(rxDeg, ryDeg, 0f)
 
-    val dir = v0Rotated - centerRotated
-    val currentAngle = atan2(dir.y, dir.x)
+    val dir = topRefRotated - centerRotated
+    val currentAngle = atan2(dir.y.toDouble(), dir.x.toDouble()).toFloat()
 
     val rz = -(PI.toFloat() / 2f + currentAngle)
     val rzDeg = rz * 180f / PI.toFloat()

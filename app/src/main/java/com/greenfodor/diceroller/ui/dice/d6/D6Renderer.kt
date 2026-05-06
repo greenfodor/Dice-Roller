@@ -1,16 +1,13 @@
 package com.greenfodor.diceroller.ui.dice.d6
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import com.greenfodor.diceroller.geometry.CubeGeometry
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import com.greenfodor.diceroller.geometry.HexahedronGeometry
 import com.greenfodor.diceroller.geometry.Point2D
 import com.greenfodor.diceroller.geometry.Point3D
 import com.greenfodor.diceroller.geometry.calculateNormalZ
@@ -20,28 +17,39 @@ import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.theme.DiceColors
 import com.greenfodor.diceroller.ui.utils.shade
+import android.graphics.Paint as NativePaint
+import android.graphics.Path as NativePath
 
 /**
- * Holds reusable [Paint] and [PathEffect] objects used for cube face rendering.
+ * Holds reusable [NativePaint] and [Path] objects used for cube face rendering.
  *
  * Instantiating these once and reusing them across frames prevents unnecessary object allocation
  * and garbage collection during the animation loop.
  */
-class CubePaints {
-    /** Paint used for the main face surface (fill). */
-    val face = Paint()
+class D6Paints {
+    /** Fill paint for the face surface. */
+    val fillPaint = NativePaint().apply { isAntiAlias = true }
 
-    /** Paint used for the face borders (stroke). */
-    val stroke = Paint()
+    /** Stroke paint for face borders. */
+    val strokePaint = NativePaint().apply { isAntiAlias = true }
+
+    /** Reusable native path for face polygon drawing. */
+    val nativeFacePath = NativePath()
+
+    /** Reusable Compose path for pip clipping. */
+    val facePath = Path()
+
+    /** Reusable path for pip geometry. */
+    val dotPath = Path()
 
     /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
-    val rotatedVertices = ArrayList<Point3D>(CubeGeometry.vertices.size).apply {
-        repeat(CubeGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
+    val rotatedVertices = ArrayList<Point3D>(HexahedronGeometry.vertices.size).apply {
+        repeat(HexahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
     }
 
     /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
-    val projectedVertices = ArrayList<Point2D>(CubeGeometry.vertices.size).apply {
-        repeat(CubeGeometry.vertices.size) { add(Point2D(0f, 0f)) }
+    val projectedVertices = ArrayList<Point2D>(HexahedronGeometry.vertices.size).apply {
+        repeat(HexahedronGeometry.vertices.size) { add(Point2D(0f, 0f)) }
     }
 }
 
@@ -62,29 +70,25 @@ class CubePaints {
  * @param centerY Vertical center of the draw area.
  * @param rotationX Current X-axis rotation in degrees.
  * @param rotationY Current Y-axis rotation in degrees.
- * @param facePath Reusable [Path] for face polygon geometry.
- * @param dotPath Reusable [Path] for pip geometry.
- * @param paints Reusable [CubePaints] to avoid per-frame allocations.
+ * @param rotationZ Current Z-axis rotation in degrees.
+ * @param paints Reusable [D6Paints] to avoid per-frame allocations (includes path buffers).
  * @param diceColors Theme colors assigned to each face.
  */
-fun DrawScope.drawCube(
+fun DrawScope.drawD6(
     size: Float,
     centerX: Float,
     centerY: Float,
     rotationX: Float,
     rotationY: Float,
-    facePath: Path,
-    dotPath: Path,
-    paints: CubePaints,
+    rotationZ: Float,
+    paints: D6Paints,
     diceColors: DiceColors
 ) {
     val halfSize = size / 2
 
-    // --- 1. Geometry Calculation ---
-    // Update pre-allocated lists to minimize garbage collection
-    CubeGeometry.vertices.forEachIndexed { index, baseV ->
+    HexahedronGeometry.vertices.forEachIndexed { index, baseV ->
         val v = baseV * halfSize
-        val rotated = v.rotatePoint(rotationX, rotationY)
+        val rotated = v.rotatePoint(rotationX, rotationY, rotationZ)
         paints.rotatedVertices[index] = rotated
         paints.projectedVertices[index] = rotated.projectPoint(centerX, centerY)
     }
@@ -92,11 +96,8 @@ fun DrawScope.drawCube(
     val rotatedVertices = paints.rotatedVertices
     val projectedVertices = paints.projectedVertices
 
-    // --- 2. Culling and Sorting ---
     val faces = createDiceFaceDescriptors(diceColors)
 
-    // Back-face Culling: Skip faces pointing away from the camera.
-    // For a convex cube, at most 3 faces are visible at once.
     val visibleFaces =
         faces
             .mapNotNull { face ->
@@ -105,7 +106,6 @@ fun DrawScope.drawCube(
                 val v1 = rotatedVertices[vIndices[1]]
                 val v3 = rotatedVertices[vIndices[3]]
 
-                // Surface normal Z-component determines visibility (+Z is towards camera)
                 val normalZ = calculateNormalZ(v0, v1, v3)
 
                 if (normalZ > 0) {
@@ -115,9 +115,8 @@ fun DrawScope.drawCube(
                 } else {
                     null
                 }
-            }.sortedBy { it.third } // Sort back-to-front (Painter's Algorithm)
+            }.sortedBy { it.third }
 
-    // --- 3. Rendering ---
     visibleFaces.forEach { (face, normal, _) ->
         renderFace(
             face = face,
@@ -126,20 +125,18 @@ fun DrawScope.drawCube(
             projectedVertices = projectedVertices,
             centerX = centerX,
             centerY = centerY,
-            facePath = facePath,
-            dotPath = dotPath,
             paints = paints
         )
     }
 }
 
 /**
- * Maps [CubeGeometry.faces] to render descriptors by injecting the theme color for each value.
+ * Maps [HexahedronGeometry.faces] to render descriptors by injecting the theme color for each value.
  *
  * @param diceColors The theme colors to apply to each face value.
  */
 private fun createDiceFaceDescriptors(diceColors: DiceColors) =
-    CubeGeometry.faces.map { face ->
+    HexahedronGeometry.faces.map { face ->
         FaceDescriptor(
             vertexIndices = face.vertexIndices,
             baseColor = diceColors.colorForValue(face.value),
@@ -147,18 +144,6 @@ private fun createDiceFaceDescriptors(diceColors: DiceColors) =
         )
     }
 
-/**
- * Renders a single face of the cube onto the canvas.
- *
- * The rendering process includes:
- * 1. **Shading**: Calculates light intensity based on the angle between the surface normal
- *    and the global light source.
- * 2. **Geometry Construction**: Resets and builds a [Path] for the face polygon using projected 2D points.
- * 3. **Surface Fill**: Draws the shaded face surface with rounded corners using the provided path effect.
- * 4. **Pip Rendering**: Draws the dice dots, clipped to the face boundary and slightly offset
- *    to prevent Z-fighting artifacts.
- * 5. **Edge Stroke**: Draws a subtle semi-transparent border around the face to enhance definition.
- */
 private fun DrawScope.renderFace(
     face: FaceDescriptor,
     normal: Point3D,
@@ -166,56 +151,55 @@ private fun DrawScope.renderFace(
     projectedVertices: List<Point2D>,
     centerX: Float,
     centerY: Float,
-    facePath: Path,
-    dotPath: Path,
-    paints: CubePaints
+    paints: D6Paints
 ) {
-    // 1. Shading
     val intensity =
         normal.dot(LIGHT_SOURCE).coerceIn(
             DiceConstants.MIN_SHADING_INTENSITY,
             DiceConstants.MAX_SHADING_INTENSITY
         )
     val shadedColor = face.baseColor.shade(intensity)
-
-    // 2. Build Face Geometry
-    facePath.reset()
     val vIndices = face.vertexIndices
-    facePath.moveTo(projectedVertices[vIndices[0]].x, projectedVertices[vIndices[0]].y)
-    for (i in 1 until vIndices.size) {
-        facePath.lineTo(projectedVertices[vIndices[i]].x, projectedVertices[vIndices[i]].y)
-    }
-    facePath.close()
+    val verts = vIndices.map { projectedVertices[it] }
 
-    // 3. Render Layers
+    paints.nativeFacePath.rewind()
+    paints.nativeFacePath.moveTo(verts[0].x, verts[0].y)
+    for (i in 1 until verts.size) paints.nativeFacePath.lineTo(verts[i].x, verts[i].y)
+    paints.nativeFacePath.close()
+
+    paints.facePath.reset()
+    paints.facePath.moveTo(verts[0].x, verts[0].y)
+    for (i in 1 until verts.size) paints.facePath.lineTo(verts[i].x, verts[i].y)
+    paints.facePath.close()
+
     drawIntoCanvas { canvas ->
-        paints.face.apply {
-            color = shadedColor
-            style = PaintingStyle.Fill
+        paints.fillPaint.apply {
+            color = shadedColor.toArgb()
+            style = NativePaint.Style.FILL
+            pathEffect = null
         }
-        canvas.drawOutline(Outline.Generic(facePath), paints.face)
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.fillPaint)
     }
 
-    // Pips
     val dotOffset = normal * DiceConstants.DOT_OFFSET_FACTOR
-    clipPath(facePath) {
+    clipPath(paints.facePath) {
         drawDiceDotsOnFace(
             dotCount = face.dotCount,
             vVertices = vIndices.map { rotatedVertices[it] },
             centerX = centerX,
             centerY = centerY,
             normalOffset = dotOffset,
-            dotPath = dotPath
+            dotPath = paints.dotPath
         )
     }
 
-    // Edge Stroke
     drawIntoCanvas { canvas ->
-        paints.stroke.apply {
-            color = Color.White.copy(alpha = DiceConstants.D6_STROKE_ALPHA)
-            style = PaintingStyle.Stroke
+        paints.strokePaint.apply {
+            color = Color.White.copy(alpha = DiceConstants.D6_STROKE_ALPHA).toArgb()
+            style = NativePaint.Style.STROKE
             strokeWidth = DiceConstants.STROKE_WIDTH
+            pathEffect = null
         }
-        canvas.drawOutline(Outline.Generic(facePath), paints.stroke)
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.strokePaint)
     }
 }

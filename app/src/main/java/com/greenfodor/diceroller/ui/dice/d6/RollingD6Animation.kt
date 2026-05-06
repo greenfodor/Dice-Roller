@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
@@ -25,9 +24,7 @@ fun RollingCubeAnimation(
 ) {
     val diceColors = LocalDiceColors.current
     val diceSpecs = MaterialTheme.diceSpecs
-    val facePath = remember { Path() }
-    val dotPath = remember { Path() }
-    val paints = remember { CubePaints() }
+    val paints = remember { D6Paints() }
 
     val rotationX by animateFloatAsState(
         targetValue = cubeState.targetRotationX,
@@ -47,9 +44,19 @@ fun RollingCubeAnimation(
         label = "rotationY"
     )
 
+    val rotationZ by animateFloatAsState(
+        targetValue = cubeState.targetRotationZ,
+        animationSpec = tween(
+            durationMillis = diceSpecs.rollDurationMillis,
+            easing = FastOutSlowInEasing
+        ),
+        label = "rotationZ"
+    )
+
     // Publish rolling state back to the caller via the state object
     cubeState.isRolling = rotationX != cubeState.targetRotationX ||
-        rotationY != cubeState.targetRotationY
+        rotationY != cubeState.targetRotationY ||
+        rotationZ != cubeState.targetRotationZ
 
     Canvas(
         modifier = modifier
@@ -57,14 +64,13 @@ fun RollingCubeAnimation(
             .padding(MaterialTheme.spacing.medium)
             .graphicsLayer { clip = false }
     ) {
-        drawCube(
+        drawD6(
             size = diceSpecs.diceInternalSize,
             centerX = size.width / 2,
             centerY = size.height / 2,
             rotationX = rotationX,
             rotationY = rotationY,
-            facePath = facePath,
-            dotPath = dotPath,
+            rotationZ = rotationZ,
             paints = paints,
             diceColors = diceColors
         )

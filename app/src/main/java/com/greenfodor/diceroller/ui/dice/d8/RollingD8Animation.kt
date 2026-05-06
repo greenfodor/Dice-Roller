@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.theme.diceSpecs
@@ -23,7 +22,6 @@ fun RollingD8Animation(
     modifier: Modifier = Modifier
 ) {
     val diceSpecs = MaterialTheme.diceSpecs
-    val facePath = remember { Path() }
     val paints = remember { D8Paints() }
     val color = MaterialTheme.colorScheme.secondary
 
@@ -62,7 +60,6 @@ fun RollingD8Animation(
             rotationX = rotationX,
             rotationY = rotationY,
             rotationZ = rotationZ,
-            facePath = facePath,
             paints = paints,
             color = color
         )

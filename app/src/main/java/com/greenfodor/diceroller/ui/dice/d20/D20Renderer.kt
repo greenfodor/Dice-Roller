@@ -4,11 +4,6 @@ import android.graphics.Matrix
 import android.graphics.Typeface
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -25,16 +20,17 @@ import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.dice.PolyhedronFace
 import com.greenfodor.diceroller.ui.utils.shade
 import android.graphics.Paint as NativePaint
+import android.graphics.Path as NativePath
 
 /**
- * Holds reusable [Paint] and temporary buffers used for D20 face rendering.
+ * Holds reusable [NativePaint] objects and temporary buffers used for D20 face rendering.
  */
 class D20Paints {
-    /** Paint for the main face surface (fill). */
-    val face = Paint()
+    /** Fill paint for the face surface. */
+    val fillPaint = NativePaint().apply { isAntiAlias = true }
 
-    /** Paint for the face borders (stroke). */
-    val stroke = Paint()
+    /** Stroke paint for face borders. */
+    val strokePaint = NativePaint().apply { isAntiAlias = true }
 
     /** Native Paint for number rendering with high-quality antialiasing. */
     val textPaint = NativePaint().apply {
@@ -42,6 +38,9 @@ class D20Paints {
         isAntiAlias = true
         typeface = Typeface.DEFAULT_BOLD
     }
+
+    /** Reusable native path for face polygon geometry. */
+    val nativeFacePath = NativePath()
 
     /** Temporary buffer for matrix destination coordinates to avoid allocations. */
     val dstArray = FloatArray(6)
@@ -66,7 +65,6 @@ class D20Paints {
  * @param rotationX Current X rotation in degrees.
  * @param rotationY Current Y rotation in degrees.
  * @param rotationZ Current Z rotation (roll) in degrees.
- * @param facePath Reusable [Path] for geometry.
  * @param paints Reusable [D20Paints] for style and buffers.
  * @param color The base theme color for the die.
  */
@@ -77,11 +75,9 @@ fun DrawScope.drawD20(
     rotationX: Float,
     rotationY: Float,
     rotationZ: Float,
-    facePath: Path,
     paints: D20Paints,
     color: Color
 ) {
-    // 1. Geometry Calculation
     calculateGeometry(
         size = size,
         centerX = centerX,
@@ -92,28 +88,21 @@ fun DrawScope.drawD20(
         paints = paints
     )
 
-    // 2. Culling and Sorting
     val visibleFaces = getVisibleAndSortedFaces(
         color = color,
         rotatedVertices = paints.rotatedVertices
     )
 
-    // 3. Rendering
     visibleFaces.forEach { (face, normal, _) ->
         renderD20Face(
             face = face,
             normal = normal,
             projectedVertices = paints.projectedVertices,
-            facePath = facePath,
             paints = paints
         )
     }
 }
 
-/**
- * Calculates 3D rotations and 2D projections for all D20 vertices and updates
- * the pre-allocated buffers in [paints].
- */
 private fun calculateGeometry(
     size: Float,
     centerX: Float,
@@ -133,9 +122,6 @@ private fun calculateGeometry(
     }
 }
 
-/**
- * Filters visible faces using back-face culling and sorts them back-to-front.
- */
 private fun getVisibleAndSortedFaces(
     color: Color,
     rotatedVertices: List<Point3D>
@@ -162,76 +148,42 @@ private fun getVisibleAndSortedFaces(
     }.sortedBy { it.third }
 }
 
-/**
- * Renders a single triangular face of the D20, including its label.
- */
 private fun DrawScope.renderD20Face(
     face: PolyhedronFace,
     normal: Point3D,
     projectedVertices: List<Point2D>,
-    facePath: Path,
     paints: D20Paints
 ) {
-    val shadedColor = calculateShadedColor(face.baseColor, normal)
-
-    buildFacePath(facePath, face.vertexIndices, projectedVertices)
-
-    drawIntoCanvas { canvas ->
-        drawFaceSurface(canvas, facePath, shadedColor, paints.face)
-        drawFaceLabel(canvas, face.label, face.vertexIndices, projectedVertices, paints)
-        drawFaceStroke(canvas, facePath, paints.stroke)
-    }
-}
-
-/**
- * Calculates the face color based on its normal relative to the light source.
- */
-private fun calculateShadedColor(
-    baseColor: Color,
-    normal: Point3D
-): Color {
     val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
         DiceConstants.MIN_SHADING_INTENSITY,
         DiceConstants.MAX_SHADING_INTENSITY
     )
-    return baseColor.shade(intensity)
-}
+    val shadedColor = face.baseColor.shade(intensity)
+    val verts = face.vertexIndices.map { projectedVertices[it] }
 
-/**
- * Builds the triangular path for a face.
- */
-private fun buildFacePath(
-    path: Path,
-    vertexIndices: List<Int>,
-    projectedVertices: List<Point2D>
-) {
-    path.reset()
-    path.moveTo(projectedVertices[vertexIndices[0]].x, projectedVertices[vertexIndices[0]].y)
-    for (i in 1 until vertexIndices.size) {
-        path.lineTo(projectedVertices[vertexIndices[i]].x, projectedVertices[vertexIndices[i]].y)
+    paints.nativeFacePath.rewind()
+    paints.nativeFacePath.moveTo(verts[0].x, verts[0].y)
+    for (i in 1 until verts.size) paints.nativeFacePath.lineTo(verts[i].x, verts[i].y)
+    paints.nativeFacePath.close()
+
+    drawIntoCanvas { canvas ->
+        paints.fillPaint.apply {
+            color = shadedColor.toArgb()
+            style = NativePaint.Style.FILL
+            pathEffect = null
+        }
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.fillPaint)
+        drawFaceLabel(canvas, face.label, face.vertexIndices, projectedVertices, paints)
+        paints.strokePaint.apply {
+            color = Color.White.copy(alpha = DiceConstants.D20_STROKE_ALPHA).toArgb()
+            style = NativePaint.Style.STROKE
+            strokeWidth = DiceConstants.STROKE_WIDTH
+            pathEffect = null
+        }
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.strokePaint)
     }
-    path.close()
 }
 
-/**
- * Draws the filled surface of a face.
- */
-private fun drawFaceSurface(
-    canvas: Canvas,
-    path: Path,
-    color: Color,
-    paint: Paint
-) {
-    paint.apply {
-        this.color = color
-        style = PaintingStyle.Fill
-    }
-    canvas.drawOutline(Outline.Generic(path), paint)
-}
-
-/**
- * Draws the label (number) "sitting flat" on the face using a transformation matrix.
- */
 private fun drawFaceLabel(
     canvas: Canvas,
     label: String,
@@ -241,7 +193,6 @@ private fun drawFaceLabel(
 ) {
     canvas.nativeCanvas.withSave {
         val matrix = Matrix()
-        // Destination points from the 3D projected vertices
         paints.dstArray[0] = projectedVertices[vIndices[0]].x
         paints.dstArray[1] = projectedVertices[vIndices[0]].y
         paints.dstArray[2] = projectedVertices[vIndices[1]].x
@@ -278,20 +229,4 @@ private fun drawFaceLabel(
             )
         }
     }
-}
-
-/**
- * Draws the outline stroke of a face.
- */
-private fun drawFaceStroke(
-    canvas: Canvas,
-    path: Path,
-    paint: Paint
-) {
-    paint.apply {
-        color = Color.White.copy(alpha = DiceConstants.D20_STROKE_ALPHA)
-        style = PaintingStyle.Stroke
-        strokeWidth = DiceConstants.STROKE_WIDTH
-    }
-    canvas.drawOutline(Outline.Generic(path), paint)
 }

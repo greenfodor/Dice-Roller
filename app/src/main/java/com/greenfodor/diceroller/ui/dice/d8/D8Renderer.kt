@@ -4,11 +4,6 @@ import android.graphics.Matrix
 import android.graphics.Typeface
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -25,18 +20,20 @@ import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.dice.PolyhedronFace
 import com.greenfodor.diceroller.ui.utils.shade
 import android.graphics.Paint as NativePaint
+import android.graphics.Path as NativePath
 
 /**
- * Holds reusable [Paint] and temporary buffers used for D8 face rendering.
+ * Holds reusable [NativePaint] objects and temporary buffers used for D8 face rendering.
  */
 class D8Paints {
-    val face = Paint()
-    val stroke = Paint()
+    val fillPaint = NativePaint().apply { isAntiAlias = true }
+    val strokePaint = NativePaint().apply { isAntiAlias = true }
     val textPaint = NativePaint().apply {
         textAlign = NativePaint.Align.CENTER
         isAntiAlias = true
         typeface = Typeface.DEFAULT_BOLD
     }
+    val nativeFacePath = NativePath()
     val dstArray = FloatArray(6)
     val rotatedVertices = ArrayList<Point3D>(OctahedronGeometry.vertices.size).apply {
         repeat(OctahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
@@ -53,14 +50,13 @@ fun DrawScope.drawD8(
     rotationX: Float,
     rotationY: Float,
     rotationZ: Float,
-    facePath: Path,
     paints: D8Paints,
     color: Color
 ) {
     calculateGeometry(size, centerX, centerY, rotationX, rotationY, rotationZ, paints)
     val visibleFaces = getVisibleAndSortedFaces(color, paints.rotatedVertices)
     visibleFaces.forEach { (face, normal, _) ->
-        renderD8Face(face, normal, paints.projectedVertices, facePath, paints)
+        renderD8Face(face, normal, paints.projectedVertices, paints)
     }
 }
 
@@ -111,7 +107,6 @@ private fun DrawScope.renderD8Face(
     face: PolyhedronFace,
     normal: Point3D,
     projectedVertices: List<Point2D>,
-    facePath: Path,
     paints: D8Paints
 ) {
     val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
@@ -119,27 +114,29 @@ private fun DrawScope.renderD8Face(
         DiceConstants.MAX_SHADING_INTENSITY
     )
     val shadedColor = face.baseColor.shade(intensity)
+    val verts = face.vertexIndices.map { projectedVertices[it] }
 
-    facePath.reset()
-    facePath.moveTo(projectedVertices[face.vertexIndices[0]].x, projectedVertices[face.vertexIndices[0]].y)
-    for (i in 1 until face.vertexIndices.size) {
-        facePath.lineTo(projectedVertices[face.vertexIndices[i]].x, projectedVertices[face.vertexIndices[i]].y)
-    }
-    facePath.close()
+    paints.nativeFacePath.rewind()
+    paints.nativeFacePath.moveTo(verts[0].x, verts[0].y)
+    for (i in 1 until verts.size) paints.nativeFacePath.lineTo(verts[i].x, verts[i].y)
+    paints.nativeFacePath.close()
 
     drawIntoCanvas { canvas ->
-        drawFaceSurface(canvas, facePath, shadedColor, paints.face)
+        paints.fillPaint.apply {
+            color = shadedColor.toArgb()
+            style = NativePaint.Style.FILL
+            pathEffect = null
+        }
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.fillPaint)
         drawFaceLabel(canvas, face.label, face.vertexIndices, projectedVertices, paints)
-        drawFaceStroke(canvas, facePath, paints.stroke)
+        paints.strokePaint.apply {
+            color = Color.White.copy(alpha = DiceConstants.D20_STROKE_ALPHA).toArgb()
+            style = NativePaint.Style.STROKE
+            strokeWidth = DiceConstants.STROKE_WIDTH
+            pathEffect = null
+        }
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.strokePaint)
     }
-}
-
-private fun drawFaceSurface(canvas: Canvas, path: Path, color: Color, paint: Paint) {
-    paint.apply {
-        this.color = color
-        style = PaintingStyle.Fill
-    }
-    canvas.drawOutline(Outline.Generic(path), paint)
 }
 
 private fun drawFaceLabel(
@@ -173,13 +170,4 @@ private fun drawFaceLabel(
             paints.textPaint
         )
     }
-}
-
-private fun drawFaceStroke(canvas: Canvas, path: Path, paint: Paint) {
-    paint.apply {
-        color = Color.White.copy(alpha = DiceConstants.D20_STROKE_ALPHA)
-        style = PaintingStyle.Stroke
-        strokeWidth = DiceConstants.STROKE_WIDTH
-    }
-    canvas.drawOutline(Outline.Generic(path), paint)
 }

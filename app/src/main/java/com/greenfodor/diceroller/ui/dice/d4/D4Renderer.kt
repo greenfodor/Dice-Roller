@@ -4,11 +4,6 @@ import android.graphics.Matrix
 import android.graphics.Typeface
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -25,51 +20,29 @@ import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
 import com.greenfodor.diceroller.ui.dice.PolyhedronFace
 import com.greenfodor.diceroller.ui.utils.shade
 import android.graphics.Paint as NativePaint
+import android.graphics.Path as NativePath
 
 /**
- * Holds reusable [Paint] and temporary buffers used for D4 face rendering.
+ * Holds reusable [NativePaint] objects and temporary buffers used for D4 face rendering.
  */
 class D4Paints {
-    /** Paint for the main face surface (fill). */
-    val face = Paint()
-
-    /** Paint for the face borders (stroke). */
-    val stroke = Paint()
-
-    /** Native Paint for number rendering with high-quality antialiasing. */
+    val fillPaint = NativePaint().apply { isAntiAlias = true }
+    val strokePaint = NativePaint().apply { isAntiAlias = true }
     val textPaint = NativePaint().apply {
         textAlign = NativePaint.Align.CENTER
         isAntiAlias = true
         typeface = Typeface.DEFAULT_BOLD
     }
-
-    /** Temporary buffer for matrix destination coordinates to avoid allocations. */
+    val nativeFacePath = NativePath()
     val dstArray = FloatArray(6)
-
-    /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
     val rotatedVertices = ArrayList<Point3D>(TetrahedronGeometry.vertices.size).apply {
         repeat(TetrahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
     }
-
-    /** Pre-allocated projection buffers used to avoid per-frame allocations during the 2D mapping loop. */
     val projectedVertices = ArrayList<Point2D>(TetrahedronGeometry.vertices.size).apply {
         repeat(TetrahedronGeometry.vertices.size) { add(Point2D(0f, 0f)) }
     }
 }
 
-/**
- * Performs the full 3D D4 (tetrahedron) draw onto the canvas.
- *
- * @param size Outer diameter of the die in pixels.
- * @param centerX Horizontal center for projection.
- * @param centerY Vertical center for projection.
- * @param rotationX Current X rotation in degrees.
- * @param rotationY Current Y rotation in degrees.
- * @param rotationZ Current Z rotation (roll) in degrees.
- * @param facePath Reusable [Path] for geometry.
- * @param paints Reusable [D4Paints] for style and buffers.
- * @param color The base theme color for the die.
- */
 fun DrawScope.drawD4(
     size: Float,
     centerX: Float,
@@ -77,19 +50,13 @@ fun DrawScope.drawD4(
     rotationX: Float,
     rotationY: Float,
     rotationZ: Float,
-    facePath: Path,
     paints: D4Paints,
     color: Color
 ) {
-    // 1. Geometry Calculation
     calculateGeometry(size, centerX, centerY, rotationX, rotationY, rotationZ, paints)
-
-    // 2. Culling and Sorting
     val visibleFaces = getVisibleAndSortedFaces(color, paints.rotatedVertices)
-
-    // 3. Rendering
     visibleFaces.forEach { (face, normal, _) ->
-        renderD4Face(face, normal, paints.projectedVertices, facePath, paints)
+        renderD4Face(face, normal, paints.projectedVertices, paints)
     }
 }
 
@@ -142,43 +109,36 @@ private fun DrawScope.renderD4Face(
     face: PolyhedronFace,
     normal: Point3D,
     projectedVertices: List<Point2D>,
-    facePath: Path,
     paints: D4Paints
 ) {
-    val shadedColor = calculateShadedColor(face.baseColor, normal)
-
-    buildFacePath(facePath, face.vertexIndices, projectedVertices)
-
-    drawIntoCanvas { canvas ->
-        drawFaceSurface(canvas, facePath, shadedColor, paints.face)
-        drawFaceLabel(canvas, face.label, face.vertexIndices, projectedVertices, paints)
-        drawFaceStroke(canvas, facePath, paints.stroke)
-    }
-}
-
-private fun calculateShadedColor(baseColor: Color, normal: Point3D): Color {
     val intensity = normal.dot(LIGHT_SOURCE).coerceIn(
         DiceConstants.MIN_SHADING_INTENSITY,
         DiceConstants.MAX_SHADING_INTENSITY
     )
-    return baseColor.shade(intensity)
-}
+    val shadedColor = face.baseColor.shade(intensity)
+    val verts = face.vertexIndices.map { projectedVertices[it] }
 
-private fun buildFacePath(path: Path, vertexIndices: List<Int>, projectedVertices: List<Point2D>) {
-    path.reset()
-    path.moveTo(projectedVertices[vertexIndices[0]].x, projectedVertices[vertexIndices[0]].y)
-    for (i in 1 until vertexIndices.size) {
-        path.lineTo(projectedVertices[vertexIndices[i]].x, projectedVertices[vertexIndices[i]].y)
-    }
-    path.close()
-}
+    paints.nativeFacePath.rewind()
+    paints.nativeFacePath.moveTo(verts[0].x, verts[0].y)
+    for (i in 1 until verts.size) paints.nativeFacePath.lineTo(verts[i].x, verts[i].y)
+    paints.nativeFacePath.close()
 
-private fun drawFaceSurface(canvas: Canvas, path: Path, color: Color, paint: Paint) {
-    paint.apply {
-        this.color = color
-        style = PaintingStyle.Fill
+    drawIntoCanvas { canvas ->
+        paints.fillPaint.apply {
+            color = shadedColor.toArgb()
+            style = NativePaint.Style.FILL
+            pathEffect = null
+        }
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.fillPaint)
+        drawFaceLabel(canvas, face.label, face.vertexIndices, projectedVertices, paints)
+        paints.strokePaint.apply {
+            color = Color.White.copy(alpha = DiceConstants.D20_STROKE_ALPHA).toArgb()
+            style = NativePaint.Style.STROKE
+            strokeWidth = DiceConstants.STROKE_WIDTH
+            pathEffect = null
+        }
+        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.strokePaint)
     }
-    canvas.drawOutline(Outline.Generic(path), paint)
 }
 
 private fun drawFaceLabel(
@@ -212,13 +172,4 @@ private fun drawFaceLabel(
             paints.textPaint
         )
     }
-}
-
-private fun drawFaceStroke(canvas: Canvas, path: Path, paint: Paint) {
-    paint.apply {
-        color = Color.White.copy(alpha = DiceConstants.D20_STROKE_ALPHA)
-        style = PaintingStyle.Stroke
-        strokeWidth = DiceConstants.STROKE_WIDTH
-    }
-    canvas.drawOutline(Outline.Generic(path), paint)
 }
