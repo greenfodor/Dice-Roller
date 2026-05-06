@@ -27,19 +27,19 @@ class DieDefinitionTest {
         die: DieDefinition,
         expectedFaceCount: Int
     ) {
-        assertEquals("Die ${die.name} should have $expectedFaceCount faces", expectedFaceCount, die.faces.size)
+        assertEquals("Die should have $expectedFaceCount faces", expectedFaceCount, die.faces.size)
 
         val values = die.faces.map { it.value }
 
         // Check for correct range
         assertTrue(
-            "Die ${die.name} values should be in range 1..$expectedFaceCount",
+            "Die values should be in range 1..$expectedFaceCount",
             values.all { it in 1..expectedFaceCount }
         )
 
         // Check for duplicates
         assertEquals(
-            "Die ${die.name} should not have duplicate face values",
+            "Die should not have duplicate face values",
             expectedFaceCount,
             values.distinct().size
         )
