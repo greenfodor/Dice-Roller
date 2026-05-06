@@ -1,7 +1,6 @@
 package com.greenfodor.diceroller.ui.dice
 
 interface DieDefinition {
-
     /** All possible outcomes, in any order */
     val faces: List<DieFace>
 
