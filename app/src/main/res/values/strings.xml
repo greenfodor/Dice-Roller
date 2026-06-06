@@ -7,4 +7,5 @@
     <string name="d20_label">Single D20</string>
     <string name="d4_label">Single D4</string>
     <string name="d8_label">Single D8</string>
+    <string name="d10_label">Single D10</string>
 </resources>
