@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
+import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -82,7 +83,7 @@ fun DiceRollerTopBar(
             IconButton(onClick = onToggleTheme) {
                 Icon(
                     imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
-                    contentDescription = "Toggle Theme",
+                    contentDescription = stringResource(R.string.cd_toggle_theme),
                     modifier = Modifier.rotate(rotation)
                 )
             }

@@ -12,7 +12,7 @@ import com.greenfodor.diceroller.ui.dice.DieState
  *
  * @param dieStates The states of the dice to be rolled.
  */
-fun Context.rollDice(vararg dieStates: DieState) {
+fun Context.rollDice(dieStates: List<DieState>) {
     if (dieStates.any { it.isRolling }) return
 
     dieStates.forEach { it.roll() }
