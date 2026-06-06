@@ -82,6 +82,25 @@ class DieStateTest {
     }
 
     @Test
+    fun `rolling marks the die as rolling`() {
+        val state = DieState(die = D6)
+
+        state.roll()
+
+        Assert.assertTrue("Die should be rolling immediately after roll()", state.isRolling)
+    }
+
+    @Test
+    fun `onSettled clears the rolling flag`() {
+        val state = DieState(die = D6)
+        state.roll()
+
+        state.onSettled()
+
+        Assert.assertFalse("Die should not be rolling once settled", state.isRolling)
+    }
+
+    @Test
     fun `multiple rolls change target rotation`() {
         val state = DieState(die = D6)
 

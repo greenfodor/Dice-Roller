@@ -4,7 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.utils.logD
@@ -16,9 +17,14 @@ import kotlin.random.Random
  * Extracting this logic out of the composable means the roll math is
  * independently readable and testable.
  *
+ * [isRolling] is owned here: it flips to `true` the moment a roll starts and
+ * back to `false` when the animation settles (see [onSettled]). Nothing writes
+ * it from inside composition, which keeps the rolling status a single source of
+ * truth and avoids backwards writes during the composition phase.
+ *
  * Usage:
  * ```kotlin
- * val dieState = rememberDieState()
+ * val dieState = rememberDieState(die = D6)
  * // ...
  * Button(onClick = { dieState.roll() })
  * ```
@@ -41,7 +47,7 @@ class DieState(
         private set
 
     var isRolling by mutableStateOf(false)
-        internal set
+        private set
 
     private var baseRotationX = 0f
     private var baseRotationY = 0f
@@ -56,6 +62,7 @@ class DieState(
      */
     fun roll() {
         currentFace = die.roll()
+        isRolling = true
 
         // Randomize number of full spins and direction (+ or -) for each axis
         val spinsX = (DiceConstants.ROTATION_SPIN_COUNT..DiceConstants.ROTATION_SPIN_COUNT + 2).random()
@@ -76,7 +83,40 @@ class DieState(
 
         logD { "rolled ${currentFace.value}" }
     }
+
+    /** Called by the animation once the roll has finished animating to its target. */
+    fun onSettled() {
+        isRolling = false
+    }
+
+    /**
+     * Restores the die to a resting position on [face] with no accumulated spin.
+     * Used when rebuilding state after a configuration change or process death.
+     */
+    private fun restoreToFace(face: DieFace) {
+        currentFace = face
+        targetRotationX = face.rotationX
+        targetRotationY = face.rotationY
+        targetRotationZ = face.rotationZ
+    }
+
+    companion object {
+        /**
+         * Persists only the resting face (by index) across configuration changes
+         * and process death. The in-flight animation is intentionally not saved —
+         * the die is restored at rest on its last result.
+         */
+        fun saver(die: DieDefinition): Saver<DieState, Int> = Saver(
+            save = { die.faces.indexOf(it.currentFace) },
+            restore = { index ->
+                DieState(die).apply {
+                    die.faces.getOrNull(index)?.let(::restoreToFace)
+                }
+            }
+        )
+    }
 }
 
 @Composable
-fun rememberDieState(die: DieDefinition): DieState = remember { DieState(die) }
+fun rememberDieState(die: DieDefinition): DieState =
+    rememberSaveable(die, saver = DieState.saver(die)) { DieState(die) }

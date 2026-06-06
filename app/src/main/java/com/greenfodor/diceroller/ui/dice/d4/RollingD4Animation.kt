@@ -1,18 +1,15 @@
 package com.greenfodor.diceroller.ui.dice.d4
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import com.greenfodor.diceroller.ui.dice.DieState
+import com.greenfodor.diceroller.ui.dice.rememberRollRotation
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 
@@ -24,28 +21,7 @@ fun RollingD4Animation(
     val diceSpecs = MaterialTheme.diceSpecs
     val paints = remember { D4Paints() }
     val color = MaterialTheme.colorScheme.tertiary
-
-    val rotationX by animateFloatAsState(
-        targetValue = dieState.targetRotationX,
-        animationSpec = tween(durationMillis = diceSpecs.rollDurationMillis, easing = FastOutSlowInEasing),
-        label = "rotationX"
-    )
-
-    val rotationY by animateFloatAsState(
-        targetValue = dieState.targetRotationY,
-        animationSpec = tween(durationMillis = diceSpecs.rollDurationMillis, easing = FastOutSlowInEasing),
-        label = "rotationY"
-    )
-
-    val rotationZ by animateFloatAsState(
-        targetValue = dieState.targetRotationZ,
-        animationSpec = tween(durationMillis = diceSpecs.rollDurationMillis, easing = FastOutSlowInEasing),
-        label = "rotationZ"
-    )
-
-    dieState.isRolling = rotationX != dieState.targetRotationX ||
-        rotationY != dieState.targetRotationY ||
-        rotationZ != dieState.targetRotationZ
+    val rotation = rememberRollRotation(dieState)
 
     Canvas(
         modifier = modifier
@@ -57,9 +33,9 @@ fun RollingD4Animation(
             size = diceSpecs.diceInternalSize,
             centerX = size.width / 2,
             centerY = size.height / 2,
-            rotationX = rotationX,
-            rotationY = rotationY,
-            rotationZ = rotationZ,
+            rotationX = rotation.x.value,
+            rotationY = rotation.y.value,
+            rotationZ = rotation.z.value,
             paints = paints,
             color = color
         )

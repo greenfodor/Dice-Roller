@@ -12,7 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -33,8 +33,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val systemInDarkTheme = isSystemInDarkTheme()
-            var isDarkMode by remember { mutableStateOf(systemInDarkTheme) }
-            var selectedDiceType by remember { mutableStateOf(DiceType.SINGLE_D6) }
+            var isDarkMode by rememberSaveable { mutableStateOf(systemInDarkTheme) }
+            var selectedDiceType by rememberSaveable { mutableStateOf(DiceType.SINGLE_D6) }
 
             DiceRollerTheme(darkTheme = isDarkMode) {
                 Scaffold(
