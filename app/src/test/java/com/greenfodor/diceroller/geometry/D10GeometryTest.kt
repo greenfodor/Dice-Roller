@@ -18,7 +18,11 @@ class D10GeometryTest {
     @Test
     fun `face values cover 1 through 10 without duplicates`() {
         val values = geo.faces.map { it.value }.sorted()
-        assertEquals("Should have 10 faces", (1..10).toList(), values)
+        assertEquals(
+            "Should have 10 faces",
+            (1..10).toList(),
+            values
+        )
     }
 
     @Test
@@ -52,9 +56,22 @@ class D10GeometryTest {
             val normal = (v1 - v0).cross(v2 - v0).normalize()
             val rotatedNormal = normal.rotatePoint(rx, ry, rz)
 
-            assertEquals("Face ${face.value}: Normal X should be 0", 0f, rotatedNormal.x, 0.01f)
-            assertEquals("Face ${face.value}: Normal Y should be 0", 0f, rotatedNormal.y, 0.01f)
-            assertTrue("Face ${face.value}: Normal Z should be positive", rotatedNormal.z > 0.99f)
+            assertEquals(
+                "Face ${face.value}: Normal X should be 0",
+                0f,
+                rotatedNormal.x,
+                0.01f
+            )
+            assertEquals(
+                "Face ${face.value}: Normal Y should be 0",
+                0f,
+                rotatedNormal.y,
+                0.01f
+            )
+            assertTrue(
+                "Face ${face.value}: Normal Z should be positive",
+                rotatedNormal.z > 0.99f
+            )
         }
     }
 
@@ -63,8 +80,16 @@ class D10GeometryTest {
         val upperFaces = geo.faces.filter { it.vertexIndices[0] == 0 }
         val lowerFaces = geo.faces.filter { it.vertexIndices[0] == 11 }
 
-        assertEquals("Should have 5 upper faces", 5, upperFaces.size)
-        assertEquals("Should have 5 lower faces", 5, lowerFaces.size)
+        assertEquals(
+            "Should have 5 upper faces",
+            5,
+            upperFaces.size
+        )
+        assertEquals(
+            "Should have 5 lower faces",
+            5,
+            lowerFaces.size
+        )
 
         val upperValues = upperFaces.map { it.value }.toSet()
         val lowerValues = lowerFaces.map { it.value }.toSet()
@@ -82,7 +107,12 @@ class D10GeometryTest {
         val expectedRadius = sqrt(3f)
         geo.vertices.forEach { v ->
             val radius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
-            assertEquals("All vertices should lie on circumsphere of radius √3", expectedRadius, radius, 0.001f)
+            assertEquals(
+                "All vertices should lie on circumsphere of radius √3",
+                expectedRadius,
+                radius,
+                0.001f
+            )
         }
     }
 
@@ -120,7 +150,9 @@ class D10GeometryTest {
 
             assertEquals(
                 "Face ${face.value}: apex should be horizontally centered",
-                centerRotated.x, apexRotated.x, 0.05f
+                centerRotated.x,
+                apexRotated.x,
+                0.05f
             )
             assertTrue(
                 "Face ${face.value}: apex should be above face center (smaller Y)",
