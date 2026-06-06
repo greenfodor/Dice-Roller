@@ -70,3 +70,5 @@ gradle/
 /.idea/workspace.xml
 /.idea/libraries
 CLAUDE.md
+.claude/
+graphify-out/

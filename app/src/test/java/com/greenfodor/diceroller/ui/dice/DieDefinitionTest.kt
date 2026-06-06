@@ -1,5 +1,6 @@
 package com.greenfodor.diceroller.ui.dice
 
+import com.greenfodor.diceroller.ui.dice.d10.D10
 import com.greenfodor.diceroller.ui.dice.d20.D20
 import com.greenfodor.diceroller.ui.dice.d4.D4
 import com.greenfodor.diceroller.ui.dice.d6.D6
@@ -22,6 +23,11 @@ class DieDefinitionTest {
     @Test
     fun `D8 definition is valid`() {
         validateDie(D8, expectedFaceCount = 8)
+    }
+
+    @Test
+    fun `D10 definition is valid`() {
+        validateDie(D10, expectedFaceCount = 10)
     }
 
     @Test

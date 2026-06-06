@@ -42,6 +42,10 @@ object DiceConstants {
     const val D20_UNDERLINE_HEIGHT_UV = 4f
     const val D20_UNDERLINE_TOP_OFFSET_UV = 2f
 
+    const val D10_UNDERLINE_WIDTH_UV = 28f
+    const val D10_UNDERLINE_HEIGHT_UV = 4f
+    const val D10_UNDERLINE_TOP_OFFSET_UV = 10f
+
     // UV space triangle for D20 (radius 100)
     const val D20_UV_X = 86.6f
     const val D20_UV_Y_TOP = -100f
