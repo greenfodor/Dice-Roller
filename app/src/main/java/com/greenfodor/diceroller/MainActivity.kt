@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
+import com.greenfodor.diceroller.ui.screens.D100Screen
 import com.greenfodor.diceroller.ui.screens.D10Screen
 import com.greenfodor.diceroller.ui.screens.D20Screen
 import com.greenfodor.diceroller.ui.screens.D4Screen
@@ -61,6 +62,7 @@ class MainActivity : ComponentActivity() {
                             DiceType.SINGLE_D8 -> D8Screen()
                             DiceType.SINGLE_D10 -> D10Screen()
                             DiceType.SINGLE_D20 -> D20Screen()
+                            DiceType.PERCENTILE_D100 -> D100Screen()
                         }
                     }
                 }

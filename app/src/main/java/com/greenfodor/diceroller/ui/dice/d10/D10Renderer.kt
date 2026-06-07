@@ -49,10 +49,11 @@ fun DrawScope.drawD10(
     rotationY: Float,
     rotationZ: Float,
     paints: D10Paints,
-    color: Color
+    color: Color,
+    labelFor: (geometryValue: Int) -> String = { it.toString() }
 ) {
     calculateGeometry(size, centerX, centerY, rotationX, rotationY, rotationZ, paints)
-    val visibleFaces = getVisibleAndSortedFaces(color, paints.rotatedVertices)
+    val visibleFaces = getVisibleAndSortedFaces(color, paints.rotatedVertices, labelFor)
     visibleFaces.forEach { (face, normal, _) ->
         renderD10Face(face, normal, paints.projectedVertices, paints)
     }
@@ -78,10 +79,11 @@ private fun calculateGeometry(
 
 private fun getVisibleAndSortedFaces(
     color: Color,
-    rotatedVertices: List<Point3D>
+    rotatedVertices: List<Point3D>,
+    labelFor: (geometryValue: Int) -> String
 ): List<Triple<PolyhedronFace, Point3D, Double>> {
     val faces = PentagonalTrapezohedronGeometry.faces.map { face ->
-        PolyhedronFace(face.vertexIndices, color, face.value.toString())
+        PolyhedronFace(face.vertexIndices, color, labelFor(face.value))
     }
 
     return faces.mapNotNull { face ->
@@ -165,7 +167,7 @@ private fun drawFaceLabel(
         }
 
         val baseline = -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 +
-            DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT
+            DiceConstants.D10_TEXT_BASELINE_ADJUSTMENT
 
         drawText(label, 0f, baseline, paints.textPaint)
 

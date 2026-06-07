@@ -14,11 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 
@@ -59,8 +57,7 @@ private fun D6StaticPreview(
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Front Face Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Front Face Dark")
+@LightDarkPreview
 @Composable
 fun D6PreviewFront() {
     DiceRollerTheme {
@@ -69,8 +66,7 @@ fun D6PreviewFront() {
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Angled View Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Angled View Dark")
+@LightDarkPreview
 @Composable
 fun D6PreviewAngled() {
     DiceRollerTheme {
@@ -78,8 +74,7 @@ fun D6PreviewAngled() {
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Top-Right Edge Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Top-Right Edge Dark")
+@LightDarkPreview
 @Composable
 fun D6PreviewTopRight() {
     DiceRollerTheme {
@@ -87,8 +82,7 @@ fun D6PreviewTopRight() {
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Dice Faces Grid Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Dice Faces Grid Dark")
+@LightDarkPreview
 @Composable
 fun D6PreviewDiceGrid() {
     DiceRollerTheme {
