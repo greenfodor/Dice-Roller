@@ -3,7 +3,6 @@ package com.greenfodor.diceroller.ui.dice.d100
 import com.greenfodor.diceroller.geometry.PentagonalTrapezohedronGeometry
 import com.greenfodor.diceroller.ui.dice.DieDefinition
 import com.greenfodor.diceroller.ui.dice.DieFace
-import com.greenfodor.diceroller.ui.dice.DieState
 
 /**
  * Standard D&D percentile dice: a d100 is rolled with two physical d10s — a "tens"
@@ -32,16 +31,12 @@ fun tensLabel(geometryValue: Int): String = "%02d".format(tensContribution(geome
 
 /**
  * Maps a raw tens+units sum to a percentile result: 0 (00 + 0) reads as 100,
- * everything else is the sum itself. Pure and independent of [DieState] for testability.
+ * everything else is the sum itself. Pure and independent of UI state for testability.
+ *
+ * Public (not `internal`) because the `:app` `percentileTotal` aggregation over the
+ * Compose-bound `DieState` lives in another module and builds on this.
  */
-internal fun percentileValue(rawSum: Int): Int = if (rawSum == 0) PERCENTILE_MAX else rawSum
-
-/**
- * Combined percentile result for a [tens, units] pair of [DieState]s.
- * A summed value of 0 (00 + 0) reads as 100, per the standard convention.
- */
-fun percentileTotal(dieStates: List<DieState>): Int =
-    percentileValue(dieStates.sumOf { it.currentFace.value })
+fun percentileValue(rawSum: Int): Int = if (rawSum == 0) PERCENTILE_MAX else rawSum
 
 object PercentileTensDie : DieDefinition {
     override val faces = PentagonalTrapezohedronGeometry.faces.map { face ->

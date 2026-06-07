@@ -1,15 +1,10 @@
 package com.greenfodor.diceroller.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,11 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.R
-import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -39,13 +32,12 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 /**
  * Custom TopAppBar for the Dice Roller app.
  *
- * It features a dropdown menu for selecting the type of die to roll and a toggle button
- * for switching between light and dark themes with a rotation animation.
+ * It features a dropdown menu for selecting the type of die to roll and an action button
+ * that opens the settings screen (where the theme is configured).
  *
  * @param selectedDiceType The currently active die type.
  * @param onDiceTypeSelected Callback when the user selects a different die type.
- * @param isDarkMode Whether the app is currently in dark mode.
- * @param onToggleTheme Callback to toggle between light and dark themes.
+ * @param onOpenSettings Callback to open the settings screen.
  * @param modifier Modifier for the top bar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,18 +45,14 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 fun DiceRollerTopBar(
     selectedDiceType: DiceType,
     onDiceTypeSelected: (DiceType) -> Unit,
-    isDarkMode: Boolean,
-    onToggleTheme: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val rotation by animateFloatAsState(
-        targetValue = if (isDarkMode) 180f else 0f,
-        animationSpec = tween(durationMillis = DiceConstants.ICON_ROTATION_DURATION_MILLIS),
-        label = "iconRotation"
-    )
-
     TopAppBar(
-        modifier = modifier.background(color = MaterialTheme.colorScheme.background),
+        // No own background: the app bar's container is transparent so the Scaffold's
+        // (identically animated) background shows through and recolors in lockstep with the
+        // rest of the screen on theme change, instead of lagging as a separate draw layer.
+        modifier = modifier,
         title = { },
         navigationIcon = {
             DiceTypeDropDown(
@@ -78,11 +66,10 @@ fun DiceRollerTopBar(
                 actionIconContentColor = MaterialTheme.colorScheme.onBackground
             ),
         actions = {
-            IconButton(onClick = onToggleTheme) {
+            IconButton(onClick = onOpenSettings) {
                 Icon(
-                    imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
-                    contentDescription = stringResource(R.string.cd_toggle_theme),
-                    modifier = Modifier.rotate(rotation)
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.cd_open_settings)
                 )
             }
         }
@@ -136,8 +123,7 @@ private fun DiceRollerTopBarPreview() {
         DiceRollerTopBar(
             selectedDiceType = DiceType.SINGLE_D6,
             onDiceTypeSelected = {},
-            isDarkMode = isSystemInDarkTheme(),
-            onToggleTheme = {}
+            onOpenSettings = {}
         )
     }
 }
