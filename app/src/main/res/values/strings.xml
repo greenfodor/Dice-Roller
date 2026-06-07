@@ -8,6 +8,8 @@
     <string name="d4_label">Single D4</string>
     <string name="d8_label">Single D8</string>
     <string name="d10_label">Single D10</string>
+    <string name="d100_label">Percentile D100</string>
     <string name="cd_die_value">Die showing %1$d</string>
+    <string name="cd_rolled_value">Rolled %1$d</string>
     <string name="cd_toggle_theme">Toggle light and dark theme</string>
 </resources>

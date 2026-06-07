@@ -16,7 +16,8 @@ import com.greenfodor.diceroller.ui.theme.spacing
 @Composable
 fun RollingD10Animation(
     dieState: DieState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    labelFor: (geometryValue: Int) -> String = { it.toString() }
 ) {
     val diceSpecs = MaterialTheme.diceSpecs
     val paints = remember { D10Paints() }
@@ -37,7 +38,8 @@ fun RollingD10Animation(
             rotationY = rotation.y.value,
             rotationZ = rotation.z.value,
             paints = paints,
-            color = color
+            color = color,
+            labelFor = labelFor
         )
     }
 }

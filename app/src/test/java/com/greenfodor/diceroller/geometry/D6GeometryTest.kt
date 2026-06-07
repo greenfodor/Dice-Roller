@@ -1,5 +1,6 @@
 package com.greenfodor.diceroller.geometry
 
+import com.greenfodor.diceroller.ui.dice.d6.D6
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -113,6 +114,29 @@ class D6GeometryTest {
                 rotatedVertices[2].y,
                 rotatedVertices[3].y,
                 0.01f
+            )
+        }
+    }
+
+    @Test
+    fun `D6 face rotation brings the matching pip face to the front`() {
+        // The renderer assigns pips by HexahedronGeometry face value, so the rotation that
+        // D6 picks for a rolled value must bring that same geometry face to the camera (+Z).
+        // Guards against value/pip desync (e.g. the historical 3-vs-4 swap).
+        HexahedronGeometry.faces.forEach { geometryFace ->
+            val dieFace = D6.faces.first { it.value == geometryFace.value }
+
+            val v0 = HexahedronGeometry.vertices[geometryFace.vertexIndices[0]]
+            val v1 = HexahedronGeometry.vertices[geometryFace.vertexIndices[1]]
+            val v2 = HexahedronGeometry.vertices[geometryFace.vertexIndices[2]]
+            val normal = (v1 - v0).cross(v2 - v0).normalize()
+
+            val rotatedNormal = normal.rotatePoint(dieFace.rotationX, dieFace.rotationY, dieFace.rotationZ)
+
+            assertTrue(
+                "Rolling ${geometryFace.value} should bring its own pip face to the front " +
+                    "(rotated normal z=${rotatedNormal.z})",
+                rotatedNormal.z > 0.99f
             )
         }
     }

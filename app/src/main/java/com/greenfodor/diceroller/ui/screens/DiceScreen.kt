@@ -1,6 +1,11 @@
 package com.greenfodor.diceroller.ui.screens
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,8 +19,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -23,20 +34,33 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.dice.DieState
+import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 import com.greenfodor.diceroller.ui.utils.rollDice
+import kotlinx.coroutines.delay
 
 /**
- * Shared layout for every dice screen: wires the shake detector, lays the dice
- * out (centered for one, evenly spread for several), and renders the roll button.
+ * Shared layout for every dice screen: shows the rolled value, wires the shake
+ * detector, lays the dice out (centered for one, evenly spread for several), and
+ * renders the roll button.
+ *
+ * The result sits above the dice. It scales + fades out the instant a roll starts,
+ * stays hidden through the roll, then pops back in (bouncy spring, overshooting past
+ * full size) timed to land just before the dice settle — so the outcome is not
+ * lingering on screen during the roll.
  *
  * Each die is rendered through the [dieContent] slot, so a screen only has to
  * supply its own renderer. The roll button is disabled while any die is mid-roll.
  *
  * @param dieStates The dice shown on this screen (one or more).
  * @param rollButtonResId Label for the roll button.
+ * @param result The rolled value to display, derived from the dice. Defaults to the
+ *   sum of every die's current face — correct for a single die (the value itself) and
+ *   for multiple dice (e.g. 2d6). Screens with their own scoring (e.g. percentile d100)
+ *   override this.
  * @param dieContent Renderer for a single die — typically a `RollingDNAnimation`.
  */
 @Composable
@@ -44,6 +68,7 @@ fun DiceScreen(
     dieStates: List<DieState>,
     @StringRes rollButtonResId: Int,
     modifier: Modifier = Modifier,
+    result: (List<DieState>) -> Int = { states -> states.sumOf { it.currentFace.value } },
     dieContent: @Composable (DieState) -> Unit
 ) {
     val context = LocalContext.current
@@ -51,6 +76,34 @@ fun DiceScreen(
     rememberShakeDetector(onShake = { context.rollDice(dieStates) })
 
     val isRolling = dieStates.any { it.isRolling }
+    val rollDurationMillis = MaterialTheme.diceSpecs.rollDurationMillis
+
+    // Drives both alpha and scale of the result: 0 = hidden/small, 1 = shown/full.
+    val visibility = remember { Animatable(1f) }
+    var displayedValue by remember { mutableIntStateOf(result(dieStates)) }
+
+    // The outcome is decided the instant a roll starts, so we can time the reveal to land
+    // just before the dice settle: scale + fade the old value out, hold hidden, then pop the
+    // new value in with a bouncy spring (overshoots past full size for a snappy "pop").
+    LaunchedEffect(isRolling) {
+        if (isRolling) {
+            visibility.animateTo(0f, tween(DiceConstants.RESULT_EXIT_MILLIS, easing = FastOutSlowInEasing))
+            val holdMillis = rollDurationMillis - DiceConstants.RESULT_EXIT_MILLIS -
+                DiceConstants.RESULT_ENTER_LEAD_MILLIS
+            delay(holdMillis.coerceAtLeast(0).toLong())
+            displayedValue = result(dieStates)
+            visibility.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        } else {
+            // Guarantee a fully-shown final state even if the settle pre-empts the entrance.
+            visibility.snapTo(1f)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -59,6 +112,30 @@ fun DiceScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        val rolledDescription = stringResource(R.string.cd_rolled_value, displayedValue)
+        Text(
+            text = displayedValue.toString(),
+            style = MaterialTheme.typography.displaySmall,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier
+                .graphicsLayer {
+                    val shown = visibility.value
+                    // Alpha stays in [0,1]; scale follows the raw spring so it can overshoot past
+                    // full size for the pop.
+                    alpha = shown.coerceIn(0f, 1f)
+                    val scale = DiceConstants.RESULT_HIDDEN_SCALE +
+                        (1f - DiceConstants.RESULT_HIDDEN_SCALE) * shown
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .semantics {
+                    contentDescription = rolledDescription
+                    liveRegion = LiveRegionMode.Polite
+                }
+        )
+
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = if (dieStates.size > 1) Arrangement.SpaceEvenly else Arrangement.Center
@@ -68,7 +145,6 @@ fun DiceScreen(
                 Box(
                     modifier = Modifier.semantics {
                         contentDescription = description
-                        liveRegion = LiveRegionMode.Polite
                     }
                 ) {
                     dieContent(dieState)
