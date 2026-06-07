@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.greenfodor.diceroller.data.ThemeMode
 import com.greenfodor.diceroller.ui.DiceConstants
 
 @Immutable
@@ -230,4 +231,15 @@ fun DiceRollerTheme(
             content = content
         )
     }
+}
+
+/**
+ * Resolves a [ThemeMode] to whether dark colors should be used.
+ * [ThemeMode.FOLLOW_SYSTEM] defers to the device setting via [isSystemInDarkTheme].
+ */
+@Composable
+fun resolveDarkTheme(themeMode: ThemeMode): Boolean = when (themeMode) {
+    ThemeMode.FOLLOW_SYSTEM -> isSystemInDarkTheme()
+    ThemeMode.LIGHT -> false
+    ThemeMode.DARK -> true
 }

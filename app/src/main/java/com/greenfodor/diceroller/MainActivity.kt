@@ -4,69 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
-import com.greenfodor.diceroller.ui.screens.D100Screen
-import com.greenfodor.diceroller.ui.screens.D10Screen
-import com.greenfodor.diceroller.ui.screens.D20Screen
-import com.greenfodor.diceroller.ui.screens.D4Screen
-import com.greenfodor.diceroller.ui.screens.D6Screen
-import com.greenfodor.diceroller.ui.screens.D8Screen
-import com.greenfodor.diceroller.ui.screens.DiceType
-import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
-import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import com.greenfodor.diceroller.ui.DiceRollerApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        var uiReady = false
+        splashScreen.setKeepOnScreenCondition { uiReady.not() }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val systemInDarkTheme = isSystemInDarkTheme()
-            var isDarkMode by rememberSaveable { mutableStateOf(systemInDarkTheme) }
-            var selectedDiceType by rememberSaveable { mutableStateOf(DiceType.SINGLE_D6) }
-
-            DiceRollerTheme(darkTheme = isDarkMode) {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background,
-                    topBar = {
-                        DiceRollerTopBar(
-                            selectedDiceType = selectedDiceType,
-                            onDiceTypeSelected = { selectedDiceType = it },
-                            isDarkMode = isDarkMode,
-                            onToggleTheme = { isDarkMode = isDarkMode.not() }
-                        )
-                    }
-                ) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        when (selectedDiceType) {
-                            DiceType.SINGLE_D4 -> D4Screen()
-                            DiceType.SINGLE_D6 -> D6Screen()
-                            DiceType.DOUBLE_D6 -> DoubleD6Screen()
-                            DiceType.SINGLE_D8 -> D8Screen()
-                            DiceType.SINGLE_D10 -> D10Screen()
-                            DiceType.SINGLE_D20 -> D20Screen()
-                            DiceType.PERCENTILE_D100 -> D100Screen()
-                        }
-                    }
-                }
-            }
+            DiceRollerApp(onReady = { uiReady = true })
         }
     }
 }

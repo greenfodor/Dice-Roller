@@ -26,3 +26,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Dice Roller"
 include(":app")
+include(":core:domain")
+include(":core:data")
+include(":core:designsystem")
+include(":feature:settings:presentation")
