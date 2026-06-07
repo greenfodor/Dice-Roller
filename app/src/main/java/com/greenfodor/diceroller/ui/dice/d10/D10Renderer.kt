@@ -167,7 +167,7 @@ private fun drawFaceLabel(
         }
 
         val baseline = -(paints.textPaint.descent() + paints.textPaint.ascent()) / 2 +
-            DiceConstants.D20_TEXT_BASELINE_ADJUSTMENT
+            DiceConstants.D10_TEXT_BASELINE_ADJUSTMENT
 
         drawText(label, 0f, baseline, paints.textPaint)
 

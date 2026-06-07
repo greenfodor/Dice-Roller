@@ -49,6 +49,13 @@ object DiceConstants {
     const val D10_UNDERLINE_HEIGHT_UV = 4f
     const val D10_UNDERLINE_TOP_OFFSET_UV = 10f
 
+    // The label is mapped onto the kite's top triangle (apex + the two side vertices), whose
+    // centroid sits above the kite's true centroid. This shifts the baseline down (+y) to the
+    // kite's area centroid so the number is centered on the face instead of riding up toward the
+    // pointy tip. The kite is elongated toward the apex, so its area centroid (~+12) sits above
+    // its vertex centroid (~+21).
+    const val D10_TEXT_BASELINE_ADJUSTMENT = 12f
+
     // UV space triangle for D20 (radius 100)
     const val D20_UV_X = 86.6f
     const val D20_UV_Y_TOP = -100f
