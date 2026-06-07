@@ -40,8 +40,8 @@ import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 import com.greenfodor.diceroller.ui.utils.rollDice
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Shared layout for every dice screen: shows the rolled value, wires the shake
