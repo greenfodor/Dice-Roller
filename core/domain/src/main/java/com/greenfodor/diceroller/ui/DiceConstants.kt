@@ -13,7 +13,6 @@ object DiceConstants {
     const val RESULT_EXIT_MILLIS = 100
     const val RESULT_HIDDEN_SCALE = 0.3f
     const val THEME_TRANSITION_DURATION_MILLIS = 500
-    const val ICON_ROTATION_DURATION_MILLIS = 500
     const val ROTATION_SPIN_COUNT = 3
     const val FULL_ROTATION = 360f
 
