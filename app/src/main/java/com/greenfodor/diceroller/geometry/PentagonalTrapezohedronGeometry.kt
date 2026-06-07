@@ -30,21 +30,21 @@ object PentagonalTrapezohedronGeometry {
     private val h = CIRCUMRADIUS * 0.10559f // ring height: only ratio giving planar kite faces
     private val ringRadius = sqrt(CIRCUMRADIUS * CIRCUMRADIUS - h * h) // ring vertices on the circumsphere
 
-    private val step = (2.0 * PI / 5.0).toFloat()
-    private val offset = (PI / 5.0).toFloat()
+    private const val STEP = (2.0 * PI / 5.0).toFloat()
+    private const val OFFSET = (PI / 5.0).toFloat()
 
     val vertices = listOf(
         Point3D(0f, 0f, CIRCUMRADIUS), // 0: top apex
-        Point3D(ringRadius * cos(0 * step), ringRadius * sin(0 * step), h), // 1: U0 (0°)
-        Point3D(ringRadius * cos(1 * step), ringRadius * sin(1 * step), h), // 2: U1 (72°)
-        Point3D(ringRadius * cos(2 * step), ringRadius * sin(2 * step), h), // 3: U2 (144°)
-        Point3D(ringRadius * cos(3 * step), ringRadius * sin(3 * step), h), // 4: U3 (216°)
-        Point3D(ringRadius * cos(4 * step), ringRadius * sin(4 * step), h), // 5: U4 (288°)
-        Point3D(ringRadius * cos(offset), ringRadius * sin(offset), -h), // 6: L0 (36°)
-        Point3D(ringRadius * cos(offset + step), ringRadius * sin(offset + step), -h), // 7: L1 (108°)
-        Point3D(ringRadius * cos(offset + 2 * step), ringRadius * sin(offset + 2 * step), -h), // 8: L2 (180°)
-        Point3D(ringRadius * cos(offset + 3 * step), ringRadius * sin(offset + 3 * step), -h), // 9: L3 (252°)
-        Point3D(ringRadius * cos(offset + 4 * step), ringRadius * sin(offset + 4 * step), -h), // 10: L4 (324°)
+        Point3D(ringRadius * cos(0 * STEP), ringRadius * sin(0 * STEP), h), // 1: U0 (0°)
+        Point3D(ringRadius * cos(1 * STEP), ringRadius * sin(1 * STEP), h), // 2: U1 (72°)
+        Point3D(ringRadius * cos(2 * STEP), ringRadius * sin(2 * STEP), h), // 3: U2 (144°)
+        Point3D(ringRadius * cos(3 * STEP), ringRadius * sin(3 * STEP), h), // 4: U3 (216°)
+        Point3D(ringRadius * cos(4 * STEP), ringRadius * sin(4 * STEP), h), // 5: U4 (288°)
+        Point3D(ringRadius * cos(OFFSET), ringRadius * sin(OFFSET), -h), // 6: L0 (36°)
+        Point3D(ringRadius * cos(OFFSET + STEP), ringRadius * sin(OFFSET + STEP), -h), // 7: L1 (108°)
+        Point3D(ringRadius * cos(OFFSET + 2 * STEP), ringRadius * sin(OFFSET + 2 * STEP), -h), // 8: L2 (180°)
+        Point3D(ringRadius * cos(OFFSET + 3 * STEP), ringRadius * sin(OFFSET + 3 * STEP), -h), // 9: L3 (252°)
+        Point3D(ringRadius * cos(OFFSET + 4 * STEP), ringRadius * sin(OFFSET + 4 * STEP), -h), // 10: L4 (324°)
         Point3D(0f, 0f, -CIRCUMRADIUS) // 11: bottom apex
     )
 

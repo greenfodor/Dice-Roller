@@ -40,6 +40,7 @@ import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 import com.greenfodor.diceroller.ui.utils.rollDice
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
 /**
@@ -90,7 +91,7 @@ fun DiceScreen(
             visibility.animateTo(0f, tween(DiceConstants.RESULT_EXIT_MILLIS, easing = FastOutSlowInEasing))
             val holdMillis = rollDurationMillis - DiceConstants.RESULT_EXIT_MILLIS -
                 DiceConstants.RESULT_ENTER_LEAD_MILLIS
-            delay(holdMillis.coerceAtLeast(0).toLong())
+            delay(holdMillis.coerceAtLeast(0).milliseconds)
             displayedValue = result(dieStates)
             visibility.animateTo(
                 targetValue = 1f,
