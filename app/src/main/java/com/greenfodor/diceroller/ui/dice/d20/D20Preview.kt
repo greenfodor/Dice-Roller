@@ -14,11 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
 @Composable
@@ -57,8 +55,7 @@ private fun D20StaticPreview(
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Face 1 Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Face 1 Dark")
+@LightDarkPreview
 @Composable
 fun D20PreviewFace1() {
     DiceRollerTheme {
@@ -67,8 +64,7 @@ fun D20PreviewFace1() {
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Face 20 Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Face 20 Dark")
+@LightDarkPreview
 @Composable
 fun D20PreviewFace20() {
     DiceRollerTheme {
@@ -77,8 +73,7 @@ fun D20PreviewFace20() {
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "Angled View Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "Angled View Dark")
+@LightDarkPreview
 @Composable
 fun D20PreviewAngled() {
     DiceRollerTheme {
@@ -86,8 +81,7 @@ fun D20PreviewAngled() {
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO, name = "D20 Faces Grid Light")
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES, name = "D20 Faces Grid Dark")
+@LightDarkPreview
 @Composable
 fun D20PreviewGrid() {
     DiceRollerTheme {

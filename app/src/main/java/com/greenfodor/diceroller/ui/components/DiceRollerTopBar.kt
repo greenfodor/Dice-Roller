@@ -30,11 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
-import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
-import androidx.compose.ui.tooling.preview.Preview
 import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
@@ -131,8 +129,7 @@ private fun DiceTypeDropDown(
     }
 }
 
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
-@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@LightDarkPreview
 @Composable
 private fun DiceRollerTopBarPreview() {
     DiceRollerTheme {
