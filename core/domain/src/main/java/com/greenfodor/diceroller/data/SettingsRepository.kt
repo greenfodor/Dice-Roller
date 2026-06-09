@@ -12,4 +12,16 @@ interface SettingsRepository {
 
     /** Persist the user's theme choice. */
     suspend fun setThemeMode(mode: ThemeMode)
+
+    /** Whether roll haptic feedback is enabled, defaulting to `true`. */
+    val hapticFeedbackEnabled: Flow<Boolean>
+
+    /** Persist the user's haptic feedback choice. */
+    suspend fun setHapticFeedbackEnabled(enabled: Boolean)
+
+    /** Whether shake-to-roll is enabled, defaulting to `true`. */
+    val shakeToRollEnabled: Flow<Boolean>
+
+    /** Persist the user's shake-to-roll choice. */
+    suspend fun setShakeToRollEnabled(enabled: Boolean)
 }

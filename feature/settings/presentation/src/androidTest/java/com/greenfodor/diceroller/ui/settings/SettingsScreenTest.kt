@@ -1,6 +1,7 @@
 package com.greenfodor.diceroller.ui.settings
 
 import androidx.annotation.StringRes
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -24,21 +25,76 @@ class SettingsScreenTest {
     ): String =
         InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
 
-    @Test
-    fun selectingDark_invokesCallbackWithDarkMode() {
-        var selected: ThemeMode? = null
+    private fun setContent(
+        themeMode: ThemeMode = ThemeMode.FOLLOW_SYSTEM,
+        onThemeModeSelected: (ThemeMode) -> Unit = {},
+        hapticFeedbackEnabled: Boolean = true,
+        hapticFeedbackSupported: Boolean = true,
+        onHapticFeedbackToggled: (Boolean) -> Unit = {},
+        shakeToRollEnabled: Boolean = true,
+        shakeToRollSupported: Boolean = true,
+        onShakeToRollToggled: (Boolean) -> Unit = {}
+    ) {
         composeTestRule.setContent {
             DiceRollerTheme {
                 SettingsScreen(
-                    themeMode = ThemeMode.FOLLOW_SYSTEM,
-                    onThemeModeSelected = { selected = it },
+                    themeMode = themeMode,
+                    onThemeModeSelected = onThemeModeSelected,
+                    hapticFeedbackEnabled = hapticFeedbackEnabled,
+                    hapticFeedbackSupported = hapticFeedbackSupported,
+                    onHapticFeedbackToggled = onHapticFeedbackToggled,
+                    shakeToRollEnabled = shakeToRollEnabled,
+                    shakeToRollSupported = shakeToRollSupported,
+                    onShakeToRollToggled = onShakeToRollToggled,
                     onBack = {}
                 )
             }
         }
+    }
+
+    @Test
+    fun selectingDark_invokesCallbackWithDarkMode() {
+        var selected: ThemeMode? = null
+        setContent(onThemeModeSelected = { selected = it })
 
         composeTestRule.onNodeWithText(string(R.string.theme_dark)).performClick()
 
         assertEquals(ThemeMode.DARK, selected)
+    }
+
+    @Test
+    fun togglingHaptics_invokesCallbackWithNewValue() {
+        var toggled: Boolean? = null
+        setContent(hapticFeedbackEnabled = true, onHapticFeedbackToggled = { toggled = it })
+
+        // The haptics switch is the first toggle on the screen.
+        composeTestRule.onAllNodes(isToggleable())[0].performClick()
+
+        assertEquals(false, toggled)
+    }
+
+    @Test
+    fun togglingShake_invokesCallbackWithNewValue() {
+        var toggled: Boolean? = null
+        setContent(shakeToRollEnabled = true, onShakeToRollToggled = { toggled = it })
+
+        // The shake switch is the second toggle on the screen.
+        composeTestRule.onAllNodes(isToggleable())[1].performClick()
+
+        assertEquals(false, toggled)
+    }
+
+    @Test
+    fun whenHapticsUnsupported_showsUnsupportedMessage() {
+        setContent(hapticFeedbackEnabled = false, hapticFeedbackSupported = false)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_unsupported)).assertExists()
+    }
+
+    @Test
+    fun whenShakeUnsupported_showsUnsupportedMessage() {
+        setContent(shakeToRollEnabled = false, shakeToRollSupported = false)
+
+        composeTestRule.onNodeWithText(string(R.string.settings_unsupported)).assertExists()
     }
 }

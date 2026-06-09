@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.greenfodor.diceroller.data.DataStoreSettingsRepository
+import com.greenfodor.diceroller.sensors.supportsHaptics
+import com.greenfodor.diceroller.sensors.supportsShakeDetection
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
 import com.greenfodor.diceroller.ui.screens.AppDestination
 import com.greenfodor.diceroller.ui.screens.D100Screen
@@ -32,6 +35,8 @@ import com.greenfodor.diceroller.ui.settings.SettingsScreen
 import com.greenfodor.diceroller.ui.settings.SettingsViewModel
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.resolveDarkTheme
+import com.greenfodor.diceroller.ui.utils.LocalHapticsEnabled
+import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
 
 /**
  * Root composable. Loads the persisted [com.greenfodor.diceroller.data.ThemeMode] via
@@ -46,6 +51,10 @@ fun DiceRollerApp(onReady: () -> Unit = {}) {
     val settingsViewModel: SettingsViewModel =
         viewModel(factory = SettingsViewModel.provideFactory(repository))
     val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
+    val hapticFeedbackEnabled by settingsViewModel.hapticFeedbackEnabled.collectAsStateWithLifecycle()
+    val hapticFeedbackSupported = remember(context) { context.supportsHaptics() }
+    val shakeToRollEnabled by settingsViewModel.shakeToRollEnabled.collectAsStateWithLifecycle()
+    val shakeToRollSupported = remember(context) { context.supportsShakeDetection() }
 
     val mode = themeMode ?: return
 
@@ -57,16 +66,27 @@ fun DiceRollerApp(onReady: () -> Unit = {}) {
     DiceRollerTheme(darkTheme = resolveDarkTheme(mode)) {
         when (destination) {
             AppDestination.DICE ->
-                DiceHome(
-                    selectedDiceType = selectedDiceType,
-                    onDiceTypeSelected = { selectedDiceType = it },
-                    onOpenSettings = { destination = AppDestination.SETTINGS }
-                )
+                CompositionLocalProvider(
+                    LocalHapticsEnabled provides (hapticFeedbackSupported && hapticFeedbackEnabled),
+                    LocalShakeToRollEnabled provides (shakeToRollSupported && shakeToRollEnabled)
+                ) {
+                    DiceHome(
+                        selectedDiceType = selectedDiceType,
+                        onDiceTypeSelected = { selectedDiceType = it },
+                        onOpenSettings = { destination = AppDestination.SETTINGS }
+                    )
+                }
 
             AppDestination.SETTINGS -> {
                 SettingsScreen(
                     themeMode = mode,
                     onThemeModeSelected = settingsViewModel::setThemeMode,
+                    hapticFeedbackEnabled = hapticFeedbackEnabled,
+                    hapticFeedbackSupported = hapticFeedbackSupported,
+                    onHapticFeedbackToggled = settingsViewModel::setHapticFeedbackEnabled,
+                    shakeToRollEnabled = shakeToRollEnabled,
+                    shakeToRollSupported = shakeToRollSupported,
+                    onShakeToRollToggled = settingsViewModel::setShakeToRollEnabled,
                     onBack = { destination = AppDestination.DICE }
                 )
                 BackHandler { destination = AppDestination.DICE }

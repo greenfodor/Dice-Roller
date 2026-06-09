@@ -3,6 +3,7 @@ package com.greenfodor.diceroller.data
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -37,8 +38,38 @@ class DataStoreSettingsRepository(
         }
     }
 
+    override val hapticFeedbackEnabled: Flow<Boolean> =
+        dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences -> preferences[HAPTIC_FEEDBACK_KEY] ?: HAPTIC_FEEDBACK_DEFAULT }
+
+    override suspend fun setHapticFeedbackEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[HAPTIC_FEEDBACK_KEY] = enabled
+        }
+    }
+
+    override val shakeToRollEnabled: Flow<Boolean> =
+        dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences -> preferences[SHAKE_TO_ROLL_KEY] ?: SHAKE_TO_ROLL_DEFAULT }
+
+    override suspend fun setShakeToRollEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SHAKE_TO_ROLL_KEY] = enabled
+        }
+    }
+
     companion object {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
+        private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback_enabled")
+        private const val HAPTIC_FEEDBACK_DEFAULT = true
+        private val SHAKE_TO_ROLL_KEY = booleanPreferencesKey("shake_to_roll_enabled")
+        private const val SHAKE_TO_ROLL_DEFAULT = true
 
         fun create(context: Context): DataStoreSettingsRepository =
             DataStoreSettingsRepository(context.settingsDataStore)

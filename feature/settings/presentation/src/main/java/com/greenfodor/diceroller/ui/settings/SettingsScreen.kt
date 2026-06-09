@@ -26,7 +26,7 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
 
 /**
- * Settings screen. Currently exposes the theme selector; structured so future settings
+ * Settings screen. Currently, exposes the theme selector; structured so future settings
  * are added as additional sections in the column.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +34,12 @@ import com.greenfodor.diceroller.ui.theme.spacing
 fun SettingsScreen(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
+    hapticFeedbackEnabled: Boolean,
+    hapticFeedbackSupported: Boolean,
+    onHapticFeedbackToggled: (Boolean) -> Unit,
+    shakeToRollEnabled: Boolean,
+    shakeToRollSupported: Boolean,
+    onShakeToRollToggled: (Boolean) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -78,6 +84,36 @@ fun SettingsScreen(
                 selected = themeMode,
                 onSelected = onThemeModeSelected
             )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+
+            Text(
+                text = stringResource(R.string.settings_haptics_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+            SettingSwitchRow(
+                label = stringResource(R.string.settings_haptics_label),
+                enabled = hapticFeedbackEnabled,
+                supported = hapticFeedbackSupported,
+                unsupportedMessageResId = R.string.settings_unsupported,
+                onToggle = onHapticFeedbackToggled
+            )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+
+            Text(
+                text = stringResource(R.string.settings_shake_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+            SettingSwitchRow(
+                label = stringResource(R.string.settings_shake_label),
+                enabled = shakeToRollEnabled,
+                supported = shakeToRollSupported,
+                unsupportedMessageResId = R.string.settings_unsupported,
+                onToggle = onShakeToRollToggled
+            )
         }
     }
 }
@@ -89,6 +125,12 @@ private fun SettingsScreenPreview() {
         SettingsScreen(
             themeMode = ThemeMode.FOLLOW_SYSTEM,
             onThemeModeSelected = {},
+            hapticFeedbackEnabled = true,
+            hapticFeedbackSupported = true,
+            onHapticFeedbackToggled = {},
+            shakeToRollEnabled = true,
+            shakeToRollSupported = true,
+            onShakeToRollToggled = {},
             onBack = {}
         )
     }

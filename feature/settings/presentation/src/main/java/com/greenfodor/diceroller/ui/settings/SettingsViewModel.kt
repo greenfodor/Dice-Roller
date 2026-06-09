@@ -26,12 +26,35 @@ class SettingsViewModel(
             initialValue = null
         )
 
+    val hapticFeedbackEnabled: StateFlow<Boolean> =
+        repository.hapticFeedbackEnabled.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = TOGGLE_DEFAULT
+        )
+
+    val shakeToRollEnabled: StateFlow<Boolean> =
+        repository.shakeToRollEnabled.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = TOGGLE_DEFAULT
+        )
+
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { repository.setThemeMode(mode) }
     }
 
+    fun setHapticFeedbackEnabled(enabled: Boolean) {
+        viewModelScope.launch { repository.setHapticFeedbackEnabled(enabled) }
+    }
+
+    fun setShakeToRollEnabled(enabled: Boolean) {
+        viewModelScope.launch { repository.setShakeToRollEnabled(enabled) }
+    }
+
     companion object {
         private const val STOP_TIMEOUT_MILLIS = 5_000L
+        private const val TOGGLE_DEFAULT = true
 
         fun provideFactory(repository: SettingsRepository): ViewModelProvider.Factory =
             viewModelFactory {

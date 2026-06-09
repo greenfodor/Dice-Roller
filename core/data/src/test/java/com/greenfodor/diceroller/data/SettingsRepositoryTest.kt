@@ -36,4 +36,32 @@ class SettingsRepositoryTest {
 
         assertEquals(ThemeMode.DARK, repository.themeMode.first())
     }
+
+    @Test
+    fun `hapticFeedbackEnabled defaults to true when nothing is persisted`() = runTest {
+        assertEquals(true, newRepository().hapticFeedbackEnabled.first())
+    }
+
+    @Test
+    fun `setHapticFeedbackEnabled persists the selected value`() = runTest {
+        val repository = newRepository()
+
+        repository.setHapticFeedbackEnabled(false)
+
+        assertEquals(false, repository.hapticFeedbackEnabled.first())
+    }
+
+    @Test
+    fun `shakeToRollEnabled defaults to true when nothing is persisted`() = runTest {
+        assertEquals(true, newRepository().shakeToRollEnabled.first())
+    }
+
+    @Test
+    fun `setShakeToRollEnabled persists the selected value`() = runTest {
+        val repository = newRepository()
+
+        repository.setShakeToRollEnabled(false)
+
+        assertEquals(false, repository.shakeToRollEnabled.first())
+    }
 }

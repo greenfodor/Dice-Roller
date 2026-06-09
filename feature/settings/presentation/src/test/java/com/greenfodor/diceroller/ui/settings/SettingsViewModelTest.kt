@@ -18,13 +18,29 @@ import org.junit.Before
 import org.junit.Test
 
 private class FakeSettingsRepository(
-    initial: ThemeMode
+    initial: ThemeMode,
+    initialHaptics: Boolean = true,
+    initialShake: Boolean = true
 ) : SettingsRepository {
     private val state = MutableStateFlow(initial)
     override val themeMode = state
 
+    private val haptics = MutableStateFlow(initialHaptics)
+    override val hapticFeedbackEnabled = haptics
+
+    private val shake = MutableStateFlow(initialShake)
+    override val shakeToRollEnabled = shake
+
     override suspend fun setThemeMode(mode: ThemeMode) {
         state.update { mode }
+    }
+
+    override suspend fun setHapticFeedbackEnabled(enabled: Boolean) {
+        haptics.update { enabled }
+    }
+
+    override suspend fun setShakeToRollEnabled(enabled: Boolean) {
+        shake.update { enabled }
     }
 }
 
@@ -57,5 +73,39 @@ class SettingsViewModelTest {
         viewModel.setThemeMode(ThemeMode.LIGHT)
 
         assertEquals(ThemeMode.LIGHT, repository.themeMode.first())
+    }
+
+    @Test
+    fun `hapticFeedbackEnabled reflects the repository`() = runTest {
+        val viewModel = SettingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialHaptics = false))
+
+        assertEquals(false, viewModel.hapticFeedbackEnabled.first())
+    }
+
+    @Test
+    fun `setHapticFeedbackEnabled forwards the selection to the repository`() = runTest {
+        val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
+        val viewModel = SettingsViewModel(repository)
+
+        viewModel.setHapticFeedbackEnabled(false)
+
+        assertEquals(false, repository.hapticFeedbackEnabled.first())
+    }
+
+    @Test
+    fun `shakeToRollEnabled reflects the repository`() = runTest {
+        val viewModel = SettingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialShake = false))
+
+        assertEquals(false, viewModel.shakeToRollEnabled.first())
+    }
+
+    @Test
+    fun `setShakeToRollEnabled forwards the selection to the repository`() = runTest {
+        val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
+        val viewModel = SettingsViewModel(repository)
+
+        viewModel.setShakeToRollEnabled(false)
+
+        assertEquals(false, repository.shakeToRollEnabled.first())
     }
 }
