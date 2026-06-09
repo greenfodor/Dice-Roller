@@ -38,6 +38,8 @@ import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
+import com.greenfodor.diceroller.ui.utils.LocalHapticsEnabled
+import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
 import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 import com.greenfodor.diceroller.ui.utils.rollDice
 import kotlinx.coroutines.delay
@@ -73,8 +75,13 @@ fun DiceScreen(
     dieContent: @Composable (DieState) -> Unit
 ) {
     val context = LocalContext.current
+    val hapticsEnabled = LocalHapticsEnabled.current
+    val shakeToRollEnabled = LocalShakeToRollEnabled.current
 
-    rememberShakeDetector(onShake = { context.rollDice(dieStates) })
+    rememberShakeDetector(
+        enabled = shakeToRollEnabled,
+        onShake = { context.rollDice(dieStates, hapticsEnabled) }
+    )
 
     val isRolling = dieStates.any { it.isRolling }
     val rollDurationMillis = MaterialTheme.diceSpecs.rollDurationMillis
@@ -156,7 +163,7 @@ fun DiceScreen(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
         Button(
-            onClick = { context.rollDice(dieStates) },
+            onClick = { context.rollDice(dieStates, hapticsEnabled) },
             enabled = isRolling.not()
         ) {
             Text(text = stringResource(rollButtonResId))

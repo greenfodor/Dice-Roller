@@ -11,6 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,7 +24,7 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
 private data class ThemeModeOption(
     val mode: ThemeMode,
-    @StringRes val labelResId: Int,
+    @field:StringRes val labelResId: Int,
     val icon: ImageVector
 )
 
@@ -51,7 +52,13 @@ fun ThemeModeSelector(
                 onClick = { onSelected(option.mode) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = themeModeOptions.size),
                 icon = { Icon(imageVector = option.icon, contentDescription = null) },
-                label = { Text(text = stringResource(option.labelResId)) }
+                label = {
+                    Text(
+                        text = stringResource(option.labelResId),
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
             )
         }
     }
@@ -61,6 +68,8 @@ fun ThemeModeSelector(
 @Composable
 private fun ThemeModeSelectorPreview() {
     DiceRollerTheme {
-        ThemeModeSelector(selected = ThemeMode.FOLLOW_SYSTEM, onSelected = {})
+        Surface {
+            ThemeModeSelector(selected = ThemeMode.FOLLOW_SYSTEM, onSelected = {})
+        }
     }
 }

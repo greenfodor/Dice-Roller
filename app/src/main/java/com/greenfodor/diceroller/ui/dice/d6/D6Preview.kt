@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -25,7 +26,8 @@ private fun D6StaticPreview(
     rotationX: Float,
     rotationY: Float,
     modifier: Modifier = Modifier,
-    rotationZ: Float = 0f
+    rotationZ: Float = 0f,
+    faceStyle: D6FaceStyle = D6FaceStyle.PIPS
 ) {
     val diceColors = LocalDiceColors.current
     val paints = remember { D6Paints() }
@@ -51,7 +53,8 @@ private fun D6StaticPreview(
                 rotationY = rotationY,
                 rotationZ = rotationZ,
                 paints = paints,
-                diceColors = diceColors
+                diceColors = diceColors,
+                faceStyle = faceStyle
             )
         }
     }
@@ -71,6 +74,28 @@ fun D6PreviewFront() {
 fun D6PreviewAngled() {
     DiceRollerTheme {
         D6StaticPreview(rotationX = 45f, rotationY = 45f)
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun D6PreviewNumbersFront() {
+    DiceRollerTheme {
+        val face = D6.faces[0]
+        D6StaticPreview(
+            rotationX = face.rotationX,
+            rotationY = face.rotationY,
+            rotationZ = face.rotationZ,
+            faceStyle = D6FaceStyle.NUMBERS
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun D6PreviewNumbersAngled() {
+    DiceRollerTheme {
+        D6StaticPreview(rotationX = 30f, rotationY = -30f, faceStyle = D6FaceStyle.NUMBERS)
     }
 }
 

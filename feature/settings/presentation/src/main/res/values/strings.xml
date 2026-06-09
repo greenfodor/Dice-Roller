@@ -1,8 +1,16 @@
 <resources>
     <string name="settings_title">Settings</string>
     <string name="settings_theme_title">Theme</string>
-    <string name="theme_follow_system">Follow system</string>
+    <string name="theme_follow_system">Auto</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="settings_haptics_title">Haptics</string>
+    <string name="settings_haptics_label">Roll vibration</string>
+    <string name="settings_shake_title">Shake</string>
+    <string name="settings_shake_label">Shake to roll</string>
+    <string name="settings_d6_face_style_title">D6 faces</string>
+    <string name="d6_face_style_pips">Pips</string>
+    <string name="d6_face_style_numbers">Numbers</string>
+    <string name="settings_unsupported">This feature is not supported for your device</string>
     <string name="cd_back">Back</string>
 </resources>

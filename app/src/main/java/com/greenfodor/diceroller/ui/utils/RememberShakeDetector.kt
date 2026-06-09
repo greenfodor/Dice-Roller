@@ -15,17 +15,21 @@ import com.greenfodor.diceroller.sensors.ShakeDetector
  * Remembers and manages the lifecycle of a [ShakeDetector].
  *
  * This composable registers a sensor listener for the accelerometer when entered and
- * automatically unregisters it when leaving the composition.
+ * automatically unregisters it when leaving the composition. When [enabled] is `false` no
+ * listener is registered, so a disabled shake-to-roll setting incurs no sensor cost.
  *
+ * @param enabled Whether the shake gesture should be listened for.
  * @param onShake Callback to be invoked when a shake gesture is detected.
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun rememberShakeDetector(onShake: () -> Unit) {
+fun rememberShakeDetector(enabled: Boolean, onShake: () -> Unit) {
     val context = LocalContext.current
     val currentOnShake by rememberUpdatedState(onShake)
 
-    DisposableEffect(Unit) {
+    DisposableEffect(enabled) {
+        if (!enabled) return@DisposableEffect onDispose {}
+
         val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
         val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         val detector = ShakeDetector { currentOnShake() }

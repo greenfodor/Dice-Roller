@@ -1,5 +1,7 @@
 package com.greenfodor.diceroller.ui.dice.d6
 
+import android.graphics.Matrix
+import android.graphics.Typeface
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -7,6 +9,7 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.geometry.HexahedronGeometry
 import com.greenfodor.diceroller.geometry.Point2D
 import com.greenfodor.diceroller.geometry.Point3D
@@ -42,6 +45,19 @@ class D6Paints {
     /** Reusable path for pip geometry. */
     val dotPath = Path()
 
+    /** Native paint for number rendering (used only when the face style is numbers). */
+    val textPaint = NativePaint().apply {
+        textAlign = NativePaint.Align.CENTER
+        isAntiAlias = true
+        typeface = Typeface.DEFAULT_BOLD
+    }
+
+    /** Reusable matrix for projecting the number label onto a face quad. */
+    val numberMatrix = Matrix()
+
+    /** Temporary buffer for the four face-corner destination coordinates (x/y per corner). */
+    val dstArray = FloatArray(8)
+
     /** Pre-allocated vertex buffers used to avoid per-frame allocations during the rotation loop. */
     val rotatedVertices = ArrayList<Point3D>(HexahedronGeometry.vertices.size).apply {
         repeat(HexahedronGeometry.vertices.size) { add(Point3D(0f, 0f, 0f)) }
@@ -73,6 +89,7 @@ class D6Paints {
  * @param rotationZ Current Z-axis rotation in degrees.
  * @param paints Reusable [D6Paints] to avoid per-frame allocations (includes path buffers).
  * @param diceColors Theme colors assigned to each face.
+ * @param faceStyle Whether faces are marked with pips or numbers.
  */
 fun DrawScope.drawD6(
     size: Float,
@@ -82,7 +99,8 @@ fun DrawScope.drawD6(
     rotationY: Float,
     rotationZ: Float,
     paints: D6Paints,
-    diceColors: DiceColors
+    diceColors: DiceColors,
+    faceStyle: D6FaceStyle = D6FaceStyle.PIPS
 ) {
     val halfSize = size / 2
 
@@ -125,21 +143,23 @@ fun DrawScope.drawD6(
             projectedVertices = projectedVertices,
             centerX = centerX,
             centerY = centerY,
-            paints = paints
+            paints = paints,
+            faceStyle = faceStyle
         )
     }
 }
 
 /**
- * Maps [HexahedronGeometry.faces] to render descriptors by injecting the theme color for each value.
+ * Maps [HexahedronGeometry.faces] to render descriptors. Every face shares the red [DiceColors.face1]
+ * so the whole die is one uniform color (the per-value colors are intentionally not used here).
  *
- * @param diceColors The theme colors to apply to each face value.
+ * @param diceColors The theme colors; only [DiceColors.face1] (red) is applied.
  */
-private fun createDiceFaceDescriptors(diceColors: DiceColors) =
+internal fun createDiceFaceDescriptors(diceColors: DiceColors) =
     HexahedronGeometry.faces.map { face ->
         FaceDescriptor(
             vertexIndices = face.vertexIndices,
-            baseColor = diceColors.colorForValue(face.value),
+            baseColor = diceColors.face1,
             dotCount = face.value
         )
     }
@@ -151,7 +171,8 @@ private fun DrawScope.renderFace(
     projectedVertices: List<Point2D>,
     centerX: Float,
     centerY: Float,
-    paints: D6Paints
+    paints: D6Paints,
+    faceStyle: D6FaceStyle
 ) {
     val intensity =
         normal.dot(LIGHT_SOURCE).coerceIn(
@@ -181,16 +202,31 @@ private fun DrawScope.renderFace(
         canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.fillPaint)
     }
 
-    val dotOffset = normal * DiceConstants.DOT_OFFSET_FACTOR
-    clipPath(paints.facePath) {
-        drawDiceDotsOnFace(
-            dotCount = face.dotCount,
-            vVertices = vIndices.map { rotatedVertices[it] },
-            centerX = centerX,
-            centerY = centerY,
-            normalOffset = dotOffset,
-            dotPath = paints.dotPath
-        )
+    when (faceStyle) {
+        D6FaceStyle.PIPS -> {
+            val dotOffset = normal * DiceConstants.DOT_OFFSET_FACTOR
+            clipPath(paints.facePath) {
+                drawDiceDotsOnFace(
+                    dotCount = face.dotCount,
+                    vVertices = vIndices.map { rotatedVertices[it] },
+                    centerX = centerX,
+                    centerY = centerY,
+                    normalOffset = dotOffset,
+                    dotPath = paints.dotPath
+                )
+            }
+        }
+
+        D6FaceStyle.NUMBERS ->
+            drawIntoCanvas { canvas ->
+                drawDiceNumberOnFace(
+                    canvas = canvas,
+                    label = face.dotCount.toString(),
+                    vIndices = vIndices,
+                    projectedVertices = projectedVertices,
+                    paints = paints
+                )
+            }
     }
 
     drawIntoCanvas { canvas ->

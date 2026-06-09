@@ -13,6 +13,7 @@ import com.greenfodor.diceroller.ui.dice.rememberRollRotation
 import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
+import com.greenfodor.diceroller.ui.utils.LocalD6FaceStyle
 
 @Composable
 fun RollingCubeAnimation(
@@ -20,6 +21,7 @@ fun RollingCubeAnimation(
     modifier: Modifier = Modifier
 ) {
     val diceColors = LocalDiceColors.current
+    val faceStyle = LocalD6FaceStyle.current
     val diceSpecs = MaterialTheme.diceSpecs
     val paints = remember { D6Paints() }
     val rotation = rememberRollRotation(cubeState)
@@ -38,7 +40,8 @@ fun RollingCubeAnimation(
             rotationY = rotation.y.value,
             rotationZ = rotation.z.value,
             paints = paints,
-            diceColors = diceColors
+            diceColors = diceColors,
+            faceStyle = faceStyle
         )
     }
 }

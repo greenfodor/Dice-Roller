@@ -1,11 +1,18 @@
 package com.greenfodor.diceroller.sensors
 
+import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.annotation.VisibleForTesting
 import kotlin.math.sqrt
+
+/** Whether this device has an accelerometer, required for shake-to-roll detection. */
+fun Context.supportsShakeDetection(): Boolean {
+    val sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+    return sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null
+}
 
 /**
  * Detects device shake gestures using the accelerometer sensor.
