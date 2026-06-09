@@ -64,12 +64,26 @@ class DataStoreSettingsRepository(
         }
     }
 
+    override val d6FaceStyle: Flow<D6FaceStyle> =
+        dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences -> D6FaceStyle.fromName(preferences[D6_FACE_STYLE_KEY]) }
+
+    override suspend fun setD6FaceStyle(style: D6FaceStyle) {
+        dataStore.edit { preferences ->
+            preferences[D6_FACE_STYLE_KEY] = style.name
+        }
+    }
+
     companion object {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback_enabled")
         private const val HAPTIC_FEEDBACK_DEFAULT = true
         private val SHAKE_TO_ROLL_KEY = booleanPreferencesKey("shake_to_roll_enabled")
         private const val SHAKE_TO_ROLL_DEFAULT = true
+        private val D6_FACE_STYLE_KEY = stringPreferencesKey("d6_face_style")
 
         fun create(context: Context): DataStoreSettingsRepository =
             DataStoreSettingsRepository(context.settingsDataStore)

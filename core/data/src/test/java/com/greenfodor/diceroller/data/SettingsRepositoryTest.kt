@@ -64,4 +64,18 @@ class SettingsRepositoryTest {
 
         assertEquals(false, repository.shakeToRollEnabled.first())
     }
+
+    @Test
+    fun `d6FaceStyle defaults to PIPS when nothing is persisted`() = runTest {
+        assertEquals(D6FaceStyle.PIPS, newRepository().d6FaceStyle.first())
+    }
+
+    @Test
+    fun `setD6FaceStyle persists the selected style`() = runTest {
+        val repository = newRepository()
+
+        repository.setD6FaceStyle(D6FaceStyle.NUMBERS)
+
+        assertEquals(D6FaceStyle.NUMBERS, repository.d6FaceStyle.first())
+    }
 }

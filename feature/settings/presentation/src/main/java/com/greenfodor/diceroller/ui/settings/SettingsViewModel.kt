@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.ThemeMode
 import kotlinx.coroutines.flow.SharingStarted
@@ -40,6 +41,13 @@ class SettingsViewModel(
             initialValue = TOGGLE_DEFAULT
         )
 
+    val d6FaceStyle: StateFlow<D6FaceStyle> =
+        repository.d6FaceStyle.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = D6FaceStyle.PIPS
+        )
+
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { repository.setThemeMode(mode) }
     }
@@ -50,6 +58,10 @@ class SettingsViewModel(
 
     fun setShakeToRollEnabled(enabled: Boolean) {
         viewModelScope.launch { repository.setShakeToRollEnabled(enabled) }
+    }
+
+    fun setD6FaceStyle(style: D6FaceStyle) {
+        viewModelScope.launch { repository.setD6FaceStyle(style) }
     }
 
     companion object {

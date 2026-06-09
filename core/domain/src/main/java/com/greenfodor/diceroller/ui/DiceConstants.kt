@@ -24,6 +24,11 @@ object DiceConstants {
     const val D6_STROKE_ALPHA = 0.5f
     const val D6_DOT_ALPHA = 0.9f
 
+    // D6 number faces. The label is mapped onto the face quad via setPolyToPoly; the source
+    // square spans [-D6_NUMBER_UV, D6_NUMBER_UV] on both axes, matching the face's UV corners.
+    const val D6_NUMBER_UV = 100f
+    const val D6_NUMBER_TEXT_SIZE_UV = 85f
+
     // Face Rendering
     const val DOT_OFFSET_FACTOR = 0.1f
     const val MIN_SHADING_INTENSITY = 0.4f
@@ -68,6 +73,20 @@ object DiceConstants {
         D20_UV_Y_BOTTOM,
         -D20_UV_X,
         D20_UV_Y_BOTTOM
+    )
+
+    // Source quad mapped onto a face via setPolyToPoly, in the same order as the face's vertex
+    // list. The projected face winding places vertex 0 at the bottom-right, so the square is
+    // rotated 180° (every coordinate negated) to keep the upright digit reading upright.
+    val D6_SRC_QUAD = floatArrayOf(
+        D6_NUMBER_UV,
+        D6_NUMBER_UV,
+        -D6_NUMBER_UV,
+        D6_NUMBER_UV,
+        -D6_NUMBER_UV,
+        -D6_NUMBER_UV,
+        D6_NUMBER_UV,
+        -D6_NUMBER_UV
     )
 
     val LIGHT_SOURCE by lazy { Point3D(0.5f, -1f, 1.5f).normalize() }

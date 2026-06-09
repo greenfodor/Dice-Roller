@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.ThemeMode
 import com.greenfodor.diceroller.feature.settings.presentation.R
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -33,19 +34,25 @@ class SettingsScreenTest {
         onHapticFeedbackToggled: (Boolean) -> Unit = {},
         shakeToRollEnabled: Boolean = true,
         shakeToRollSupported: Boolean = true,
-        onShakeToRollToggled: (Boolean) -> Unit = {}
+        onShakeToRollToggled: (Boolean) -> Unit = {},
+        d6FaceStyle: D6FaceStyle = D6FaceStyle.PIPS,
+        onD6FaceStyleSelected: (D6FaceStyle) -> Unit = {}
     ) {
         composeTestRule.setContent {
             DiceRollerTheme {
                 SettingsScreen(
-                    themeMode = themeMode,
+                    state = SettingsUiState(
+                        themeMode = themeMode,
+                        hapticFeedbackEnabled = hapticFeedbackEnabled,
+                        hapticFeedbackSupported = hapticFeedbackSupported,
+                        shakeToRollEnabled = shakeToRollEnabled,
+                        shakeToRollSupported = shakeToRollSupported,
+                        d6FaceStyle = d6FaceStyle
+                    ),
                     onThemeModeSelected = onThemeModeSelected,
-                    hapticFeedbackEnabled = hapticFeedbackEnabled,
-                    hapticFeedbackSupported = hapticFeedbackSupported,
                     onHapticFeedbackToggled = onHapticFeedbackToggled,
-                    shakeToRollEnabled = shakeToRollEnabled,
-                    shakeToRollSupported = shakeToRollSupported,
                     onShakeToRollToggled = onShakeToRollToggled,
+                    onD6FaceStyleSelected = onD6FaceStyleSelected,
                     onBack = {}
                 )
             }
@@ -82,6 +89,16 @@ class SettingsScreenTest {
         composeTestRule.onAllNodes(isToggleable())[1].performClick()
 
         assertEquals(false, toggled)
+    }
+
+    @Test
+    fun selectingNumbers_invokesCallbackWithNumbersStyle() {
+        var selected: D6FaceStyle? = null
+        setContent(d6FaceStyle = D6FaceStyle.PIPS, onD6FaceStyleSelected = { selected = it })
+
+        composeTestRule.onNodeWithText(string(R.string.d6_face_style_numbers)).performClick()
+
+        assertEquals(D6FaceStyle.NUMBERS, selected)
     }
 
     @Test

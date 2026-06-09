@@ -24,4 +24,10 @@ interface SettingsRepository {
 
     /** Persist the user's shake-to-roll choice. */
     suspend fun setShakeToRollEnabled(enabled: Boolean)
+
+    /** How the D6's faces are marked, defaulting to [D6FaceStyle.PIPS]. */
+    val d6FaceStyle: Flow<D6FaceStyle>
+
+    /** Persist the user's D6 face-style choice. */
+    suspend fun setD6FaceStyle(style: D6FaceStyle)
 }

@@ -8,6 +8,9 @@
     <string name="settings_haptics_label">Roll vibration</string>
     <string name="settings_shake_title">Shake</string>
     <string name="settings_shake_label">Shake to roll</string>
+    <string name="settings_d6_face_style_title">D6 faces</string>
+    <string name="d6_face_style_pips">Pips</string>
+    <string name="d6_face_style_numbers">Numbers</string>
     <string name="settings_unsupported">This feature is not supported for your device</string>
     <string name="cd_back">Back</string>
 </resources>

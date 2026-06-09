@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.ThemeMode
 import com.greenfodor.diceroller.feature.settings.presentation.R
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
@@ -32,14 +33,11 @@ import com.greenfodor.diceroller.ui.theme.spacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    themeMode: ThemeMode,
+    state: SettingsUiState,
     onThemeModeSelected: (ThemeMode) -> Unit,
-    hapticFeedbackEnabled: Boolean,
-    hapticFeedbackSupported: Boolean,
     onHapticFeedbackToggled: (Boolean) -> Unit,
-    shakeToRollEnabled: Boolean,
-    shakeToRollSupported: Boolean,
     onShakeToRollToggled: (Boolean) -> Unit,
+    onD6FaceStyleSelected: (D6FaceStyle) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -81,7 +79,7 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             ThemeModeSelector(
-                selected = themeMode,
+                selected = state.themeMode,
                 onSelected = onThemeModeSelected
             )
 
@@ -94,8 +92,8 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             SettingSwitchRow(
                 label = stringResource(R.string.settings_haptics_label),
-                enabled = hapticFeedbackEnabled,
-                supported = hapticFeedbackSupported,
+                enabled = state.hapticFeedbackEnabled,
+                supported = state.hapticFeedbackSupported,
                 unsupportedMessageResId = R.string.settings_unsupported,
                 onToggle = onHapticFeedbackToggled
             )
@@ -109,10 +107,22 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             SettingSwitchRow(
                 label = stringResource(R.string.settings_shake_label),
-                enabled = shakeToRollEnabled,
-                supported = shakeToRollSupported,
+                enabled = state.shakeToRollEnabled,
+                supported = state.shakeToRollSupported,
                 unsupportedMessageResId = R.string.settings_unsupported,
                 onToggle = onShakeToRollToggled
+            )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+
+            Text(
+                text = stringResource(R.string.settings_d6_face_style_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
+            D6FaceStyleSelector(
+                selected = state.d6FaceStyle,
+                onSelected = onD6FaceStyleSelected
             )
         }
     }
@@ -123,14 +133,18 @@ fun SettingsScreen(
 private fun SettingsScreenPreview() {
     DiceRollerTheme {
         SettingsScreen(
-            themeMode = ThemeMode.FOLLOW_SYSTEM,
+            state = SettingsUiState(
+                themeMode = ThemeMode.FOLLOW_SYSTEM,
+                hapticFeedbackEnabled = true,
+                hapticFeedbackSupported = true,
+                shakeToRollEnabled = true,
+                shakeToRollSupported = false,
+                d6FaceStyle = D6FaceStyle.PIPS
+            ),
             onThemeModeSelected = {},
-            hapticFeedbackEnabled = true,
-            hapticFeedbackSupported = true,
             onHapticFeedbackToggled = {},
-            shakeToRollEnabled = true,
-            shakeToRollSupported = false,
             onShakeToRollToggled = {},
+            onD6FaceStyleSelected = {},
             onBack = {}
         )
     }
