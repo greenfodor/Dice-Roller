@@ -52,7 +52,13 @@ fun ThemeModeSelector(
                 onClick = { onSelected(option.mode) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = themeModeOptions.size),
                 icon = { Icon(imageVector = option.icon, contentDescription = null) },
-                label = { Text(text = stringResource(option.labelResId)) }
+                label = {
+                    Text(
+                        text = stringResource(option.labelResId),
+                        maxLines = 1,
+                        softWrap = false
+                    )
+                }
             )
         }
     }
