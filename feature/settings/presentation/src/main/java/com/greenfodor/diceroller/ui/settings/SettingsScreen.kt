@@ -129,7 +129,7 @@ private fun SettingsScreenPreview() {
             hapticFeedbackSupported = true,
             onHapticFeedbackToggled = {},
             shakeToRollEnabled = true,
-            shakeToRollSupported = true,
+            shakeToRollSupported = false,
             onShakeToRollToggled = {},
             onBack = {}
         )
