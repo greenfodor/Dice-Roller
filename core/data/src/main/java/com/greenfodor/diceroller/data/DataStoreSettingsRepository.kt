@@ -77,6 +77,51 @@ class DataStoreSettingsRepository(
         }
     }
 
+    override val diceColorSettings: Flow<DiceColorSettings> =
+        dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences ->
+                DiceColorSettings(
+                    useSingleColor = preferences[DICE_USE_SINGLE_COLOR_KEY] ?: DICE_USE_SINGLE_COLOR_DEFAULT,
+                    singleColor = preferences[DICE_SINGLE_COLOR_KEY]
+                        ?.let { DiceColorOption.fromName(it) }
+                        ?: DiceColorSettings.DEFAULT_SINGLE_COLOR,
+                    perDie = DieColorTarget.entries.associateWith { target ->
+                        preferences[diceColorKey(target)]
+                            ?.let { DiceColorOption.fromName(it) }
+                            ?: DiceColorSettings.DEFAULT_PER_DIE.getValue(target)
+                    }
+                )
+            }
+
+    override suspend fun setUseSingleDiceColor(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[DICE_USE_SINGLE_COLOR_KEY] = enabled
+        }
+    }
+
+    override suspend fun setSingleDiceColor(option: DiceColorOption) {
+        dataStore.edit { preferences ->
+            preferences[DICE_SINGLE_COLOR_KEY] = option.name
+        }
+    }
+
+    override suspend fun setDiceColor(target: DieColorTarget, option: DiceColorOption) {
+        dataStore.edit { preferences ->
+            preferences[diceColorKey(target)] = option.name
+        }
+    }
+
+    override suspend fun resetDiceColors() {
+        dataStore.edit { preferences ->
+            preferences.remove(DICE_USE_SINGLE_COLOR_KEY)
+            preferences.remove(DICE_SINGLE_COLOR_KEY)
+            DieColorTarget.entries.forEach { target -> preferences.remove(diceColorKey(target)) }
+        }
+    }
+
     companion object {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback_enabled")
@@ -84,6 +129,11 @@ class DataStoreSettingsRepository(
         private val SHAKE_TO_ROLL_KEY = booleanPreferencesKey("shake_to_roll_enabled")
         private const val SHAKE_TO_ROLL_DEFAULT = true
         private val D6_FACE_STYLE_KEY = stringPreferencesKey("d6_face_style")
+        private val DICE_USE_SINGLE_COLOR_KEY = booleanPreferencesKey("dice_use_single_color")
+        private const val DICE_USE_SINGLE_COLOR_DEFAULT = false
+        private val DICE_SINGLE_COLOR_KEY = stringPreferencesKey("dice_single_color")
+
+        private fun diceColorKey(target: DieColorTarget) = stringPreferencesKey("dice_color_${target.name}")
 
         fun create(context: Context): DataStoreSettingsRepository =
             DataStoreSettingsRepository(context.settingsDataStore)

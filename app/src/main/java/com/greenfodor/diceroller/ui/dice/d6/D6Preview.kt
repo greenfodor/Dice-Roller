@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.data.D6FaceStyle
+import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -29,7 +30,7 @@ private fun D6StaticPreview(
     rotationZ: Float = 0f,
     faceStyle: D6FaceStyle = D6FaceStyle.PIPS
 ) {
-    val diceColors = LocalDiceColors.current
+    val color = LocalDiceColors.current.colorFor(DieColorTarget.D6)
     val paints = remember { D6Paints() }
 
     Box(
@@ -53,7 +54,7 @@ private fun D6StaticPreview(
                 rotationY = rotationY,
                 rotationZ = rotationZ,
                 paints = paints,
-                diceColors = diceColors,
+                color = color,
                 faceStyle = faceStyle
             )
         }

@@ -13,4 +13,37 @@
     <string name="d6_face_style_numbers">Numbers</string>
     <string name="settings_unsupported">This feature is not supported for your device</string>
     <string name="cd_back">Back</string>
+
+    <string name="settings_dice_colors_title">Dice colors</string>
+    <string name="settings_dice_colors_label">Choose colors for each die</string>
+    <string name="dice_colors_title">Dice colors</string>
+    <string name="dice_colors_single_title">Single color</string>
+    <string name="dice_colors_single_label">Use one color for all dice</string>
+    <string name="dice_colors_all_dice_title">All dice</string>
+    <string name="dice_colors_restore_defaults">Restore defaults</string>
+    <string name="dice_colors_restore_dialog_title">Restore default colors?</string>
+    <string name="dice_colors_restore_dialog_message">This resets every die back to its default color and turns off the single-color option.</string>
+    <string name="dice_colors_restore_dialog_confirm">Restore</string>
+    <string name="dice_colors_restore_dialog_cancel">Cancel</string>
+
+    <string name="dice_colors_d4_title">D4</string>
+    <string name="dice_colors_d6_title">D6</string>
+    <string name="dice_colors_d6_secondary_title">D6 (second die)</string>
+    <string name="dice_colors_d8_title">D8</string>
+    <string name="dice_colors_d10_title">D10</string>
+    <string name="dice_colors_d20_title">D20</string>
+    <string name="dice_colors_d100_title">D100 (tens)</string>
+    <string name="dice_colors_d100_secondary_title">D100 (units)</string>
+
+    <string name="dice_color_red">Red</string>
+    <string name="dice_color_orange">Orange</string>
+    <string name="dice_color_yellow">Yellow</string>
+    <string name="dice_color_green">Green</string>
+    <string name="dice_color_teal">Teal</string>
+    <string name="dice_color_blue">Blue</string>
+    <string name="dice_color_purple">Purple</string>
+    <string name="dice_color_pink">Pink</string>
+    <string name="dice_color_brown">Brown</string>
+    <string name="dice_color_gray">Gray</string>
+    <string name="cd_dice_color_swatch_selected">%1$s, selected</string>
 </resources>

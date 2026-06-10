@@ -31,6 +31,7 @@ import com.greenfodor.diceroller.ui.screens.D6Screen
 import com.greenfodor.diceroller.ui.screens.D8Screen
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
+import com.greenfodor.diceroller.ui.settings.DiceColorsScreen
 import com.greenfodor.diceroller.ui.settings.SettingsScreen
 import com.greenfodor.diceroller.ui.settings.SettingsUiState
 import com.greenfodor.diceroller.ui.settings.SettingsViewModel
@@ -58,6 +59,7 @@ fun DiceRollerApp(onReady: () -> Unit = {}) {
     val shakeToRollEnabled by settingsViewModel.shakeToRollEnabled.collectAsStateWithLifecycle()
     val shakeToRollSupported = remember(context) { context.supportsShakeDetection() }
     val d6FaceStyle by settingsViewModel.d6FaceStyle.collectAsStateWithLifecycle()
+    val diceColorSettings by settingsViewModel.diceColorSettings.collectAsStateWithLifecycle()
 
     val mode = themeMode ?: return
 
@@ -66,7 +68,7 @@ fun DiceRollerApp(onReady: () -> Unit = {}) {
     var destination by rememberSaveable { mutableStateOf(AppDestination.DICE) }
     var selectedDiceType by rememberSaveable { mutableStateOf(DiceType.SINGLE_D6) }
 
-    DiceRollerTheme(darkTheme = resolveDarkTheme(mode)) {
+    DiceRollerTheme(darkTheme = resolveDarkTheme(mode), diceColorSettings = diceColorSettings) {
         when (destination) {
             AppDestination.DICE ->
                 CompositionLocalProvider(
@@ -95,9 +97,23 @@ fun DiceRollerApp(onReady: () -> Unit = {}) {
                     onHapticFeedbackToggled = settingsViewModel::setHapticFeedbackEnabled,
                     onShakeToRollToggled = settingsViewModel::setShakeToRollEnabled,
                     onD6FaceStyleSelected = settingsViewModel::setD6FaceStyle,
+                    onOpenDiceColors = { destination = AppDestination.DICE_COLORS },
                     onBack = { destination = AppDestination.DICE }
                 )
                 BackHandler { destination = AppDestination.DICE }
+            }
+
+            AppDestination.DICE_COLORS -> {
+                DiceColorsScreen(
+                    settings = diceColorSettings,
+                    themeMode = mode,
+                    onUseSingleColorToggled = settingsViewModel::setUseSingleDiceColor,
+                    onSingleColorSelected = settingsViewModel::setSingleDiceColor,
+                    onDiceColorSelected = settingsViewModel::setDiceColor,
+                    onRestoreDefaults = settingsViewModel::resetDiceColors,
+                    onBack = { destination = AppDestination.SETTINGS }
+                )
+                BackHandler { destination = AppDestination.SETTINGS }
             }
         }
     }

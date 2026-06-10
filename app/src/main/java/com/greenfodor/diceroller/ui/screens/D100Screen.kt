@@ -2,6 +2,7 @@ package com.greenfodor.diceroller.ui.screens
 
 import androidx.compose.runtime.Composable
 import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.ui.dice.d10.RollingD10Animation
 import com.greenfodor.diceroller.ui.dice.d100.PercentileTensDie
 import com.greenfodor.diceroller.ui.dice.d100.PercentileUnitsDie
@@ -27,6 +28,7 @@ fun D100Screen() {
     ) { state ->
         RollingD10Animation(
             dieState = state,
+            colorTarget = if (state === tensState) DieColorTarget.D100 else DieColorTarget.D100_SECONDARY,
             labelFor = if (state === tensState) ::tensLabel else ::unitsLabel
         )
     }

@@ -78,4 +78,48 @@ class SettingsRepositoryTest {
 
         assertEquals(D6FaceStyle.NUMBERS, repository.d6FaceStyle.first())
     }
+
+    @Test
+    fun `diceColorSettings defaults to distinct per-die colors when nothing is persisted`() = runTest {
+        assertEquals(DiceColorSettings(), newRepository().diceColorSettings.first())
+    }
+
+    @Test
+    fun `setUseSingleDiceColor persists the toggle`() = runTest {
+        val repository = newRepository()
+
+        repository.setUseSingleDiceColor(true)
+
+        assertEquals(true, repository.diceColorSettings.first().useSingleColor)
+    }
+
+    @Test
+    fun `setSingleDiceColor persists the single color`() = runTest {
+        val repository = newRepository()
+
+        repository.setSingleDiceColor(DiceColorOption.GREEN)
+
+        assertEquals(DiceColorOption.GREEN, repository.diceColorSettings.first().singleColor)
+    }
+
+    @Test
+    fun `setDiceColor persists a per-die override`() = runTest {
+        val repository = newRepository()
+
+        repository.setDiceColor(DieColorTarget.D20, DiceColorOption.TEAL)
+
+        assertEquals(DiceColorOption.TEAL, repository.diceColorSettings.first().optionFor(DieColorTarget.D20))
+    }
+
+    @Test
+    fun `resetDiceColors clears overrides back to defaults`() = runTest {
+        val repository = newRepository()
+        repository.setUseSingleDiceColor(true)
+        repository.setSingleDiceColor(DiceColorOption.PINK)
+        repository.setDiceColor(DieColorTarget.D20, DiceColorOption.TEAL)
+
+        repository.resetDiceColors()
+
+        assertEquals(DiceColorSettings(), repository.diceColorSettings.first())
+    }
 }
