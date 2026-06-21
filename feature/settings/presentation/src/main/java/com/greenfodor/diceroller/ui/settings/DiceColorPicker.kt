@@ -69,10 +69,6 @@ fun DiceColorPicker(
                 name
             }
 
-            // The circle is drawn with background(shape) + border(shape); we deliberately avoid
-            // .clip() and any per-swatch graphicsLayer, since allocating ~80 render layers when a
-            // section appears was the source of the reveal jank. The only animated layer is the
-            // check icon, and it is composed for the selected swatch alone.
             val borderWidth = if (isSelected) SELECTED_BORDER_WIDTH else BORDER_WIDTH
             val borderColor = if (isSelected) {
                 MaterialTheme.colorScheme.onSurface
@@ -93,8 +89,6 @@ fun DiceColorPicker(
                 contentAlignment = Alignment.Center
             ) {
                 if (isSelected) {
-                    // Only the selected swatch allocates an animation, so this stays cheap even
-                    // with the whole palette on screen. The icon pops in when a swatch is picked.
                     val checkScale = remember { Animatable(0f) }
                     LaunchedEffect(Unit) {
                         checkScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))

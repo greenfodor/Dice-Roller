@@ -69,8 +69,6 @@ fun DiceColorsScreen(
     val isDark = resolveDarkTheme(themeMode)
     var showRestoreDialog by remember { mutableStateOf(false) }
 
-    // Stable per-target callbacks so toggling/selecting doesn't recreate the lambdas and break
-    // strong-skipping on the swatch rows.
     val perDieColorSelected = remember(onDiceColorSelected) {
         DieColorTarget.entries.associateWith { target ->
             { option: DiceColorOption -> onDiceColorSelected(target, option) }
@@ -116,8 +114,6 @@ fun DiceColorsScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
-            // First section stays put: "All dice" and "D4" look identical, so only the label and
-            // selected color change between modes — no crossfade of the picker itself.
             ColorSection(
                 titleResId = if (settings.useSingleColor) {
                     R.string.dice_colors_all_dice_title
@@ -137,9 +133,6 @@ fun DiceColorsScreen(
                 }
             )
 
-            // The remaining per-die sections expand/collapse below with a spring. Anchor the reveal
-            // to the top so they grow straight down (accordion) instead of sliding up from under
-            // the first section, which clips them mid-animation.
             AnimatedVisibility(
                 visible = !settings.useSingleColor,
                 enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),

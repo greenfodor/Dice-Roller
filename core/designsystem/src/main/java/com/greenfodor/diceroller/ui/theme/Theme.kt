@@ -151,8 +151,6 @@ fun DiceRollerTheme(
 
     val colorScheme = transition.animateColorScheme(dynamicColor)
 
-    // Resolve each die's chosen palette color, animating between its light and dark shade so dice
-    // recolor in lockstep with the rest of the UI on a theme toggle.
     val diceColors =
         DiceColors(
             byTarget = DieColorTarget.entries.associateWith { target ->

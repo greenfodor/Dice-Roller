@@ -61,9 +61,6 @@ fun SettingsScreen(
                         )
                     }
                 },
-                // Transparent container so the Scaffold's animated background shows through and
-                // recolors in lockstep on theme change. An opaque container is double-animated by
-                // TopAppBar's internal animateColorAsState, which lags behind the theme transition.
                 colors =
                     TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent,
