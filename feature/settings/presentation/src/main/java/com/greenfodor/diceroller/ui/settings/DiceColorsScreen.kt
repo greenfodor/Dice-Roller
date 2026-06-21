@@ -1,10 +1,11 @@
 package com.greenfodor.diceroller.ui.settings
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,14 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.util.lerp
 import com.greenfodor.diceroller.data.DiceColorOption
 import com.greenfodor.diceroller.data.DiceColorSettings
 import com.greenfodor.diceroller.data.DieColorTarget
@@ -72,8 +69,8 @@ fun DiceColorsScreen(
     val isDark = resolveDarkTheme(themeMode)
     var showRestoreDialog by remember { mutableStateOf(false) }
 
-    // Stable per-target callbacks: recreating these lambdas on every recomposition would break
-    // strong-skipping and force all ~80 per-die swatches to recompose when the mode is toggled.
+    // Stable per-target callbacks so toggling/selecting doesn't recreate the lambdas and break
+    // strong-skipping on the swatch rows.
     val perDieColorSelected = remember(onDiceColorSelected) {
         DieColorTarget.entries.associateWith { target ->
             { option: DiceColorOption -> onDiceColorSelected(target, option) }
@@ -119,36 +116,47 @@ fun DiceColorsScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
-            // Both modes are composed once and cross-faded while the height springs between them
-            // (the expand/collapse feel). The single/per-die swatches are heavy, so the animation
-            // is driven entirely by deferred state reads inside ExpandingCrossfade — no per-frame
-            // recomposition or re-measure, just re-layout + a GPU alpha blit.
-            ExpandingCrossfade(
-                showFirst = settings.useSingleColor,
-                first = {
-                    ColorSection(
-                        titleResId = R.string.dice_colors_all_dice_title,
-                        selected = settings.singleColor,
-                        isDark = isDark,
-                        onSelected = onSingleColorSelected
-                    )
+            // First section stays put: "All dice" and "D4" look identical, so only the label and
+            // selected color change between modes — no crossfade of the picker itself.
+            ColorSection(
+                titleResId = if (settings.useSingleColor) {
+                    R.string.dice_colors_all_dice_title
+                } else {
+                    DieColorTarget.D4.labelResId
                 },
-                second = {
-                    Column {
-                        DieColorTarget.entries.forEachIndexed { index, target ->
-                            if (index > 0) {
-                                Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
-                            }
-                            ColorSection(
-                                titleResId = target.labelResId,
-                                selected = settings.optionFor(target),
-                                isDark = isDark,
-                                onSelected = perDieColorSelected.getValue(target)
-                            )
-                        }
-                    }
+                selected = if (settings.useSingleColor) {
+                    settings.singleColor
+                } else {
+                    settings.optionFor(DieColorTarget.D4)
+                },
+                isDark = isDark,
+                onSelected = if (settings.useSingleColor) {
+                    onSingleColorSelected
+                } else {
+                    perDieColorSelected.getValue(DieColorTarget.D4)
                 }
             )
+
+            // The remaining per-die sections expand/collapse below with a spring. Anchor the reveal
+            // to the top so they grow straight down (accordion) instead of sliding up from under
+            // the first section, which clips them mid-animation.
+            AnimatedVisibility(
+                visible = !settings.useSingleColor,
+                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+            ) {
+                Column {
+                    DieColorTarget.entries.drop(1).forEach { target ->
+                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+                        ColorSection(
+                            titleResId = target.labelResId,
+                            selected = settings.optionFor(target),
+                            isDark = isDark,
+                            onSelected = perDieColorSelected.getValue(target)
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
@@ -166,72 +174,6 @@ fun DiceColorsScreen(
             },
             onDismiss = { showRestoreDialog = false }
         )
-    }
-}
-
-/**
- * Cross-fades between [first] and [second] while springing the height between their two intrinsic
- * sizes — the expand/collapse animation — without paying that cost every frame.
- *
- * Both slots are composed once (kept resident) and measured with stable constraints, so Compose's
- * measure cache returns them without re-running layout on the heavy swatch content. A single
- * [progress] spring (1 = [first], 0 = [second]) is read only in the draw-phase `graphicsLayer`
- * (alpha) and the layout-phase measure/placement lambdas, so changing it each frame invalidates
- * only layout + draw — never composition or measurement. The settled-away slot is left unplaced so
- * it is neither drawn nor interactive.
- */
-@Composable
-private fun ExpandingCrossfade(
-    showFirst: Boolean,
-    modifier: Modifier = Modifier,
-    first: @Composable () -> Unit,
-    second: @Composable () -> Unit
-) {
-    val progress by animateFloatAsState(
-        targetValue = if (showFirst) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioLowBouncy,
-            stiffness = Spring.StiffnessMediumLow
-        ),
-        label = "expandProgress"
-    )
-    Layout(
-        modifier = modifier
-            .fillMaxWidth()
-            .clipToBounds(),
-        content = {
-            // Only the target slot carries semantics; the other is faded out and on its way out,
-            // so clearing its semantics keeps it (and its swatches) out of the accessibility tree
-            // and prevents duplicate nodes while both remain composed.
-            Box(
-                modifier = Modifier
-                    .graphicsLayer { alpha = progress }
-                    .then(if (showFirst) Modifier else Modifier.clearAndSetSemantics {})
-            ) { first() }
-            Box(
-                modifier = Modifier
-                    .graphicsLayer { alpha = 1f - progress }
-                    .then(if (showFirst) Modifier.clearAndSetSemantics {} else Modifier)
-            ) { second() }
-        }
-    ) { measurables, constraints ->
-        val firstPlaceable = measurables[0].measure(constraints)
-        val secondPlaceable = measurables[1].measure(constraints)
-        val width = maxOf(firstPlaceable.width, secondPlaceable.width)
-        // Clamp the height fraction to [0, 1]: the spring is bouncy and overshoots past its
-        // target, and an unclamped lerp would extrapolate a height *smaller* than the settled
-        // content, which clipToBounds() then clips (the restore button rides up over the picker).
-        val height = lerp(secondPlaceable.height, firstPlaceable.height, progress.coerceIn(0f, 1f))
-        layout(width, height) {
-            // Place only slots that are at least partially visible; the fully faded-out one is
-            // omitted so it can't be drawn over or receive touches once the animation settles.
-            if (progress > 0f) {
-                firstPlaceable.place(0, 0)
-            }
-            if (progress < 1f) {
-                secondPlaceable.place(0, 0)
-            }
-        }
     }
 }
 
