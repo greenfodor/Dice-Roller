@@ -10,6 +10,7 @@ import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -20,14 +21,16 @@ import javax.inject.Inject
  * Holds the persisted [ThemeMode] for the UI. The first emission is `null` ("not loaded yet"),
  * which the root composable uses to keep the splash screen up and avoid a theme flash.
  *
- * Also owns clearing the roll history, which is reachable only from the settings screen.
+ * Also owns clearing the roll history, which is reachable only from the settings screen. That
+ * delete runs on [applicationScope], so it completes after this ViewModel is cleared.
  */
 @HiltViewModel
 class SettingsViewModel
     @Inject
     constructor(
         private val repository: SettingsRepository,
-        private val rollHistoryRepository: RollHistoryRepository
+        private val rollHistoryRepository: RollHistoryRepository,
+        private val applicationScope: CoroutineScope
     ) : ViewModel() {
         val themeMode: StateFlow<ThemeMode?> =
             repository.themeMode.stateIn(
@@ -98,7 +101,7 @@ class SettingsViewModel
 
         /** Deletes every recorded roll. The settings screen is the only entry point for this. */
         fun clearRollHistory() {
-            viewModelScope.launch { rollHistoryRepository.clear() }
+            applicationScope.launch { rollHistoryRepository.clear() }
         }
 
         private companion object {

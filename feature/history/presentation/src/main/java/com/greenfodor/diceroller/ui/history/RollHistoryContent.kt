@@ -1,5 +1,6 @@
 package com.greenfodor.diceroller.ui.history
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import com.greenfodor.diceroller.feature.history.presentation.R
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
+import java.time.ZoneId
 
 private val DialogShape = RoundedCornerShape(28.dp)
 private val LoadingBoxHeight = 96.dp
@@ -48,20 +50,23 @@ private val FallbackListMaxHeight = 360.dp
 
 /**
  * Body of the roll history pop-up: every recorded roll, newest first, under a sticky header per
- * calendar day. Shows a spinner while the history is still loading and a short message when it
- * holds no rolls.
+ * calendar day. Shows a spinner while the history is still loading, and a short message when it
+ * holds no rolls or could not be read.
  *
  * Every state is laid out at the same width, so the pop-up does not resize as the history fills
  * up or is cleared. Height is content-sized: a short history wraps, while a long one scrolls
  * inside a list capped at [LIST_HEIGHT_FRACTION] of the window height, so the title and the close
  * button stay on screen whatever the display size.
  *
- * Rendered inside the dialog window supplied by the `rollHistoryGraph` destination, which is why
- * this composable holds no `Dialog` of its own and previews normally.
+ * Rendered inside the dialog window supplied by [rollHistoryEntry], which is why this composable
+ * holds no `Dialog` of its own and previews normally.
+ *
+ * @param zoneId The zone each row's time is shown in.
  */
 @Composable
 fun RollHistoryContent(
     state: RollHistoryUiState,
+    zoneId: ZoneId,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -79,8 +84,10 @@ fun RollHistoryContent(
 
             when (state) {
                 RollHistoryUiState.Loading -> RollHistoryLoading()
-                RollHistoryUiState.Empty -> RollHistoryEmpty()
-                is RollHistoryUiState.Content -> RollHistoryList(sections = state.sections)
+                RollHistoryUiState.Empty -> RollHistoryMessage(textResId = R.string.roll_history_empty)
+                RollHistoryUiState.Error -> RollHistoryMessage(textResId = R.string.roll_history_error)
+                is RollHistoryUiState.Content ->
+                    RollHistoryList(sections = state.sections, zoneId = zoneId)
             }
 
             TextButton(
@@ -106,9 +113,12 @@ private fun RollHistoryLoading(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun RollHistoryEmpty(modifier: Modifier = Modifier) {
+private fun RollHistoryMessage(
+    @StringRes textResId: Int,
+    modifier: Modifier = Modifier
+) {
     Text(
-        text = stringResource(R.string.roll_history_empty),
+        text = stringResource(textResId),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier.padding(vertical = MaterialTheme.spacing.large)
@@ -141,6 +151,7 @@ private fun rollHistoryListMaxHeight(): Dp {
 @Composable
 private fun RollHistoryList(
     sections: List<RollHistorySection>,
+    zoneId: ZoneId,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -152,7 +163,7 @@ private fun RollHistoryList(
                 RollHistoryDayHeader(day = section.day)
             }
             items(items = section.rolls, key = { it.id }) { record ->
-                RollHistoryRow(record = record)
+                RollHistoryRow(record = record, zoneId = zoneId)
             }
         }
     }
@@ -198,6 +209,7 @@ private fun RollHistoryContentPreview() {
                     )
                 )
             ),
+            zoneId = ZoneId.systemDefault(),
             onDismiss = {}
         )
     }
@@ -207,7 +219,23 @@ private fun RollHistoryContentPreview() {
 @Composable
 private fun RollHistoryContentEmptyPreview() {
     DiceRollerTheme {
-        RollHistoryContent(state = RollHistoryUiState.Empty, onDismiss = {})
+        RollHistoryContent(
+            state = RollHistoryUiState.Empty,
+            zoneId = ZoneId.systemDefault(),
+            onDismiss = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun RollHistoryContentErrorPreview() {
+    DiceRollerTheme {
+        RollHistoryContent(
+            state = RollHistoryUiState.Error,
+            zoneId = ZoneId.systemDefault(),
+            onDismiss = {}
+        )
     }
 }
 
@@ -215,7 +243,11 @@ private fun RollHistoryContentEmptyPreview() {
 @Composable
 private fun RollHistoryContentLoadingPreview() {
     DiceRollerTheme {
-        RollHistoryContent(state = RollHistoryUiState.Loading, onDismiss = {})
+        RollHistoryContent(
+            state = RollHistoryUiState.Loading,
+            zoneId = ZoneId.systemDefault(),
+            onDismiss = {}
+        )
     }
 }
 

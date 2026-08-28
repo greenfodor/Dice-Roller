@@ -1,5 +1,6 @@
 package com.greenfodor.diceroller.ui.settings
 
+import androidx.lifecycle.viewModelScope
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.DiceColorOption
 import com.greenfodor.diceroller.data.DiceColorSettings
@@ -9,8 +10,11 @@ import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.ThemeMode
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -86,33 +90,40 @@ private class FakeRollHistoryRepository : RollHistoryRepository {
     var clearCount = 0
         private set
 
+    /** Completed by the test to let a suspended [clear] finish. */
+    var clearGate: CompletableDeferred<Unit>? = null
+
     override suspend fun record(record: RollRecord) {
         state.update { it + record }
     }
 
     override suspend fun clear() {
+        clearGate?.await()
         clearCount++
         state.value = emptyList()
     }
 }
 
-private fun settingsViewModel(
-    repository: SettingsRepository,
-    rollHistoryRepository: RollHistoryRepository = FakeRollHistoryRepository()
-): SettingsViewModel = SettingsViewModel(repository, rollHistoryRepository)
-
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private lateinit var applicationScope: CoroutineScope
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
+        applicationScope = CoroutineScope(UnconfinedTestDispatcher())
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun tearDown() {
+        applicationScope.cancel()
         Dispatchers.resetMain()
     }
+
+    private fun settingsViewModel(
+        repository: SettingsRepository,
+        rollHistoryRepository: RollHistoryRepository = FakeRollHistoryRepository()
+    ): SettingsViewModel = SettingsViewModel(repository, rollHistoryRepository, applicationScope)
 
     @Test
     fun `themeMode starts null then reflects the repository`() = runTest {
@@ -253,6 +264,24 @@ class SettingsViewModelTest {
 
         assertEquals(ThemeMode.DARK, settingsRepository.themeMode.first())
         assertEquals(DiceColorSettings(), settingsRepository.diceColorSettings.first())
+    }
+
+    @Test
+    fun `a clear already in flight completes after the ViewModel scope is cancelled`() = runTest {
+        val rollHistoryRepository = FakeRollHistoryRepository()
+        rollHistoryRepository.record(
+            RollRecord(dieLabel = DieLabels.D6, values = listOf(4), total = 4, timestampMillis = 1_000L)
+        )
+        val gate = CompletableDeferred<Unit>()
+        rollHistoryRepository.clearGate = gate
+        val viewModel = settingsViewModel(FakeSettingsRepository(ThemeMode.DARK), rollHistoryRepository)
+
+        viewModel.clearRollHistory()
+        viewModel.viewModelScope.cancel()
+        gate.complete(Unit)
+
+        assertEquals(1, rollHistoryRepository.clearCount)
+        assertEquals(emptyList<RollRecord>(), rollHistoryRepository.rolls.first())
     }
 
     @Test

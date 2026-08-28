@@ -44,6 +44,7 @@ import com.greenfodor.diceroller.ui.screens.DiceViewModel
 import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
 import com.greenfodor.diceroller.ui.settings.DiceColorsRoute
 import com.greenfodor.diceroller.ui.settings.SettingsRoute
+import com.greenfodor.diceroller.ui.settings.SettingsUiState
 import com.greenfodor.diceroller.ui.settings.SettingsViewModel
 import com.greenfodor.diceroller.ui.settings.settingsEntries
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -55,11 +56,12 @@ import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
 /**
  * Root composable. Owns the back stack and the app-wide configuration.
  *
- * The [SettingsViewModel] resolved here is deliberately activity-scoped: [DiceRollerTheme] wraps
- * every entry, so the theme, dice colors and roll behaviour have to be readable before any entry
- * is composed. Every entry inside the back stack resolves its own ViewModel instead, scoped to
- * that entry by [rememberViewModelStoreNavEntryDecorator]. While the theme mode is still loading
- * (`null`) nothing renders and the splash screen stays up (via [onReady]) to avoid a theme flash.
+ * The [SettingsViewModel] resolved here is activity-scoped: [DiceRollerTheme] wraps every entry,
+ * so the theme, dice colors and roll behaviour have to be readable before any entry is composed.
+ * The settings entries render from that same instance and its already-loaded values, while the
+ * dice and roll history entries resolve their own ViewModels, scoped to their entry by
+ * [rememberViewModelStoreNavEntryDecorator]. While the theme mode is still loading (`null`)
+ * nothing renders and the splash screen stays up (via [onReady]) to avoid a theme flash.
  */
 @Composable
 fun DiceRollerApp(
@@ -76,6 +78,15 @@ fun DiceRollerApp(
     val diceColorSettings by appSettingsViewModel.diceColorSettings.collectAsStateWithLifecycle()
 
     val mode = themeMode ?: return
+
+    val settingsState = SettingsUiState(
+        themeMode = mode,
+        hapticFeedbackEnabled = hapticFeedbackEnabled,
+        hapticFeedbackSupported = hapticFeedbackSupported,
+        shakeToRollEnabled = shakeToRollEnabled,
+        shakeToRollSupported = shakeToRollSupported,
+        d6FaceStyle = d6FaceStyle
+    )
 
     LaunchedEffect(Unit) { onReady() }
 
@@ -99,8 +110,9 @@ fun DiceRollerApp(
                     onOpenSettings = { backStack.add(SettingsRoute) }
                 )
                 settingsEntries(
-                    hapticFeedbackSupported = hapticFeedbackSupported,
-                    shakeToRollSupported = shakeToRollSupported,
+                    viewModel = appSettingsViewModel,
+                    state = settingsState,
+                    diceColorSettings = diceColorSettings,
                     onOpenDiceColors = { backStack.add(DiceColorsRoute) },
                     onBack = { backStack.removeLastOrNull() }
                 )

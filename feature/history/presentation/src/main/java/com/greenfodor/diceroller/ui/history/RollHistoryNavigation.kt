@@ -30,6 +30,6 @@ fun EntryProviderScope<NavKey>.rollHistoryEntry(onDismiss: () -> Unit) {
         val viewModel: RollHistoryViewModel = hiltViewModel()
         val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-        RollHistoryContent(state = state, onDismiss = onDismiss)
+        RollHistoryContent(state = state, zoneId = viewModel.zoneId, onDismiss = onDismiss)
     }
 }

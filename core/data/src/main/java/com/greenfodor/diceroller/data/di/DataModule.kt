@@ -12,12 +12,16 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.time.Clock
+import java.time.ZoneId
 import javax.inject.Singleton
 
 /**
- * Binds the persistence layer. Everything here is a [Singleton]: the DataStore and the Room
- * database each hold a single open handle to their file for the life of the process.
+ * Binds the persistence layer. The DataStore and the Room database are [Singleton]s, each
+ * holding a single open handle to their file for the life of the process.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -46,4 +50,19 @@ object DataModule {
     @Provides
     @Singleton
     fun provideClock(): Clock = Clock.systemDefaultZone()
+
+    /**
+     * The device's current time zone, re-read on every injection so a zone change is picked up
+     * without restarting the process.
+     */
+    @Provides
+    fun provideZoneId(): ZoneId = ZoneId.systemDefault()
+
+    /**
+     * Scope for persistence writes that must run to completion. It lives for the whole process
+     * and a failed write does not cancel the ones that follow.
+     */
+    @Provides
+    @Singleton
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 }

@@ -11,11 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.ui.theme.spacing
+import java.time.ZoneId
 
 /** One recorded roll: the die notation and time on the left, the scored total on the right. */
 @Composable
 internal fun RollHistoryRow(
     record: RollRecord,
+    zoneId: ZoneId,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -30,7 +32,7 @@ internal fun RollHistoryRow(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = rollHistoryDetails(record),
+                text = rollHistoryDetails(record = record, zoneId = zoneId),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

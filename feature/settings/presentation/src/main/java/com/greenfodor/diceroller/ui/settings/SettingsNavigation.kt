@@ -1,11 +1,8 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.greenfodor.diceroller.data.DiceColorSettings
 import kotlinx.serialization.Serializable
 
 /** The settings screen. */
@@ -19,82 +16,41 @@ data object DiceColorsRoute : NavKey
 /**
  * Adds the settings entries.
  *
- * Each entry resolves its own [SettingsViewModel] through [hiltViewModel], so the instance is
- * scoped to that entry and cleared when the user leaves it.
+ * Both entries render from the [viewModel], [state] and [diceColorSettings] hoisted in by the
+ * caller, so they show the persisted settings the moment they are composed rather than after a
+ * ViewModel of their own has loaded them.
  *
  * @param onOpenDiceColors Pushes [DiceColorsRoute] onto the back stack.
  * @param onBack Pops the current entry.
  */
 fun EntryProviderScope<NavKey>.settingsEntries(
-    hapticFeedbackSupported: Boolean,
-    shakeToRollSupported: Boolean,
+    viewModel: SettingsViewModel,
+    state: SettingsUiState,
+    diceColorSettings: DiceColorSettings,
     onOpenDiceColors: () -> Unit,
     onBack: () -> Unit
 ) {
     entry<SettingsRoute> {
-        SettingsRoot(
-            hapticFeedbackSupported = hapticFeedbackSupported,
-            shakeToRollSupported = shakeToRollSupported,
+        SettingsScreen(
+            state = state,
+            onThemeModeSelected = viewModel::setThemeMode,
+            onHapticFeedbackToggled = viewModel::setHapticFeedbackEnabled,
+            onShakeToRollToggled = viewModel::setShakeToRollEnabled,
+            onD6FaceStyleSelected = viewModel::setD6FaceStyle,
             onOpenDiceColors = onOpenDiceColors,
+            onClearRollHistory = viewModel::clearRollHistory,
             onBack = onBack
         )
     }
     entry<DiceColorsRoute> {
-        DiceColorsRoot(onBack = onBack)
+        DiceColorsScreen(
+            settings = diceColorSettings,
+            themeMode = state.themeMode,
+            onUseSingleColorToggled = viewModel::setUseSingleDiceColor,
+            onSingleColorSelected = viewModel::setSingleDiceColor,
+            onDiceColorSelected = viewModel::setDiceColor,
+            onRestoreDefaults = viewModel::resetDiceColors,
+            onBack = onBack
+        )
     }
-}
-
-@Composable
-private fun SettingsRoot(
-    hapticFeedbackSupported: Boolean,
-    shakeToRollSupported: Boolean,
-    onOpenDiceColors: () -> Unit,
-    onBack: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
-) {
-    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
-    val hapticFeedbackEnabled by viewModel.hapticFeedbackEnabled.collectAsStateWithLifecycle()
-    val shakeToRollEnabled by viewModel.shakeToRollEnabled.collectAsStateWithLifecycle()
-    val d6FaceStyle by viewModel.d6FaceStyle.collectAsStateWithLifecycle()
-
-    val mode = themeMode ?: return
-
-    SettingsScreen(
-        state = SettingsUiState(
-            themeMode = mode,
-            hapticFeedbackEnabled = hapticFeedbackEnabled,
-            hapticFeedbackSupported = hapticFeedbackSupported,
-            shakeToRollEnabled = shakeToRollEnabled,
-            shakeToRollSupported = shakeToRollSupported,
-            d6FaceStyle = d6FaceStyle
-        ),
-        onThemeModeSelected = viewModel::setThemeMode,
-        onHapticFeedbackToggled = viewModel::setHapticFeedbackEnabled,
-        onShakeToRollToggled = viewModel::setShakeToRollEnabled,
-        onD6FaceStyleSelected = viewModel::setD6FaceStyle,
-        onOpenDiceColors = onOpenDiceColors,
-        onClearRollHistory = viewModel::clearRollHistory,
-        onBack = onBack
-    )
-}
-
-@Composable
-private fun DiceColorsRoot(
-    onBack: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
-) {
-    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
-    val diceColorSettings by viewModel.diceColorSettings.collectAsStateWithLifecycle()
-
-    val mode = themeMode ?: return
-
-    DiceColorsScreen(
-        settings = diceColorSettings,
-        themeMode = mode,
-        onUseSingleColorToggled = viewModel::setUseSingleDiceColor,
-        onSingleColorSelected = viewModel::setSingleDiceColor,
-        onDiceColorSelected = viewModel::setDiceColor,
-        onRestoreDefaults = viewModel::resetDiceColors,
-        onBack = onBack
-    )
 }

@@ -4,8 +4,13 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasProgressBarRangeInfo
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -24,6 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDate
+import java.time.ZoneId
 
 @RunWith(AndroidJUnit4::class)
 class RollHistoryContentTest {
@@ -94,10 +100,45 @@ class RollHistoryContentTest {
     }
 
     @Test
-    fun theTitleIsShownInEveryState() {
+    fun errorStateShowsTheCouldNotLoadMessage() {
+        setContent(RollHistoryUiState.Error)
+
+        composeTestRule.onNodeWithText(string(R.string.roll_history_error)).assertIsDisplayed()
+    }
+
+    @Test
+    fun errorStateShowsNoRollRows() {
+        setContent(RollHistoryUiState.Error)
+
+        composeTestRule.onNodeWithText(DieLabels.D20).assertDoesNotExist()
+    }
+
+    @Test
+    fun loadingStateShowsASpinner() {
         setContent(RollHistoryUiState.Loading)
 
-        composeTestRule.onNodeWithText(string(R.string.roll_history_title)).assertIsDisplayed()
+        composeTestRule.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertIsDisplayed()
+    }
+
+    @Test
+    fun theTitleIsShownInEveryState() {
+        var state: RollHistoryUiState by mutableStateOf(RollHistoryUiState.Loading)
+        composeTestRule.setContent {
+            DiceRollerTheme {
+                RollHistoryContent(state = state, zoneId = ZONE, onDismiss = {})
+            }
+        }
+
+        listOf(
+            RollHistoryUiState.Loading,
+            RollHistoryUiState.Empty,
+            RollHistoryUiState.Error,
+            contentState()
+        ).forEach { next ->
+            composeTestRule.runOnIdle { state = next }
+
+            composeTestRule.onNodeWithText(string(R.string.roll_history_title)).assertIsDisplayed()
+        }
     }
 
     @Test
@@ -157,7 +198,7 @@ class RollHistoryContentTest {
         composeTestRule.setContent {
             DiceRollerTheme {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    RollHistoryContent(state = contentState(), onDismiss = {})
+                    RollHistoryContent(state = contentState(), zoneId = ZONE, onDismiss = {})
                 }
             }
         }
@@ -179,6 +220,7 @@ class RollHistoryContentTest {
                         state = RollHistoryUiState.Content(
                             listOf(RollHistorySection(day = RollHistoryDay.Today, rolls = manyRolls))
                         ),
+                        zoneId = ZONE,
                         onDismiss = {}
                     )
                 }
@@ -196,7 +238,7 @@ class RollHistoryContentTest {
     ) {
         composeTestRule.setContent {
             DiceRollerTheme {
-                RollHistoryContent(state = state, onDismiss = onDismiss)
+                RollHistoryContent(state = state, zoneId = ZONE, onDismiss = onDismiss)
             }
         }
     }
@@ -232,6 +274,7 @@ class RollHistoryContentTest {
         InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
 
     private companion object {
+        val ZONE: ZoneId = ZoneId.of("Europe/Bucharest")
         const val FIXED_TIMESTAMP_MILLIS = 1_787_000_000_000L
         const val LONG_HISTORY_SIZE = 40
     }

@@ -1,17 +1,10 @@
 package com.greenfodor.diceroller.ui
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.navigation3.scene.DialogSceneStrategy
-import androidx.navigation3.ui.NavDisplay
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
 import com.greenfodor.diceroller.HiltTestActivity
@@ -21,22 +14,21 @@ import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.di.DataModule
-import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
-import com.greenfodor.diceroller.ui.history.RollHistoryRoute
-import com.greenfodor.diceroller.ui.history.rollHistoryEntry
-import com.greenfodor.diceroller.ui.screens.DiceRoute
-import com.greenfodor.diceroller.ui.screens.DiceType
-import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.time.Clock
+import java.time.ZoneId
 import com.greenfodor.diceroller.feature.history.presentation.R as HistoryR
+import com.greenfodor.diceroller.feature.settings.presentation.R as SettingsR
 
 private class FakeRollHistoryRepository : RollHistoryRepository {
     val state = MutableStateFlow(listOf(sampleRoll))
@@ -59,6 +51,7 @@ private val sampleRoll = RollRecord(
     timestampMillis = 1_787_000_000_000L
 )
 
+/** Drives the real [DiceRollerApp] back stack, with only the persistence layer faked. */
 @HiltAndroidTest
 @UninstallModules(DataModule::class)
 class RollHistoryNavigationTest {
@@ -76,6 +69,12 @@ class RollHistoryNavigationTest {
 
     @BindValue
     val clock: Clock = Clock.systemDefaultZone()
+
+    @BindValue
+    val zoneId: ZoneId = ZoneId.systemDefault()
+
+    @BindValue
+    val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Before
     fun inject() {
@@ -129,35 +128,18 @@ class RollHistoryNavigationTest {
         composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_empty)).assertIsDisplayed()
     }
 
-    private fun setContent() {
-        composeTestRule.setContent {
-            DiceRollerTheme { TestNavDisplay() }
-        }
+    @Test
+    fun theSettingsEntryShowsItsSettingsAsSoonAsItIsOpened() {
+        setContent()
+
+        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
+
+        composeTestRule.onNodeWithText(string(SettingsR.string.settings_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(SettingsR.string.settings_theme_title)).assertIsDisplayed()
     }
 
-    @Composable
-    private fun TestNavDisplay() {
-        val backStack = rememberNavBackStack(DiceRoute)
-        NavDisplay(
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            sceneStrategies = listOf(DialogSceneStrategy()),
-            entryProvider = entryProvider {
-                entry<DiceRoute> {
-                    DiceRollerTopBar(
-                        selectedDiceType = DiceType.SINGLE_D6,
-                        onDiceTypeSelected = {},
-                        onOpenHistory = { backStack.add(RollHistoryRoute) },
-                        onOpenSettings = {}
-                    )
-                }
-                rollHistoryEntry(onDismiss = { backStack.removeLastOrNull() })
-            }
-        )
+    private fun setContent() {
+        composeTestRule.setContent { DiceRollerApp() }
     }
 
     private fun string(resId: Int): String =

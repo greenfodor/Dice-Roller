@@ -1,6 +1,10 @@
 package com.greenfodor.diceroller.ui.screens
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -10,6 +14,8 @@ import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollOutcome
 import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.dice.d6.D6
+import com.greenfodor.diceroller.ui.dice.rememberDieState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -84,12 +90,90 @@ class RollRecordingTest {
     }
 
     @Test
+    fun theReportedOutcomeIsStampedWhenTheRollStartedNotWhenItSettled() {
+        setContent { D6Screen(onRollSettled = { settled += it }) }
+
+        val beforeClick = System.currentTimeMillis()
+        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.mainClock.advanceTimeByFrame()
+        val afterClick = System.currentTimeMillis()
+        composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        assertEquals(1, settled.size)
+        assertTrue(settled.single().startedAtMillis in beforeClick..afterClick)
+    }
+
+    @Test
+    fun aSettledRollIsReportedOnceAndNotAgainAfterAStateRestore() {
+        val restorationTester = StateRestorationTester(composeTestRule)
+        restorationTester.setContent {
+            DiceRollerTheme { D6Screen(onRollSettled = { settled += it }) }
+        }
+
+        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.waitUntil(timeoutMillis = SETTLE_TIMEOUT_MILLIS) { settled.size == 1 }
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeTestRule.waitForIdle()
+
+        assertEquals(1, settled.size)
+    }
+
+    @Test
+    fun aRollInterruptedByAStateRestoreIsNotReported() {
+        val restorationTester = StateRestorationTester(composeTestRule)
+        restorationTester.setContent {
+            DiceRollerTheme { StillDiceScreen(onRollSettled = { settled += it }) }
+        }
+
+        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        restorationTester.emulateSavedInstanceStateRestore()
+        composeTestRule.waitForIdle()
+
+        assertEquals(0, settled.size)
+    }
+
+    @Test
+    fun aRollInterruptedBySwitchingDieTypeIsNotReported() {
+        var showD6 by mutableStateOf(true)
+        composeTestRule.mainClock.autoAdvance = false
+        composeTestRule.setContent {
+            DiceRollerTheme {
+                if (showD6) {
+                    D6Screen(onRollSettled = { settled += it })
+                } else {
+                    D20Screen(onRollSettled = { settled += it })
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.mainClock.advanceTimeByFrame()
+        composeTestRule.runOnIdle { showD6 = false }
+        composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        assertEquals(0, settled.size)
+    }
+
+    @Test
     fun theReportedOutcomeMatchesTheValueShownOnScreen() {
         setContent { D20Screen(onRollSettled = { settled += it }) }
 
         rollAndSettle(R.string.roll_button_single)
 
         composeTestRule.onNodeWithText(settled.single().total.toString()).assertExists()
+    }
+
+    /** A [DiceScreen] whose die is never drawn, so a started roll stays in flight until disposed. */
+    @Composable
+    private fun StillDiceScreen(onRollSettled: (RollOutcome) -> Unit) {
+        DiceScreen(
+            dieStates = listOf(rememberDieState(die = D6)),
+            dieLabel = DieLabels.D6,
+            rollButtonResId = R.string.roll_button_single,
+            onRollSettled = onRollSettled
+        ) { }
     }
 
     private fun setContent(screen: @Composable () -> Unit) {
@@ -110,6 +194,7 @@ class RollRecordingTest {
 
     private companion object {
         const val ROLL_SETTLE_BUFFER_MILLIS = 500L
+        const val SETTLE_TIMEOUT_MILLIS = 10_000L
         const val PERCENTILE_MAX = 100
     }
 }

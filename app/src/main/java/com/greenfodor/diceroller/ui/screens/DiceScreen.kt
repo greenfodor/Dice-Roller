@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,10 +62,13 @@ import kotlin.time.Duration.Companion.milliseconds
  * supply its own renderer. The roll button is disabled while any die is mid-roll.
  *
  * A roll is reported through [onRollSettled] once every die has finished animating, as a
- * single [RollOutcome] carrying [dieLabel], each die's face value and the screen's scored
- * [result] — so a screen rolling several dice at once (2d6, d100) reports one outcome, not one
- * per die. A roll interrupted by process death is reported when the screen is restored, since
- * the dice come back at rest on their result.
+ * single [RollOutcome] carrying [dieLabel], each die's face value, the screen's scored
+ * [result] and the time the roll was started — so a screen rolling several dice at once (2d6,
+ * d100) reports one outcome, not one per die. Only a roll that settles on screen is reported:
+ * one interrupted first — by switching die type, leaving the screen, a configuration change or
+ * process death — is dropped.
+ *
+ * `rollStartedAtMillis` is non-null only while a roll is in flight, holding the time it started.
  *
  * @param dieStates The dice shown on this screen (one or more).
  * @param dieLabel One of the [com.greenfodor.diceroller.data.DieLabels] constants.
@@ -92,10 +94,9 @@ fun DiceScreen(
     val hapticsEnabled = LocalHapticsEnabled.current
     val shakeToRollEnabled = LocalShakeToRollEnabled.current
 
-    // Survives process death so a roll interrupted mid-animation is still reported on restore.
-    var isRollPending by rememberSaveable { mutableStateOf(false) }
+    var rollStartedAtMillis by remember { mutableStateOf<Long?>(null) }
     val startRoll = {
-        if (context.rollDice(dieStates, hapticsEnabled)) isRollPending = true
+        if (context.rollDice(dieStates, hapticsEnabled)) rollStartedAtMillis = System.currentTimeMillis()
     }
 
     rememberShakeDetector(
@@ -106,17 +107,17 @@ fun DiceScreen(
     val isRolling = dieStates.any { it.isRolling }
 
     val currentOnRollSettled by rememberUpdatedState(onRollSettled)
-    LaunchedEffect(isRolling, isRollPending) {
-        if (isRollPending && isRolling.not()) {
-            isRollPending = false
-            currentOnRollSettled(
-                RollOutcome(
-                    dieLabel = dieLabel,
-                    values = dieStates.map { it.currentFace.value },
-                    total = result(dieStates)
-                )
+    LaunchedEffect(isRolling, rollStartedAtMillis) {
+        val startedAt = rollStartedAtMillis?.takeIf { isRolling.not() } ?: return@LaunchedEffect
+        rollStartedAtMillis = null
+        currentOnRollSettled(
+            RollOutcome(
+                dieLabel = dieLabel,
+                values = dieStates.map { it.currentFace.value },
+                total = result(dieStates),
+                startedAtMillis = startedAt
             )
-        }
+        )
     }
     val rollDurationMillis = MaterialTheme.diceSpecs.rollDurationMillis
 
