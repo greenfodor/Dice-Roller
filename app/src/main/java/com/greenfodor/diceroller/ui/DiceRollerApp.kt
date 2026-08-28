@@ -15,7 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
@@ -62,9 +62,11 @@ import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
  * (`null`) nothing renders and the splash screen stays up (via [onReady]) to avoid a theme flash.
  */
 @Composable
-fun DiceRollerApp(onReady: () -> Unit = {}) {
+fun DiceRollerApp(
+    onReady: () -> Unit = {},
+    appSettingsViewModel: SettingsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-    val appSettingsViewModel: SettingsViewModel = hiltViewModel()
     val themeMode by appSettingsViewModel.themeMode.collectAsStateWithLifecycle()
     val hapticFeedbackEnabled by appSettingsViewModel.hapticFeedbackEnabled.collectAsStateWithLifecycle()
     val hapticFeedbackSupported = remember(context) { context.supportsHaptics() }

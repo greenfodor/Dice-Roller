@@ -2,7 +2,7 @@ package com.greenfodor.diceroller.ui.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -49,9 +49,9 @@ private fun SettingsRoot(
     hapticFeedbackSupported: Boolean,
     shakeToRollSupported: Boolean,
     onOpenDiceColors: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val viewModel: SettingsViewModel = hiltViewModel()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val hapticFeedbackEnabled by viewModel.hapticFeedbackEnabled.collectAsStateWithLifecycle()
     val shakeToRollEnabled by viewModel.shakeToRollEnabled.collectAsStateWithLifecycle()
@@ -79,8 +79,10 @@ private fun SettingsRoot(
 }
 
 @Composable
-private fun DiceColorsRoot(onBack: () -> Unit) {
-    val viewModel: SettingsViewModel = hiltViewModel()
+private fun DiceColorsRoot(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val diceColorSettings by viewModel.diceColorSettings.collectAsStateWithLifecycle()
 
