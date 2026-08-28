@@ -1,22 +1,22 @@
 [versions]
-agp = "9.2.1"
-kotlin = "2.4.0"
+agp = "9.3.2"
+kotlin = "2.4.10"
 coreKtx = "1.19.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-lifecycleRuntimeKtx = "2.10.0"
+lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
-composeBom = "2026.05.01"
+composeBom = "2026.08.00"
 material-icons-extended = "1.7.8"
 detekt = "1.23.8"
 ktlint = "14.2.0"
-compose-rules = "0.5.9"
+compose-rules = "0.6.4"
 core-splashscreen = "1.2.0"
 datastore = "1.2.1"
 kotlinxCoroutines = "1.11.0"
 benchmarkMacro = "1.4.1"
-uiautomator = "2.3.0"
+uiautomator = "2.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
