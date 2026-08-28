@@ -12,4 +12,5 @@
     <string name="cd_die_value">Die showing %1$d</string>
     <string name="cd_rolled_value">Rolled %1$d</string>
     <string name="cd_open_settings">Open settings</string>
+    <string name="cd_open_roll_history">Open roll history</string>
 </resources>

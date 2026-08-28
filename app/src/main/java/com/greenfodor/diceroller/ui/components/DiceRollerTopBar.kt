@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,11 +33,13 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 /**
  * Custom TopAppBar for the Dice Roller app.
  *
- * It features a dropdown menu for selecting the type of die to roll and an action button
- * that opens the settings screen (where the theme is configured).
+ * It features a dropdown menu for selecting the type of die to roll and two action buttons:
+ * one that opens the roll history and one that opens the settings screen (where the theme is
+ * configured).
  *
  * @param selectedDiceType The currently active die type.
  * @param onDiceTypeSelected Callback when the user selects a different die type.
+ * @param onOpenHistory Callback to open the roll history.
  * @param onOpenSettings Callback to open the settings screen.
  * @param modifier Modifier for the top bar.
  */
@@ -45,6 +48,7 @@ import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 fun DiceRollerTopBar(
     selectedDiceType: DiceType,
     onDiceTypeSelected: (DiceType) -> Unit,
+    onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -66,6 +70,12 @@ fun DiceRollerTopBar(
                 actionIconContentColor = MaterialTheme.colorScheme.onBackground
             ),
         actions = {
+            IconButton(onClick = onOpenHistory) {
+                Icon(
+                    imageVector = Icons.Outlined.History,
+                    contentDescription = stringResource(R.string.cd_open_roll_history)
+                )
+            }
             IconButton(onClick = onOpenSettings) {
                 Icon(
                     imageVector = Icons.Default.Settings,
@@ -123,6 +133,7 @@ private fun DiceRollerTopBarPreview() {
         DiceRollerTopBar(
             selectedDiceType = DiceType.SINGLE_D6,
             onDiceTypeSelected = {},
+            onOpenHistory = {},
             onOpenSettings = {}
         )
     }

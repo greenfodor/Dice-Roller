@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -20,6 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,9 +50,12 @@ fun SettingsScreen(
     onShakeToRollToggled: (Boolean) -> Unit,
     onD6FaceStyleSelected: (D6FaceStyle) -> Unit,
     onOpenDiceColors: () -> Unit,
+    onClearRollHistory: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var isClearHistoryDialogShown by remember { mutableStateOf(value = false) }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -74,6 +83,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = MaterialTheme.spacing.medium)
         ) {
             Text(
@@ -135,7 +145,23 @@ fun SettingsScreen(
                 subtitle = stringResource(R.string.settings_dice_colors_label),
                 onClick = onOpenDiceColors
             )
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
+
+            ClearRollHistoryRow(onClick = { isClearHistoryDialogShown = true })
+
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
         }
+    }
+
+    if (isClearHistoryDialogShown) {
+        ClearRollHistoryDialog(
+            onConfirm = {
+                isClearHistoryDialogShown = false
+                onClearRollHistory()
+            },
+            onDismiss = { isClearHistoryDialogShown = false }
+        )
     }
 }
 
@@ -191,6 +217,7 @@ private fun SettingsScreenPreview() {
             onShakeToRollToggled = {},
             onD6FaceStyleSelected = {},
             onOpenDiceColors = {},
+            onClearRollHistory = {},
             onBack = {}
         )
     }
