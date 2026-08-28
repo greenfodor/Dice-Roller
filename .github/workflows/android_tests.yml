@@ -31,3 +31,6 @@ jobs:
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug
+
+    - name: Build Release APK (verify R8/minify)
+      run: ./gradlew assembleRelease

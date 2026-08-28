@@ -8,8 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.dice.rememberRollRotation
+import com.greenfodor.diceroller.ui.theme.LocalDiceColors
 import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.spacing
 
@@ -26,7 +28,7 @@ fun RollingD20Animation(
 ) {
     val diceSpecs = MaterialTheme.diceSpecs
     val paints = remember { D20Paints() }
-    val primaryColor = MaterialTheme.colorScheme.primary
+    val primaryColor = LocalDiceColors.current.colorFor(DieColorTarget.D20)
     val rotation = rememberRollRotation(dieState)
 
     Canvas(

@@ -30,4 +30,19 @@ interface SettingsRepository {
 
     /** Persist the user's D6 face-style choice. */
     suspend fun setD6FaceStyle(style: D6FaceStyle)
+
+    /** The user's dice color configuration, defaulting to [DiceColorSettings] (distinct per-die colors). */
+    val diceColorSettings: Flow<DiceColorSettings>
+
+    /** Persist whether a single color should be applied to every die. */
+    suspend fun setUseSingleDiceColor(enabled: Boolean)
+
+    /** Persist the single color applied to every die when single-color mode is on. */
+    suspend fun setSingleDiceColor(option: DiceColorOption)
+
+    /** Persist the color for a single [DieColorTarget] used in per-die mode. */
+    suspend fun setDiceColor(target: DieColorTarget, option: DiceColorOption)
+
+    /** Clear all dice color choices, restoring the [DiceColorSettings] defaults. */
+    suspend fun resetDiceColors()
 }

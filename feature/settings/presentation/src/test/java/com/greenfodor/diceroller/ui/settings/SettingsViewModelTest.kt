@@ -1,6 +1,9 @@
 package com.greenfodor.diceroller.ui.settings
 
 import com.greenfodor.diceroller.data.D6FaceStyle
+import com.greenfodor.diceroller.data.DiceColorOption
+import com.greenfodor.diceroller.data.DiceColorSettings
+import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.ThemeMode
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +25,8 @@ private class FakeSettingsRepository(
     initial: ThemeMode,
     initialHaptics: Boolean = true,
     initialShake: Boolean = true,
-    initialFaceStyle: D6FaceStyle = D6FaceStyle.PIPS
+    initialFaceStyle: D6FaceStyle = D6FaceStyle.PIPS,
+    initialDiceColors: DiceColorSettings = DiceColorSettings()
 ) : SettingsRepository {
     private val state = MutableStateFlow(initial)
     override val themeMode = state
@@ -35,6 +39,9 @@ private class FakeSettingsRepository(
 
     private val faceStyle = MutableStateFlow(initialFaceStyle)
     override val d6FaceStyle = faceStyle
+
+    private val diceColors = MutableStateFlow(initialDiceColors)
+    override val diceColorSettings = diceColors
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         state.update { mode }
@@ -50,6 +57,22 @@ private class FakeSettingsRepository(
 
     override suspend fun setD6FaceStyle(style: D6FaceStyle) {
         faceStyle.update { style }
+    }
+
+    override suspend fun setUseSingleDiceColor(enabled: Boolean) {
+        diceColors.update { it.copy(useSingleColor = enabled) }
+    }
+
+    override suspend fun setSingleDiceColor(option: DiceColorOption) {
+        diceColors.update { it.copy(singleColor = option) }
+    }
+
+    override suspend fun setDiceColor(target: DieColorTarget, option: DiceColorOption) {
+        diceColors.update { it.copy(perDie = it.perDie + (target to option)) }
+    }
+
+    override suspend fun resetDiceColors() {
+        diceColors.update { DiceColorSettings() }
     }
 }
 
@@ -134,5 +157,64 @@ class SettingsViewModelTest {
         viewModel.setD6FaceStyle(D6FaceStyle.NUMBERS)
 
         assertEquals(D6FaceStyle.NUMBERS, repository.d6FaceStyle.first())
+    }
+
+    @Test
+    fun `diceColorSettings reflects the repository`() = runTest {
+        val viewModel = SettingsViewModel(
+            FakeSettingsRepository(
+                ThemeMode.DARK,
+                initialDiceColors = DiceColorSettings(useSingleColor = true, singleColor = DiceColorOption.BLUE)
+            )
+        )
+
+        val settings = viewModel.diceColorSettings.first { it.useSingleColor }
+        assertEquals(DiceColorOption.BLUE, settings.singleColor)
+    }
+
+    @Test
+    fun `setUseSingleDiceColor forwards the toggle to the repository`() = runTest {
+        val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
+        val viewModel = SettingsViewModel(repository)
+
+        viewModel.setUseSingleDiceColor(true)
+
+        assertEquals(true, repository.diceColorSettings.first().useSingleColor)
+    }
+
+    @Test
+    fun `setSingleDiceColor forwards the selection to the repository`() = runTest {
+        val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
+        val viewModel = SettingsViewModel(repository)
+
+        viewModel.setSingleDiceColor(DiceColorOption.GREEN)
+
+        assertEquals(DiceColorOption.GREEN, repository.diceColorSettings.first().singleColor)
+    }
+
+    @Test
+    fun `setDiceColor forwards a per-die override to the repository`() = runTest {
+        val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
+        val viewModel = SettingsViewModel(repository)
+
+        viewModel.setDiceColor(DieColorTarget.D20, DiceColorOption.TEAL)
+
+        assertEquals(
+            DiceColorOption.TEAL,
+            repository.diceColorSettings.first().optionFor(DieColorTarget.D20)
+        )
+    }
+
+    @Test
+    fun `resetDiceColors restores the defaults in the repository`() = runTest {
+        val repository = FakeSettingsRepository(
+            ThemeMode.FOLLOW_SYSTEM,
+            initialDiceColors = DiceColorSettings(useSingleColor = true, singleColor = DiceColorOption.PINK)
+        )
+        val viewModel = SettingsViewModel(repository)
+
+        viewModel.resetDiceColors()
+
+        assertEquals(DiceColorSettings(), repository.diceColorSettings.first())
     }
 }

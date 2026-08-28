@@ -18,7 +18,6 @@ import com.greenfodor.diceroller.geometry.projectPoint
 import com.greenfodor.diceroller.geometry.rotatePoint
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
-import com.greenfodor.diceroller.ui.theme.DiceColors
 import com.greenfodor.diceroller.ui.utils.shade
 import android.graphics.Paint as NativePaint
 import android.graphics.Path as NativePath
@@ -88,7 +87,7 @@ class D6Paints {
  * @param rotationY Current Y-axis rotation in degrees.
  * @param rotationZ Current Z-axis rotation in degrees.
  * @param paints Reusable [D6Paints] to avoid per-frame allocations (includes path buffers).
- * @param diceColors Theme colors assigned to each face.
+ * @param color The base color applied uniformly to every face.
  * @param faceStyle Whether faces are marked with pips or numbers.
  */
 fun DrawScope.drawD6(
@@ -99,7 +98,7 @@ fun DrawScope.drawD6(
     rotationY: Float,
     rotationZ: Float,
     paints: D6Paints,
-    diceColors: DiceColors,
+    color: Color,
     faceStyle: D6FaceStyle = D6FaceStyle.PIPS
 ) {
     val halfSize = size / 2
@@ -114,7 +113,7 @@ fun DrawScope.drawD6(
     val rotatedVertices = paints.rotatedVertices
     val projectedVertices = paints.projectedVertices
 
-    val faces = createDiceFaceDescriptors(diceColors)
+    val faces = createDiceFaceDescriptors(color)
 
     val visibleFaces =
         faces
@@ -150,16 +149,16 @@ fun DrawScope.drawD6(
 }
 
 /**
- * Maps [HexahedronGeometry.faces] to render descriptors. Every face shares the red [DiceColors.face1]
- * so the whole die is one uniform color (the per-value colors are intentionally not used here).
+ * Maps [HexahedronGeometry.faces] to render descriptors. Every face shares [color] so the whole
+ * die is one uniform color.
  *
- * @param diceColors The theme colors; only [DiceColors.face1] (red) is applied.
+ * @param color The base color applied to every face.
  */
-internal fun createDiceFaceDescriptors(diceColors: DiceColors) =
+internal fun createDiceFaceDescriptors(color: Color) =
     HexahedronGeometry.faces.map { face ->
         FaceDescriptor(
             vertexIndices = face.vertexIndices,
-            baseColor = diceColors.face1,
+            baseColor = color,
             dotCount = face.value
         )
     }

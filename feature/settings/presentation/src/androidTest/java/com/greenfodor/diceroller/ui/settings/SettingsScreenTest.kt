@@ -36,7 +36,8 @@ class SettingsScreenTest {
         shakeToRollSupported: Boolean = true,
         onShakeToRollToggled: (Boolean) -> Unit = {},
         d6FaceStyle: D6FaceStyle = D6FaceStyle.PIPS,
-        onD6FaceStyleSelected: (D6FaceStyle) -> Unit = {}
+        onD6FaceStyleSelected: (D6FaceStyle) -> Unit = {},
+        onOpenDiceColors: () -> Unit = {}
     ) {
         composeTestRule.setContent {
             DiceRollerTheme {
@@ -53,6 +54,7 @@ class SettingsScreenTest {
                     onHapticFeedbackToggled = onHapticFeedbackToggled,
                     onShakeToRollToggled = onShakeToRollToggled,
                     onD6FaceStyleSelected = onD6FaceStyleSelected,
+                    onOpenDiceColors = onOpenDiceColors,
                     onBack = {}
                 )
             }
@@ -113,5 +115,15 @@ class SettingsScreenTest {
         setContent(shakeToRollEnabled = false, shakeToRollSupported = false)
 
         composeTestRule.onNodeWithText(string(R.string.settings_unsupported)).assertExists()
+    }
+
+    @Test
+    fun clickingDiceColorsRow_invokesCallback() {
+        var opened = false
+        setContent(onOpenDiceColors = { opened = true })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_dice_colors_title)).performClick()
+
+        assertEquals(true, opened)
     }
 }

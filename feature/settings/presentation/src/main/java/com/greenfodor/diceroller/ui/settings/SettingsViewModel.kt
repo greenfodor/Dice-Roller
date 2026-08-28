@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.greenfodor.diceroller.data.D6FaceStyle
+import com.greenfodor.diceroller.data.DiceColorOption
+import com.greenfodor.diceroller.data.DiceColorSettings
+import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.ThemeMode
 import kotlinx.coroutines.flow.SharingStarted
@@ -48,6 +51,13 @@ class SettingsViewModel(
             initialValue = D6FaceStyle.PIPS
         )
 
+    val diceColorSettings: StateFlow<DiceColorSettings> =
+        repository.diceColorSettings.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            initialValue = DiceColorSettings()
+        )
+
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { repository.setThemeMode(mode) }
     }
@@ -62,6 +72,22 @@ class SettingsViewModel(
 
     fun setD6FaceStyle(style: D6FaceStyle) {
         viewModelScope.launch { repository.setD6FaceStyle(style) }
+    }
+
+    fun setUseSingleDiceColor(enabled: Boolean) {
+        viewModelScope.launch { repository.setUseSingleDiceColor(enabled) }
+    }
+
+    fun setSingleDiceColor(option: DiceColorOption) {
+        viewModelScope.launch { repository.setSingleDiceColor(option) }
+    }
+
+    fun setDiceColor(target: DieColorTarget, option: DiceColorOption) {
+        viewModelScope.launch { repository.setDiceColor(target, option) }
+    }
+
+    fun resetDiceColors() {
+        viewModelScope.launch { repository.resetDiceColors() }
     }
 
     companion object {
