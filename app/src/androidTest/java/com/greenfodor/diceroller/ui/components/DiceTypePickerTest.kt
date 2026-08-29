@@ -8,6 +8,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -46,7 +48,7 @@ class DiceTypePickerTest {
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).performClick()
 
         DiceType.entries.forEach { diceType ->
-            composeTestRule.onNodeWithText(string(diceType.labelResId)).assertIsDisplayed()
+            tile(diceType).assertIsDisplayed()
         }
     }
 
@@ -56,7 +58,7 @@ class DiceTypePickerTest {
         setContent(onDiceTypeSelected = { reported = it })
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).performClick()
-        composeTestRule.onNodeWithText(string(DiceType.SINGLE_D20.labelResId)).performClick()
+        tile(DiceType.SINGLE_D20).performClick()
 
         assertEquals(DiceType.SINGLE_D20, reported)
     }
@@ -66,7 +68,7 @@ class DiceTypePickerTest {
         setContent()
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).performClick()
-        composeTestRule.onNodeWithText(string(DiceType.SINGLE_D20.labelResId)).performClick()
+        tile(DiceType.SINGLE_D20).performClick()
 
         composeTestRule.waitUntil(SHEET_DISMISS_TIMEOUT_MILLIS) {
             composeTestRule
@@ -82,9 +84,12 @@ class DiceTypePickerTest {
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).performClick()
 
-        composeTestRule.onNodeWithText(string(DiceType.SINGLE_D8.labelResId)).assertIsSelected()
-        composeTestRule.onNodeWithText(string(DiceType.SINGLE_D6.labelResId)).assertIsNotSelected()
+        tile(DiceType.SINGLE_D8).assertIsSelected()
+        tile(DiceType.SINGLE_D6).assertIsNotSelected()
     }
+
+    private fun tile(diceType: DiceType) =
+        composeTestRule.onNode(hasText(string(diceType.labelResId)) and isSelectable())
 
     private fun setContent(
         initialDiceType: DiceType = DiceType.SINGLE_D6,

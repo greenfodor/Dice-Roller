@@ -7,13 +7,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -44,10 +46,12 @@ private val DiceTypeRows = DiceType.entries.chunked(DICE_TYPE_GRID_COLUMNS)
 private val TileShape = RoundedCornerShape(16.dp)
 private val TileBorderWidth = 2.dp
 private val TileIconSize = 60.dp
+private val TileMinHeight = 104.dp
 
 /**
- * Modal bottom sheet listing every [DiceType] as a square tile in a three-column grid. The sheet
- * opens fully expanded, so every tile is reachable without scrolling, and a row that does not
+ * Modal bottom sheet listing every [DiceType] as a tile in a three-column grid. The sheet opens
+ * fully expanded and its grid scrolls vertically, so every tile stays reachable when the rows do
+ * not all fit — in landscape, or once the tiles grow at raised font scales. A row that does not
  * fill all three columns is centered.
  *
  * Selecting a tile reports it through [onDiceTypeSelected] and then animates the sheet away,
@@ -84,6 +88,7 @@ fun DiceTypePickerSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(
                     start = MaterialTheme.spacing.medium,
                     top = MaterialTheme.spacing.small,
@@ -154,7 +159,7 @@ private fun DiceTypeTile(
 
     Column(
         modifier = modifier
-            .aspectRatio(ratio = 1f)
+            .heightIn(min = TileMinHeight)
             .clip(TileShape)
             .border(width = TileBorderWidth, color = borderColor, shape = TileShape)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)

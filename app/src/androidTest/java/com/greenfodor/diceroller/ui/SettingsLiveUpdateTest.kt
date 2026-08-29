@@ -43,8 +43,7 @@ private class EmptyRollHistoryRepository : RollHistoryRepository {
 
 /**
  * Drives the real [DiceRollerApp] back stack to check that a setting changed on screen is
- * rendered straight away. A `NavEntry` is rebuilt only when the back stack changes, so state read
- * outside an entry's content stays frozen until the user navigates away and back.
+ * rendered straight away.
  */
 @HiltAndroidTest
 @UninstallModules(DataModule::class)

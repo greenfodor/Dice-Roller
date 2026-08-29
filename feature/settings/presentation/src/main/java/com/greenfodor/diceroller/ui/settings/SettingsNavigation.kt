@@ -17,11 +17,9 @@ data object DiceColorsRoute : NavKey
 /**
  * Adds the settings entries.
  *
- * Both entries collect the persisted settings from [viewModel] inside their own content, so a
- * change made on screen is rendered as soon as it is written. A `NavEntry` is rebuilt only when
- * the back stack changes, so a value read outside the entry content would stay frozen at whatever
- * it held when the entry was created. Values that describe the device rather than a setting
- * ([hapticFeedbackSupported], [shakeToRollSupported]) are fixed for the process and are passed in.
+ * Both entries collect the persisted settings from [viewModel] inside their own content. Values
+ * that describe the device rather than a setting ([hapticFeedbackSupported],
+ * [shakeToRollSupported]) are passed in.
  *
  * @param onOpenDiceColors Pushes [DiceColorsRoute] onto the back stack.
  * @param onBack Pops the current entry.
