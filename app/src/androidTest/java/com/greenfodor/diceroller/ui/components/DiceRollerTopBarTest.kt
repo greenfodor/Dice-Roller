@@ -7,7 +7,6 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.R
-import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -64,8 +63,6 @@ class DiceRollerTopBarTest {
         composeTestRule.setContent {
             DiceRollerTheme {
                 DiceRollerTopBar(
-                    selectedDiceType = DiceType.SINGLE_D6,
-                    onDiceTypeSelected = {},
                     onOpenHistory = onOpenHistory,
                     onOpenSettings = onOpenSettings
                 )

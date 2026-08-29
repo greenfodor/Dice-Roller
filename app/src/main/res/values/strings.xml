@@ -2,15 +2,17 @@
     <string name="app_name">Dice Roller</string>
     <string name="roll_button_single">Roll Die</string>
     <string name="roll_button_multiple">Roll Dice</string>
-    <string name="d6_label">Single D6</string>
-    <string name="double_d6_label">Double D6</string>
-    <string name="d20_label">Single D20</string>
-    <string name="d4_label">Single D4</string>
-    <string name="d8_label">Single D8</string>
-    <string name="d10_label">Single D10</string>
-    <string name="d100_label">Percentile D100</string>
+    <string name="d6_label">d6</string>
+    <string name="double_d6_label">2d6</string>
+    <string name="d20_label">d20</string>
+    <string name="d4_label">d4</string>
+    <string name="d8_label">d8</string>
+    <string name="d10_label">d10</string>
+    <string name="d100_label">d100</string>
     <string name="cd_die_value">Die showing %1$d</string>
     <string name="cd_rolled_value">Rolled %1$d</string>
     <string name="cd_open_settings">Open settings</string>
     <string name="cd_open_roll_history">Open roll history</string>
+    <string name="cd_change_die_type">Change die type</string>
+    <string name="dice_type_picker_title">Choose a die</string>
 </resources>

@@ -3,6 +3,7 @@ package com.greenfodor.diceroller.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,6 +31,8 @@ import com.greenfodor.diceroller.data.RollOutcome
 import com.greenfodor.diceroller.sensors.supportsHaptics
 import com.greenfodor.diceroller.sensors.supportsShakeDetection
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
+import com.greenfodor.diceroller.ui.components.DiceTypeFab
+import com.greenfodor.diceroller.ui.components.DiceTypePickerSheet
 import com.greenfodor.diceroller.ui.history.RollHistoryRoute
 import com.greenfodor.diceroller.ui.history.rollHistoryEntry
 import com.greenfodor.diceroller.ui.screens.D100Screen
@@ -44,7 +47,6 @@ import com.greenfodor.diceroller.ui.screens.DiceViewModel
 import com.greenfodor.diceroller.ui.screens.DoubleD6Screen
 import com.greenfodor.diceroller.ui.settings.DiceColorsRoute
 import com.greenfodor.diceroller.ui.settings.SettingsRoute
-import com.greenfodor.diceroller.ui.settings.SettingsUiState
 import com.greenfodor.diceroller.ui.settings.SettingsViewModel
 import com.greenfodor.diceroller.ui.settings.settingsEntries
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
@@ -79,15 +81,6 @@ fun DiceRollerApp(
 
     val mode = themeMode ?: return
 
-    val settingsState = SettingsUiState(
-        themeMode = mode,
-        hapticFeedbackEnabled = hapticFeedbackEnabled,
-        hapticFeedbackSupported = hapticFeedbackSupported,
-        shakeToRollEnabled = shakeToRollEnabled,
-        shakeToRollSupported = shakeToRollSupported,
-        d6FaceStyle = d6FaceStyle
-    )
-
     LaunchedEffect(Unit) { onReady() }
 
     val backStack = rememberNavBackStack(DiceRoute)
@@ -111,8 +104,8 @@ fun DiceRollerApp(
                 )
                 settingsEntries(
                     viewModel = appSettingsViewModel,
-                    state = settingsState,
-                    diceColorSettings = diceColorSettings,
+                    hapticFeedbackSupported = hapticFeedbackSupported,
+                    shakeToRollSupported = shakeToRollSupported,
                     onOpenDiceColors = { backStack.add(DiceColorsRoute) },
                     onBack = { backStack.removeLastOrNull() }
                 )
@@ -161,17 +154,24 @@ private fun DiceHome(
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
+    var isDiceTypePickerVisible by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             DiceRollerTopBar(
-                selectedDiceType = selectedDiceType,
-                onDiceTypeSelected = onDiceTypeSelected,
                 onOpenHistory = onOpenHistory,
                 onOpenSettings = onOpenSettings
             )
-        }
+        },
+        floatingActionButton = {
+            DiceTypeFab(
+                selectedDiceType = selectedDiceType,
+                onClick = { isDiceTypePickerVisible = true }
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Start
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -187,6 +187,14 @@ private fun DiceHome(
                 DiceType.SINGLE_D20 -> D20Screen(onRollSettled = onRollSettled)
                 DiceType.PERCENTILE_D100 -> D100Screen(onRollSettled = onRollSettled)
             }
+        }
+
+        if (isDiceTypePickerVisible) {
+            DiceTypePickerSheet(
+                selectedDiceType = selectedDiceType,
+                onDiceTypeSelected = onDiceTypeSelected,
+                onDismissRequest = { isDiceTypePickerVisible = false }
+            )
         }
     }
 }
