@@ -12,10 +12,12 @@ import com.greenfodor.diceroller.ui.dice.DieState
  *
  * @param dieStates The states of the dice to be rolled.
  * @param hapticsEnabled When `true`, fires roll haptics after the roll starts.
+ * @return `true` when a new roll started, `false` when one was already in flight.
  */
-fun Context.rollDice(dieStates: List<DieState>, hapticsEnabled: Boolean = true) {
-    if (dieStates.any { it.isRolling }) return
+fun Context.rollDice(dieStates: List<DieState>, hapticsEnabled: Boolean = true): Boolean {
+    if (dieStates.any { it.isRolling }) return false
 
     dieStates.forEach { it.roll() }
     if (hapticsEnabled) performRollHaptics()
+    return true
 }

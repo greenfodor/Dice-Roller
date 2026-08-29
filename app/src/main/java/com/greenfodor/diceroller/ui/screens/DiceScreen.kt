@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +36,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.data.RollOutcome
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.theme.diceSpecs
@@ -58,8 +61,19 @@ import kotlin.time.Duration.Companion.milliseconds
  * Each die is rendered through the [dieContent] slot, so a screen only has to
  * supply its own renderer. The roll button is disabled while any die is mid-roll.
  *
+ * A roll is reported through [onRollSettled] once every die has finished animating, as a
+ * single [RollOutcome] carrying [dieLabel], each die's face value, the screen's scored
+ * [result] and the time the roll was started — so a screen rolling several dice at once (2d6,
+ * d100) reports one outcome, not one per die. Only a roll that settles on screen is reported:
+ * one interrupted first — by switching die type, leaving the screen, a configuration change or
+ * process death — is dropped.
+ *
+ * `rollStartedAtMillis` is non-null only while a roll is in flight, holding the time it started.
+ *
  * @param dieStates The dice shown on this screen (one or more).
+ * @param dieLabel One of the [com.greenfodor.diceroller.data.DieLabels] constants.
  * @param rollButtonResId Label for the roll button.
+ * @param onRollSettled Called once per roll, after the dice settle.
  * @param result The rolled value to display, derived from the dice. Defaults to the
  *   sum of every die's current face — correct for a single die (the value itself) and
  *   for multiple dice (e.g. 2d6). Screens with their own scoring (e.g. percentile d100)
@@ -69,8 +83,10 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun DiceScreen(
     dieStates: List<DieState>,
+    dieLabel: String,
     @StringRes rollButtonResId: Int,
     modifier: Modifier = Modifier,
+    onRollSettled: (RollOutcome) -> Unit = {},
     result: (List<DieState>) -> Int = { states -> states.sumOf { it.currentFace.value } },
     dieContent: @Composable (DieState) -> Unit
 ) {
@@ -78,12 +94,31 @@ fun DiceScreen(
     val hapticsEnabled = LocalHapticsEnabled.current
     val shakeToRollEnabled = LocalShakeToRollEnabled.current
 
+    var rollStartedAtMillis by remember { mutableStateOf<Long?>(null) }
+    val startRoll = {
+        if (context.rollDice(dieStates, hapticsEnabled)) rollStartedAtMillis = System.currentTimeMillis()
+    }
+
     rememberShakeDetector(
         enabled = shakeToRollEnabled,
-        onShake = { context.rollDice(dieStates, hapticsEnabled) }
+        onShake = startRoll
     )
 
     val isRolling = dieStates.any { it.isRolling }
+
+    val currentOnRollSettled by rememberUpdatedState(onRollSettled)
+    LaunchedEffect(isRolling, rollStartedAtMillis) {
+        val startedAt = rollStartedAtMillis?.takeIf { isRolling.not() } ?: return@LaunchedEffect
+        rollStartedAtMillis = null
+        currentOnRollSettled(
+            RollOutcome(
+                dieLabel = dieLabel,
+                values = dieStates.map { it.currentFace.value },
+                total = result(dieStates),
+                startedAtMillis = startedAt
+            )
+        )
+    }
     val rollDurationMillis = MaterialTheme.diceSpecs.rollDurationMillis
 
     // Drives both alpha and scale of the result: 0 = hidden/small, 1 = shown/full.
@@ -163,7 +198,7 @@ fun DiceScreen(
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
         Button(
-            onClick = { context.rollDice(dieStates, hapticsEnabled) },
+            onClick = startRoll,
             enabled = isRolling.not()
         ) {
             Text(text = stringResource(rollButtonResId))

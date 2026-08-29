@@ -1,13 +1,20 @@
 package com.greenfodor.diceroller.ui.settings
 
+import androidx.lifecycle.viewModelScope
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.DiceColorOption
 import com.greenfodor.diceroller.data.DiceColorSettings
 import com.greenfodor.diceroller.data.DieColorTarget
+import com.greenfodor.diceroller.data.DieLabels
+import com.greenfodor.diceroller.data.RollHistoryRepository
+import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.data.SettingsRepository
 import com.greenfodor.diceroller.data.ThemeMode
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -76,22 +83,51 @@ private class FakeSettingsRepository(
     }
 }
 
+private class FakeRollHistoryRepository : RollHistoryRepository {
+    private val state = MutableStateFlow(emptyList<RollRecord>())
+    override val rolls = state
+
+    var clearCount = 0
+        private set
+
+    /** Completed by the test to let a suspended [clear] finish. */
+    var clearGate: CompletableDeferred<Unit>? = null
+
+    override suspend fun record(record: RollRecord) {
+        state.update { it + record }
+    }
+
+    override suspend fun clear() {
+        clearGate?.await()
+        clearCount++
+        state.value = emptyList()
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private lateinit var applicationScope: CoroutineScope
+
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
+        applicationScope = CoroutineScope(UnconfinedTestDispatcher())
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @After
     fun tearDown() {
+        applicationScope.cancel()
         Dispatchers.resetMain()
     }
 
+    private fun settingsViewModel(
+        repository: SettingsRepository,
+        rollHistoryRepository: RollHistoryRepository = FakeRollHistoryRepository()
+    ): SettingsViewModel = SettingsViewModel(repository, rollHistoryRepository, applicationScope)
+
     @Test
     fun `themeMode starts null then reflects the repository`() = runTest {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(ThemeMode.DARK))
+        val viewModel = settingsViewModel(FakeSettingsRepository(ThemeMode.DARK))
 
         assertNull(viewModel.themeMode.value)
         assertEquals(ThemeMode.DARK, viewModel.themeMode.first { it != null })
@@ -100,7 +136,7 @@ class SettingsViewModelTest {
     @Test
     fun `setThemeMode forwards the selection to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setThemeMode(ThemeMode.LIGHT)
 
@@ -109,7 +145,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `hapticFeedbackEnabled reflects the repository`() = runTest {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialHaptics = false))
+        val viewModel = settingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialHaptics = false))
 
         assertEquals(false, viewModel.hapticFeedbackEnabled.first())
     }
@@ -117,7 +153,7 @@ class SettingsViewModelTest {
     @Test
     fun `setHapticFeedbackEnabled forwards the selection to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setHapticFeedbackEnabled(false)
 
@@ -126,7 +162,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `shakeToRollEnabled reflects the repository`() = runTest {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialShake = false))
+        val viewModel = settingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialShake = false))
 
         assertEquals(false, viewModel.shakeToRollEnabled.first())
     }
@@ -134,7 +170,7 @@ class SettingsViewModelTest {
     @Test
     fun `setShakeToRollEnabled forwards the selection to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setShakeToRollEnabled(false)
 
@@ -144,7 +180,7 @@ class SettingsViewModelTest {
     @Test
     fun `d6FaceStyle reflects the repository`() = runTest {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialFaceStyle = D6FaceStyle.NUMBERS))
+            settingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialFaceStyle = D6FaceStyle.NUMBERS))
 
         assertEquals(D6FaceStyle.NUMBERS, viewModel.d6FaceStyle.first())
     }
@@ -152,7 +188,7 @@ class SettingsViewModelTest {
     @Test
     fun `setD6FaceStyle forwards the selection to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setD6FaceStyle(D6FaceStyle.NUMBERS)
 
@@ -161,7 +197,7 @@ class SettingsViewModelTest {
 
     @Test
     fun `diceColorSettings reflects the repository`() = runTest {
-        val viewModel = SettingsViewModel(
+        val viewModel = settingsViewModel(
             FakeSettingsRepository(
                 ThemeMode.DARK,
                 initialDiceColors = DiceColorSettings(useSingleColor = true, singleColor = DiceColorOption.BLUE)
@@ -175,7 +211,7 @@ class SettingsViewModelTest {
     @Test
     fun `setUseSingleDiceColor forwards the toggle to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setUseSingleDiceColor(true)
 
@@ -185,7 +221,7 @@ class SettingsViewModelTest {
     @Test
     fun `setSingleDiceColor forwards the selection to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setSingleDiceColor(DiceColorOption.GREEN)
 
@@ -195,7 +231,7 @@ class SettingsViewModelTest {
     @Test
     fun `setDiceColor forwards a per-die override to the repository`() = runTest {
         val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.setDiceColor(DieColorTarget.D20, DiceColorOption.TEAL)
 
@@ -206,12 +242,55 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `clearRollHistory clears the roll history repository`() = runTest {
+        val rollHistoryRepository = FakeRollHistoryRepository()
+        rollHistoryRepository.record(
+            RollRecord(dieLabel = DieLabels.D6, values = listOf(4), total = 4, timestampMillis = 1_000L)
+        )
+        val viewModel = settingsViewModel(FakeSettingsRepository(ThemeMode.DARK), rollHistoryRepository)
+
+        viewModel.clearRollHistory()
+
+        assertEquals(1, rollHistoryRepository.clearCount)
+        assertEquals(emptyList<RollRecord>(), rollHistoryRepository.rolls.first())
+    }
+
+    @Test
+    fun `clearRollHistory leaves the persisted settings untouched`() = runTest {
+        val settingsRepository = FakeSettingsRepository(ThemeMode.DARK)
+        val viewModel = settingsViewModel(settingsRepository, FakeRollHistoryRepository())
+
+        viewModel.clearRollHistory()
+
+        assertEquals(ThemeMode.DARK, settingsRepository.themeMode.first())
+        assertEquals(DiceColorSettings(), settingsRepository.diceColorSettings.first())
+    }
+
+    @Test
+    fun `a clear already in flight completes after the ViewModel scope is cancelled`() = runTest {
+        val rollHistoryRepository = FakeRollHistoryRepository()
+        rollHistoryRepository.record(
+            RollRecord(dieLabel = DieLabels.D6, values = listOf(4), total = 4, timestampMillis = 1_000L)
+        )
+        val gate = CompletableDeferred<Unit>()
+        rollHistoryRepository.clearGate = gate
+        val viewModel = settingsViewModel(FakeSettingsRepository(ThemeMode.DARK), rollHistoryRepository)
+
+        viewModel.clearRollHistory()
+        viewModel.viewModelScope.cancel()
+        gate.complete(Unit)
+
+        assertEquals(1, rollHistoryRepository.clearCount)
+        assertEquals(emptyList<RollRecord>(), rollHistoryRepository.rolls.first())
+    }
+
+    @Test
     fun `resetDiceColors restores the defaults in the repository`() = runTest {
         val repository = FakeSettingsRepository(
             ThemeMode.FOLLOW_SYSTEM,
             initialDiceColors = DiceColorSettings(useSingleColor = true, singleColor = DiceColorOption.PINK)
         )
-        val viewModel = SettingsViewModel(repository)
+        val viewModel = settingsViewModel(repository)
 
         viewModel.resetDiceColors()
 

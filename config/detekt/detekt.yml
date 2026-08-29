@@ -1,28 +1,24 @@
-build:
-  maxIssues: 0
-  excludeCorrectable: false
-
 complexity:
   active: true
   ComplexCondition:
     active: true
-    threshold: 4
+    allowedConditions: 3
   LongParameterList:
     active: true
-    functionThreshold: 10
-    constructorThreshold: 10
+    allowedFunctionParameters: 9
+    allowedConstructorParameters: 9
     ignoreDefaultParameters: true
     ignoreDataClasses: true
   LongMethod:
     active: true
-    threshold: 100
+    allowedLines: 99
   LargeClass:
     active: true
-    threshold: 600
+    allowedLines: 599
 
 style:
   active: true
-  UnusedPrivateMember:
+  UnusedPrivateFunction:
     active: true
     allowedNames: '.*Preview'
   MagicNumber:
@@ -71,15 +67,81 @@ naming:
 
 Compose:
   active: true
+  ComposableAnnotationNaming:
+    active: false
   ComposableNaming:
     active: true
+  ComposableNestingDepth:
+    active: false
+  ComposableParamOrder:
+    active: false
+  CompositionLocalAllowlist:
+    active: false
+  CompositionLocalNaming:
+    active: false
+  ConditionHoist:
+    active: false
+  ContentEmitterReturningValues:
+    active: false
+  ContentSlotReused:
+    active: false
+  ContentTrailingLambda:
+    active: false
+  DefaultsVisibility:
+    active: false
+  InvalidReadOnlyComposable:
+    active: false
+  LambdaParameterEventTrailing:
+    active: false
+  LambdaParameterInRestartableEffect:
+    active: false
+  MissingReadOnlyComposable:
+    active: false
+  ModifierClickableOrder:
+    active: false
+  ModifierComposed:
+    active: false
   ModifierMissing:
     active: true
+  ModifierNaming:
+    active: false
+  ModifierNotUsedAtRoot:
+    active: false
   ModifierReused:
     active: true
+  ModifierWithoutDefault:
+    active: false
+  MultipleEmitters:
+    active: false
+  MutableParams:
+    active: false
+  MutableStateAutoboxing:
+    active: false
+  MutableStateParam:
+    active: false
+  ParameterNaming:
+    active: false
+  PreviewAnnotationNaming:
+    active: false
+  PreviewNaming:
+    active: false
+  PreviewPublic:
+    active: false
+  RememberContentMissing:
+    active: false
+  RememberMissing:
+    active: true
+  StaleRememberUpdatedStateInRemember:
+    active: false
+  StateParam:
+    active: false
+  UnnecessaryComposable:
+    active: false
+  UnstableCollections:
+    active: false
+  VarsWithoutStateBacking:
+    active: false
   ViewModelForwarding:
     active: true
   ViewModelInjection:
-    active: true
-  RememberMissing:
     active: true

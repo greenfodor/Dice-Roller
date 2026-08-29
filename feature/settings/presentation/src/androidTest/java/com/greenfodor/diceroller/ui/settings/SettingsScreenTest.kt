@@ -5,6 +5,7 @@ import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.data.D6FaceStyle
@@ -37,7 +38,8 @@ class SettingsScreenTest {
         onShakeToRollToggled: (Boolean) -> Unit = {},
         d6FaceStyle: D6FaceStyle = D6FaceStyle.PIPS,
         onD6FaceStyleSelected: (D6FaceStyle) -> Unit = {},
-        onOpenDiceColors: () -> Unit = {}
+        onOpenDiceColors: () -> Unit = {},
+        onClearRollHistory: () -> Unit = {}
     ) {
         composeTestRule.setContent {
             DiceRollerTheme {
@@ -55,6 +57,7 @@ class SettingsScreenTest {
                     onShakeToRollToggled = onShakeToRollToggled,
                     onD6FaceStyleSelected = onD6FaceStyleSelected,
                     onOpenDiceColors = onOpenDiceColors,
+                    onClearRollHistory = onClearRollHistory,
                     onBack = {}
                 )
             }
@@ -115,6 +118,40 @@ class SettingsScreenTest {
         setContent(shakeToRollEnabled = false, shakeToRollSupported = false)
 
         composeTestRule.onNodeWithText(string(R.string.settings_unsupported)).assertExists()
+    }
+
+    @Test
+    fun clickingClearHistoryRow_showsConfirmationWithoutClearing() {
+        var cleared = false
+        setContent(onClearRollHistory = { cleared = true })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_title)).performScrollTo().performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_title)).assertExists()
+        assertEquals(false, cleared)
+    }
+
+    @Test
+    fun confirmingTheClearHistoryDialog_invokesCallback() {
+        var cleared = false
+        setContent(onClearRollHistory = { cleared = true })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_title)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_confirm)).performClick()
+
+        assertEquals(true, cleared)
+    }
+
+    @Test
+    fun cancellingTheClearHistoryDialog_leavesTheHistoryUntouched() {
+        var cleared = false
+        setContent(onClearRollHistory = { cleared = true })
+
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_title)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_cancel)).performClick()
+
+        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_title)).assertDoesNotExist()
+        assertEquals(false, cleared)
     }
 
     @Test

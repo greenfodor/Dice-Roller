@@ -46,4 +46,11 @@
     <string name="dice_color_brown">Brown</string>
     <string name="dice_color_gray">Gray</string>
     <string name="cd_dice_color_swatch_selected">%1$s, selected</string>
+
+    <string name="settings_clear_history_title">Clear roll history</string>
+    <string name="settings_clear_history_label">Delete every recorded roll</string>
+    <string name="settings_clear_history_dialog_title">Clear roll history?</string>
+    <string name="settings_clear_history_dialog_message">This permanently deletes every roll recorded so far.</string>
+    <string name="settings_clear_history_dialog_confirm">Clear</string>
+    <string name="settings_clear_history_dialog_cancel">Cancel</string>
 </resources>

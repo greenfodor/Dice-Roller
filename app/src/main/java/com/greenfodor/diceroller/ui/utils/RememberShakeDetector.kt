@@ -22,6 +22,7 @@ import com.greenfodor.diceroller.sensors.ShakeDetector
  * @param onShake Callback to be invoked when a shake gesture is detected.
  */
 @SuppressLint("ComposableNaming")
+@Suppress("ComposableNaming")
 @Composable
 fun rememberShakeDetector(enabled: Boolean, onShake: () -> Unit) {
     val context = LocalContext.current

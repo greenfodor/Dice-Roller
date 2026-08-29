@@ -1,0 +1,10 @@
+<resources>
+    <string name="roll_history_title">Roll history</string>
+    <string name="roll_history_empty">No rolls yet</string>
+    <string name="roll_history_close">Close</string>
+    <string name="roll_history_error">Could not load the roll history</string>
+    <string name="roll_history_today">Today</string>
+    <string name="roll_history_yesterday">Yesterday</string>
+    <string name="roll_history_value_separator">" + "</string>
+    <string name="roll_history_row_details">%1$s · %2$s</string>
+</resources>
