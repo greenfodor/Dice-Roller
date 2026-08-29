@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
 import com.greenfodor.diceroller.HiltTestActivity
@@ -79,7 +80,7 @@ class SettingsLiveUpdateTest {
         setContent()
         openSettings()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).performClick()
+        composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).performScrollTo().performClick()
 
         composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).assertIsSelected()
     }
@@ -89,7 +90,7 @@ class SettingsLiveUpdateTest {
         setContent()
         openSettings()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).performClick()
+        composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).performScrollTo().performClick()
 
         composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).assertIsSelected()
     }
@@ -98,7 +99,9 @@ class SettingsLiveUpdateTest {
     fun togglingOneColorForAllDiceFlipsItsSwitchWhileStillOnTheDiceColorsScreen() {
         setContent()
         openSettings()
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_dice_colors_label)).performClick()
+        composeTestRule.onNodeWithText(string(SettingsR.string.settings_dice_colors_label))
+            .performScrollTo()
+            .performClick()
 
         val singleColorSwitch = composeTestRule.onNode(
             isToggleable() and hasAnySibling(hasText(string(SettingsR.string.dice_colors_single_label)))
@@ -110,7 +113,7 @@ class SettingsLiveUpdateTest {
     }
 
     private fun setContent() {
-        composeTestRule.setContent { DiceRollerApp() }
+        composeTestRule.setContent { DiceRollerApp(windowSizeClass = CompactWindowSizeClass) }
     }
 
     private fun openSettings() {

@@ -139,7 +139,7 @@ class RollHistoryNavigationTest {
     }
 
     private fun setContent() {
-        composeTestRule.setContent { DiceRollerApp() }
+        composeTestRule.setContent { DiceRollerApp(windowSizeClass = CompactWindowSizeClass) }
     }
 
     private fun string(resId: Int): String =

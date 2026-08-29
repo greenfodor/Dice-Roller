@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -53,6 +54,18 @@ class DiceTypePickerTest {
     }
 
     @Test
+    fun everySheetTileIsSquare() {
+        setContent()
+
+        composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).performClick()
+
+        DiceType.entries.forEach { diceType ->
+            val tile = tile(diceType).fetchSemanticsNode().size
+            assertEquals("$diceType tile", tile.width.toFloat(), tile.height.toFloat(), TOLERANCE_PX)
+        }
+    }
+
+    @Test
     fun tappingATileReportsThatDiceType() {
         var reported: DiceType? = null
         setContent(onDiceTypeSelected = { reported = it })
@@ -91,6 +104,8 @@ class DiceTypePickerTest {
     private fun tile(diceType: DiceType) =
         composeTestRule.onNode(hasText(string(diceType.labelResId)) and isSelectable())
 
+    private fun bounds(diceType: DiceType): Rect = tile(diceType).fetchSemanticsNode().boundsInRoot
+
     private fun setContent(
         initialDiceType: DiceType = DiceType.SINGLE_D6,
         onDiceTypeSelected: (DiceType) -> Unit = {}
@@ -128,5 +143,6 @@ class DiceTypePickerTest {
 
     private companion object {
         const val SHEET_DISMISS_TIMEOUT_MILLIS = 5_000L
+        const val TOLERANCE_PX = 1f
     }
 }
