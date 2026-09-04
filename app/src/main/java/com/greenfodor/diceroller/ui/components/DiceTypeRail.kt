@@ -35,9 +35,8 @@ private val RailTileIconSize = 72.dp
 val DiceRailWidth = 280.dp
 
 /**
- * Returns whether the permanent dice-selection rail replaces the floating action button and its
- * modal picker, which it does only in a landscape window of
- * [WindowWidthSizeClass.Expanded] width.
+ * Returns whether the permanent dice-selection rail replaces the peeking bottom sheet picker,
+ * which it does only in a landscape window of [WindowWidthSizeClass.Expanded] width.
  *
  * @param widthSizeClass Width size class of the current window.
  * @param orientation Orientation of the current configuration, one of the
