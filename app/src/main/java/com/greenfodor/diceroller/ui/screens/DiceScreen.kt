@@ -50,8 +50,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Shared layout for every dice screen: shows the rolled value, wires the shake
- * detector, lays the dice out (centered for one, evenly spread for several), and
- * renders the roll button.
+ * detector, lays the dice out as one centered group with a fixed gap between them,
+ * and renders the roll button.
  *
  * The result sits above the dice. It scales + fades out the instant a roll starts,
  * stays hidden through the roll, then pops back in (bouncy spring, overshooting past
@@ -181,7 +181,7 @@ fun DiceScreen(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = if (dieStates.size > 1) Arrangement.SpaceEvenly else Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large, Alignment.CenterHorizontally)
         ) {
             dieStates.forEach { dieState ->
                 val description = stringResource(R.string.cd_die_value, dieState.currentFace.value)
