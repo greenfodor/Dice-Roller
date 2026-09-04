@@ -1,6 +1,8 @@
 package com.greenfodor.diceroller.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -95,7 +97,9 @@ class RollHistoryNavigationTest {
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
 
         composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(DieLabels.DOUBLE_D6).assertIsDisplayed()
+        composeTestRule
+            .onNode(hasText(DieLabels.DOUBLE_D6) and isSelectable().not())
+            .assertIsDisplayed()
     }
 
     @Test

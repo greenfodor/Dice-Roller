@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -42,7 +41,6 @@ import com.greenfodor.diceroller.data.RollOutcome
 import com.greenfodor.diceroller.sensors.supportsHaptics
 import com.greenfodor.diceroller.sensors.supportsShakeDetection
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
-import com.greenfodor.diceroller.ui.components.DiceTypeFab
 import com.greenfodor.diceroller.ui.components.DiceTypePickerSheet
 import com.greenfodor.diceroller.ui.components.DiceTypeRail
 import com.greenfodor.diceroller.ui.components.shouldShowDiceRail
@@ -83,7 +81,7 @@ import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
  * nothing renders and the splash screen stays up (via [onReady]) to avoid a theme flash.
  *
  * @param windowSizeClass Size class of the window the app is drawn in, used to decide whether the
- * dice screen selects its die type through a permanent rail or a floating action button.
+ * dice screen selects its die type through a permanent rail or a peeking bottom sheet.
  * @param onReady Callback once the persisted theme has loaded and the first frame can be drawn.
  * @param appSettingsViewModel Activity-scoped source of the app-wide settings.
  */
@@ -199,11 +197,9 @@ private fun DiceHome(
                 selectedDiceType = selectedDiceType,
                 recentRolls = recentRolls,
                 recentRollsPlacement = recentRollsPlacement,
-                onDiceTypeSelected = onDiceTypeSelected,
                 onRollSettled = onRollSettled,
                 onOpenHistory = onOpenHistory,
                 onOpenSettings = onOpenSettings,
-                showDiceTypeFab = false,
                 modifier = Modifier
                     .weight(1f)
                     .consumeWindowInsets(
@@ -212,16 +208,19 @@ private fun DiceHome(
             )
         }
     } else {
-        DiceContent(
+        DiceTypePickerSheet(
             selectedDiceType = selectedDiceType,
-            recentRolls = recentRolls,
-            recentRollsPlacement = recentRollsPlacement,
-            onDiceTypeSelected = onDiceTypeSelected,
-            onRollSettled = onRollSettled,
-            onOpenHistory = onOpenHistory,
-            onOpenSettings = onOpenSettings,
-            showDiceTypeFab = true
-        )
+            onDiceTypeSelected = onDiceTypeSelected
+        ) {
+            DiceContent(
+                selectedDiceType = selectedDiceType,
+                recentRolls = recentRolls,
+                recentRollsPlacement = recentRollsPlacement,
+                onRollSettled = onRollSettled,
+                onOpenHistory = onOpenHistory,
+                onOpenSettings = onOpenSettings
+            )
+        }
     }
 }
 
@@ -254,9 +253,8 @@ private fun recentRollsPlacement(orientation: Int): RecentRollsPlacement =
 
 /**
  * Scaffold holding the top bar and the screen for [selectedDiceType], with the [RecentRollsWheel]
- * anchored over it at [recentRollsPlacement]. With [showDiceTypeFab] set it also hosts the
- * [DiceTypeFab] and the [DiceTypePickerSheet] it opens; otherwise the die type is picked outside
- * this scaffold and neither is composed.
+ * anchored over it at [recentRollsPlacement]. The die type is picked outside this scaffold, by the
+ * [DiceTypeRail] or the [DiceTypePickerSheet] it is hosted in.
  *
  * The content is inset at the bottom by the height of the top bar as well, so it is centered on
  * the window rather than on the space left under the bar.
@@ -266,15 +264,11 @@ private fun DiceContent(
     selectedDiceType: DiceType,
     recentRolls: List<RecentRollUiModel>,
     recentRollsPlacement: RecentRollsPlacement,
-    onDiceTypeSelected: (DiceType) -> Unit,
     onRollSettled: (RollOutcome) -> Unit,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit,
-    showDiceTypeFab: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var isDiceTypePickerVisible by rememberSaveable { mutableStateOf(false) }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -283,16 +277,7 @@ private fun DiceContent(
                 onOpenHistory = onOpenHistory,
                 onOpenSettings = onOpenSettings
             )
-        },
-        floatingActionButton = {
-            if (showDiceTypeFab) {
-                DiceTypeFab(
-                    selectedDiceType = selectedDiceType,
-                    onClick = { isDiceTypePickerVisible = true }
-                )
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Start
+        }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -315,14 +300,6 @@ private fun DiceContent(
                 modifier = Modifier
                     .align(recentRollsPlacement.alignment)
                     .padding(recentRollsPlacement.padding)
-            )
-        }
-
-        if (showDiceTypeFab && isDiceTypePickerVisible) {
-            DiceTypePickerSheet(
-                selectedDiceType = selectedDiceType,
-                onDiceTypeSelected = onDiceTypeSelected,
-                onDismissRequest = { isDiceTypePickerVisible = false }
             )
         }
     }
