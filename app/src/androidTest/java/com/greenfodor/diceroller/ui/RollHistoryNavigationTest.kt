@@ -108,6 +108,13 @@ class RollHistoryNavigationTest {
     }
 
     @Test
+    fun theDiceScreenShowsTheNewestRollInTheRecentRollsWheel() {
+        setContent()
+
+        composeTestRule.onNodeWithText("2d6  10  (4 + 6)").assertIsDisplayed()
+    }
+
+    @Test
     fun closingTheHistoryReturnsToTheDiceScreen() {
         setContent()
 
