@@ -9,6 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.DiceConstants
+import com.greenfodor.diceroller.ui.dice.d6.D6
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +46,19 @@ class D6ScreenTest {
         composeTestRule.mainClock.advanceTimeByFrame()
 
         composeTestRule.onNodeWithText(rollLabel).assertIsEnabled()
+    }
+
+    @Test
+    fun noStandaloneRolledValueIsShown() {
+        composeTestRule.setContent {
+            DiceRollerTheme {
+                D6Screen()
+            }
+        }
+
+        D6.faces.forEach { face ->
+            composeTestRule.onNodeWithText(face.value.toString()).assertDoesNotExist()
+        }
     }
 
     private companion object {

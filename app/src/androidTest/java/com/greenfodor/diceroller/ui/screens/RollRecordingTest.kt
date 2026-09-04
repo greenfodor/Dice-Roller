@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -157,12 +158,14 @@ class RollRecordingTest {
     }
 
     @Test
-    fun theReportedOutcomeMatchesTheValueShownOnScreen() {
+    fun theReportedOutcomeMatchesTheDieShownOnScreen() {
         setContent { D20Screen(onRollSettled = { settled += it }) }
 
         rollAndSettle(R.string.roll_button_single)
 
-        composeTestRule.onNodeWithText(settled.single().total.toString()).assertExists()
+        composeTestRule
+            .onNodeWithContentDescription(string(R.string.cd_die_value, settled.single().total))
+            .assertExists()
     }
 
     /** A [DiceScreen] whose die is never drawn, so a started roll stays in flight until disposed. */
@@ -189,8 +192,8 @@ class RollRecordingTest {
         composeTestRule.mainClock.advanceTimeByFrame()
     }
 
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resId: Int, vararg formatArgs: Any): String =
+        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId, *formatArgs)
 
     private companion object {
         const val ROLL_SETTLE_BUFFER_MILLIS = 500L

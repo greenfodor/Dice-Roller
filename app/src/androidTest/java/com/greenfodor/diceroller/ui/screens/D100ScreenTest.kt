@@ -9,9 +9,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.ui.DiceConstants
-import com.greenfodor.diceroller.ui.dice.d100.PercentileTensDie
-import com.greenfodor.diceroller.ui.dice.d100.PercentileUnitsDie
-import com.greenfodor.diceroller.ui.dice.d100.percentileValue
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import org.junit.Rule
 import org.junit.Test
@@ -46,22 +43,6 @@ class D100ScreenTest {
         composeTestRule.mainClock.advanceTimeByFrame()
 
         composeTestRule.onNodeWithText(rollLabel).assertIsEnabled()
-    }
-
-    @Test
-    fun resultText_showsInitialPercentileTotal_atRest() {
-        // At rest the shared result text should show the combined percentile value of the two
-        // dice's starting faces (the only Text nodes are this result and the roll button).
-        val initial = percentileValue(
-            PercentileTensDie.faces.first().value + PercentileUnitsDie.faces.first().value
-        )
-        composeTestRule.setContent {
-            DiceRollerTheme {
-                D100Screen()
-            }
-        }
-
-        composeTestRule.onNodeWithText(initial.toString()).assertExists()
     }
 
     private companion object {

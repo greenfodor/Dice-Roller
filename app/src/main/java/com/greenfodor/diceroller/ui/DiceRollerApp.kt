@@ -1,6 +1,8 @@
 package com.greenfodor.diceroller.ui
 
-import androidx.compose.foundation.layout.Column
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -21,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +46,9 @@ import com.greenfodor.diceroller.ui.components.DiceTypeFab
 import com.greenfodor.diceroller.ui.components.DiceTypePickerSheet
 import com.greenfodor.diceroller.ui.components.DiceTypeRail
 import com.greenfodor.diceroller.ui.components.shouldShowDiceRail
+import com.greenfodor.diceroller.ui.history.RecentRollUiModel
+import com.greenfodor.diceroller.ui.history.RecentRollsViewModel
+import com.greenfodor.diceroller.ui.history.RecentRollsWheel
 import com.greenfodor.diceroller.ui.history.RollHistoryRoute
 import com.greenfodor.diceroller.ui.history.rollHistoryEntry
 import com.greenfodor.diceroller.ui.screens.D100Screen
@@ -61,6 +67,7 @@ import com.greenfodor.diceroller.ui.settings.SettingsViewModel
 import com.greenfodor.diceroller.ui.settings.settingsEntries
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.resolveDarkTheme
+import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.LocalD6FaceStyle
 import com.greenfodor.diceroller.ui.utils.LocalHapticsEnabled
 import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
@@ -146,6 +153,8 @@ private fun EntryProviderScope<NavKey>.diceEntry(
 ) {
     entry<DiceRoute> {
         val diceViewModel: DiceViewModel = hiltViewModel()
+        val recentRollsViewModel: RecentRollsViewModel = hiltViewModel()
+        val recentRolls by recentRollsViewModel.recentRolls.collectAsStateWithLifecycle()
         var selectedDiceType by rememberSaveable { mutableStateOf(DiceType.SINGLE_D6) }
 
         CompositionLocalProvider(
@@ -156,6 +165,7 @@ private fun EntryProviderScope<NavKey>.diceEntry(
             DiceHome(
                 windowSizeClass = windowSizeClass,
                 selectedDiceType = selectedDiceType,
+                recentRolls = recentRolls,
                 onDiceTypeSelected = { selectedDiceType = it },
                 onRollSettled = diceViewModel::onRollSettled,
                 onOpenHistory = onOpenHistory,
@@ -169,6 +179,7 @@ private fun EntryProviderScope<NavKey>.diceEntry(
 private fun DiceHome(
     windowSizeClass: WindowSizeClass,
     selectedDiceType: DiceType,
+    recentRolls: List<RecentRollUiModel>,
     onDiceTypeSelected: (DiceType) -> Unit,
     onRollSettled: (RollOutcome) -> Unit,
     onOpenHistory: () -> Unit,
@@ -176,6 +187,7 @@ private fun DiceHome(
 ) {
     val orientation = LocalConfiguration.current.orientation
     val showRail = shouldShowDiceRail(windowSizeClass.widthSizeClass, orientation)
+    val recentRollsPlacement = recentRollsPlacement(orientation)
 
     if (showRail) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -185,6 +197,8 @@ private fun DiceHome(
             )
             DiceContent(
                 selectedDiceType = selectedDiceType,
+                recentRolls = recentRolls,
+                recentRollsPlacement = recentRollsPlacement,
                 onDiceTypeSelected = onDiceTypeSelected,
                 onRollSettled = onRollSettled,
                 onOpenHistory = onOpenHistory,
@@ -200,6 +214,8 @@ private fun DiceHome(
     } else {
         DiceContent(
             selectedDiceType = selectedDiceType,
+            recentRolls = recentRolls,
+            recentRollsPlacement = recentRollsPlacement,
             onDiceTypeSelected = onDiceTypeSelected,
             onRollSettled = onRollSettled,
             onOpenHistory = onOpenHistory,
@@ -209,14 +225,47 @@ private fun DiceHome(
     }
 }
 
+/** Where the recent rolls wheel is anchored over the dice screen, and how far off that edge. */
+private data class RecentRollsPlacement(
+    val alignment: Alignment,
+    val padding: PaddingValues
+)
+
 /**
- * Scaffold holding the top bar and the screen for [selectedDiceType]. With [showDiceTypeFab] set
- * it also hosts the [DiceTypeFab] and the [DiceTypePickerSheet] it opens; otherwise the die type
- * is picked outside this scaffold and neither is composed.
+ * Anchors the recent rolls wheel to the end edge in landscape and to the top center in portrait,
+ * where it sits directly under the top bar.
+ *
+ * @param orientation Orientation of the current configuration, one of the
+ * `Configuration.ORIENTATION_*` values.
+ */
+@Composable
+private fun recentRollsPlacement(orientation: Int): RecentRollsPlacement =
+    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        RecentRollsPlacement(
+            alignment = Alignment.CenterEnd,
+            padding = PaddingValues(end = MaterialTheme.spacing.medium)
+        )
+    } else {
+        RecentRollsPlacement(
+            alignment = Alignment.TopCenter,
+            padding = PaddingValues(horizontal = MaterialTheme.spacing.medium)
+        )
+    }
+
+/**
+ * Scaffold holding the top bar and the screen for [selectedDiceType], with the [RecentRollsWheel]
+ * anchored over it at [recentRollsPlacement]. With [showDiceTypeFab] set it also hosts the
+ * [DiceTypeFab] and the [DiceTypePickerSheet] it opens; otherwise the die type is picked outside
+ * this scaffold and neither is composed.
+ *
+ * The content is inset at the bottom by the height of the top bar as well, so it is centered on
+ * the window rather than on the space left under the bar.
  */
 @Composable
 private fun DiceContent(
     selectedDiceType: DiceType,
+    recentRolls: List<RecentRollUiModel>,
+    recentRollsPlacement: RecentRollsPlacement,
     onDiceTypeSelected: (DiceType) -> Unit,
     onRollSettled: (RollOutcome) -> Unit,
     onOpenHistory: () -> Unit,
@@ -245,10 +294,11 @@ private fun DiceContent(
         },
         floatingActionButtonPosition = FabPosition.Start
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(bottom = innerPadding.calculateTopPadding())
         ) {
             when (selectedDiceType) {
                 DiceType.SINGLE_D4 -> D4Screen(onRollSettled = onRollSettled)
@@ -259,6 +309,13 @@ private fun DiceContent(
                 DiceType.SINGLE_D20 -> D20Screen(onRollSettled = onRollSettled)
                 DiceType.PERCENTILE_D100 -> D100Screen(onRollSettled = onRollSettled)
             }
+
+            RecentRollsWheel(
+                rolls = recentRolls,
+                modifier = Modifier
+                    .align(recentRollsPlacement.alignment)
+                    .padding(recentRollsPlacement.padding)
+            )
         }
 
         if (showDiceTypeFab && isDiceTypePickerVisible) {
