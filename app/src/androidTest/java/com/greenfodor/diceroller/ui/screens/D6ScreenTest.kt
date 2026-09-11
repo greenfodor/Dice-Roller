@@ -21,7 +21,7 @@ class D6ScreenTest {
     val composeTestRule = createComposeRule()
 
     private val rollLabel: String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.roll_button_single)
+        InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.roll_button)
 
     @Test
     fun rollButton_isDisabledWhileRolling_thenReEnables() {

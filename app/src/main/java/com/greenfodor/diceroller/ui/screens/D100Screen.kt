@@ -1,7 +1,6 @@
 package com.greenfodor.diceroller.ui.screens
 
 import androidx.compose.runtime.Composable
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollOutcome
@@ -27,7 +26,6 @@ fun D100Screen(onRollSettled: (RollOutcome) -> Unit = {}) {
         dieStates = listOf(tensState, unitsState),
         dieLabel = DieLabels.D100,
         onRollSettled = onRollSettled,
-        rollButtonResId = R.string.roll_button_multiple,
         result = ::percentileTotal
     ) { state ->
         RollingD10Animation(

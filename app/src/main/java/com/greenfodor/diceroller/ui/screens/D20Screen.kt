@@ -1,7 +1,6 @@
 package com.greenfodor.diceroller.ui.screens
 
 import androidx.compose.runtime.Composable
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollOutcome
 import com.greenfodor.diceroller.ui.dice.d20.D20
@@ -16,8 +15,7 @@ fun D20Screen(onRollSettled: (RollOutcome) -> Unit = {}) {
     DiceScreen(
         dieStates = listOf(dieState),
         dieLabel = DieLabels.D20,
-        onRollSettled = onRollSettled,
-        rollButtonResId = R.string.roll_button_single
+        onRollSettled = onRollSettled
     ) { state ->
         RollingD20Animation(dieState = state)
     }

@@ -35,7 +35,7 @@ class RollRecordingTest {
     fun rollingASingleD6ReportsOneOutcomeLabelledD6() {
         setContent { D6Screen(onRollSettled = { settled += it }) }
 
-        rollAndSettle(R.string.roll_button_single)
+        rollAndSettle()
 
         assertEquals(1, settled.size)
         assertEquals(DieLabels.D6, settled.single().dieLabel)
@@ -46,7 +46,7 @@ class RollRecordingTest {
     fun rollingTwoD6ReportsASingleOutcomeHoldingBothValues() {
         setContent { DoubleD6Screen(onRollSettled = { settled += it }) }
 
-        rollAndSettle(R.string.roll_button_multiple)
+        rollAndSettle()
 
         assertEquals(1, settled.size)
         val outcome = settled.single()
@@ -59,7 +59,7 @@ class RollRecordingTest {
     fun rollingAPercentileD100ReportsASingleOutcomeHoldingBothDice() {
         setContent { D100Screen(onRollSettled = { settled += it }) }
 
-        rollAndSettle(R.string.roll_button_multiple)
+        rollAndSettle()
 
         assertEquals(1, settled.size)
         val outcome = settled.single()
@@ -72,8 +72,8 @@ class RollRecordingTest {
     fun rollingTwiceReportsTwoOutcomes() {
         setContent { D20Screen(onRollSettled = { settled += it }) }
 
-        rollAndSettle(R.string.roll_button_single)
-        rollAndSettle(R.string.roll_button_single)
+        rollAndSettle()
+        rollAndSettle()
 
         assertEquals(2, settled.size)
         assertTrue(settled.all { it.dieLabel == DieLabels.D20 })
@@ -84,7 +84,7 @@ class RollRecordingTest {
         composeTestRule.mainClock.autoAdvance = false
         setContent { D6Screen(onRollSettled = { settled += it }) }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeByFrame()
 
         assertEquals(0, settled.size)
@@ -95,7 +95,7 @@ class RollRecordingTest {
         setContent { D6Screen(onRollSettled = { settled += it }) }
 
         val beforeClick = System.currentTimeMillis()
-        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeByFrame()
         val afterClick = System.currentTimeMillis()
         composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
@@ -112,7 +112,7 @@ class RollRecordingTest {
             DiceRollerTheme { D6Screen(onRollSettled = { settled += it }) }
         }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
         composeTestRule.waitUntil(timeoutMillis = SETTLE_TIMEOUT_MILLIS) { settled.size == 1 }
         restorationTester.emulateSavedInstanceStateRestore()
         composeTestRule.waitForIdle()
@@ -127,7 +127,7 @@ class RollRecordingTest {
             DiceRollerTheme { StillDiceScreen(onRollSettled = { settled += it }) }
         }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
         restorationTester.emulateSavedInstanceStateRestore()
         composeTestRule.waitForIdle()
 
@@ -148,7 +148,7 @@ class RollRecordingTest {
             }
         }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button_single)).performClick()
+        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeByFrame()
         composeTestRule.runOnIdle { showD6 = false }
         composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
@@ -161,7 +161,7 @@ class RollRecordingTest {
     fun theReportedOutcomeMatchesTheDieShownOnScreen() {
         setContent { D20Screen(onRollSettled = { settled += it }) }
 
-        rollAndSettle(R.string.roll_button_single)
+        rollAndSettle()
 
         composeTestRule
             .onNodeWithContentDescription(string(R.string.cd_die_value, settled.single().total))
@@ -174,7 +174,6 @@ class RollRecordingTest {
         DiceScreen(
             dieStates = listOf(rememberDieState(die = D6)),
             dieLabel = DieLabels.D6,
-            rollButtonResId = R.string.roll_button_single,
             onRollSettled = onRollSettled
         ) { }
     }
@@ -186,8 +185,8 @@ class RollRecordingTest {
         }
     }
 
-    private fun rollAndSettle(rollButtonResId: Int) {
-        composeTestRule.onNodeWithText(string(rollButtonResId)).performClick()
+    private fun rollAndSettle() {
+        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
         composeTestRule.mainClock.advanceTimeByFrame()
     }
