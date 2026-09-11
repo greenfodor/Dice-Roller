@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark Mode -->
-    <color name="ic_launcher_background">#00695C</color> <!-- Darker Teal -->
-    <color name="ic_launcher_background_gradient_start">#26A69A</color> <!-- Medium Teal -->
-    <color name="ic_launcher_die_body">#B2DFDB</color> <!-- Light Teal for dark mode -->
-    <color name="ic_launcher_pips">#D32F2F</color> <!-- Dark Red -->
+    <!-- Dark mode. Ground is DiceGrayDark (#546E7A) multiplied down; die faces are
+         DiceRed (#FF6B6B) multiplied by the three shading intensities the D6 renderer
+         produces for this orientation (0.400, 0.602, 0.798). -->
+    <color name="ic_launcher_background">#1D262B</color>
+    <color name="ic_launcher_background_gradient_start">#2E3D43</color>
+
+    <color name="ic_launcher_die_face_lit">#CC5555</color>
+    <color name="ic_launcher_die_face_mid">#9A4040</color>
+    <color name="ic_launcher_die_face_shadow">#662B2B</color>
 </resources>

@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Light Mode -->
-    <color name="ic_launcher_background">#4ECDC4</color> <!-- DiceTeal -->
-    <color name="ic_launcher_background_gradient_start">#95E1D3</color> <!-- DiceGreen -->
-    <color name="ic_launcher_die_body">#E0F7F5</color> <!-- Very light teal -->
-    <color name="ic_launcher_pips">#FF8A8A</color> <!-- Softened DiceRed -->
+    <!-- Light mode. Ground is DiceGray (#B0BEC5); die faces are DiceRedDark (#D32F2F)
+         multiplied by the three shading intensities the D6 renderer produces for this
+         orientation (0.400, 0.602, 0.798). -->
+    <color name="ic_launcher_background">#96A2A7</color>
+    <color name="ic_launcher_background_gradient_start">#B0BEC5</color>
+
+    <color name="ic_launcher_die_face_lit">#A82626</color>
+    <color name="ic_launcher_die_face_mid">#7F1C1C</color>
+    <color name="ic_launcher_die_face_shadow">#541313</color>
+
+    <!-- Face edges and pips are white at the renderer's D6_STROKE_ALPHA (0.5) and
+         D6_DOT_ALPHA (0.9) in both themes. -->
+    <color name="ic_launcher_die_edge">#80FFFFFF</color>
+    <color name="ic_launcher_pips">#E6FFFFFF</color>
 </resources>

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <objectAnimator
-        android:duration="800"
-        android:startOffset="200"
+        android:duration="500"
         android:propertyName="rotation"
-        android:valueFrom="-45"
+        android:valueFrom="-30"
         android:valueTo="0"
-        android:interpolator="@android:anim/overshoot_interpolator" />
+        android:interpolator="@android:interpolator/fast_out_slow_in" />
 </set>
