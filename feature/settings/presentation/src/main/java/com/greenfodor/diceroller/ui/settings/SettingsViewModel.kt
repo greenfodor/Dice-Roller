@@ -21,8 +21,9 @@ import javax.inject.Inject
  * Holds the persisted [ThemeMode] for the UI. The first emission is `null` ("not loaded yet"),
  * which the root composable uses to keep the splash screen up and avoid a theme flash.
  *
- * Also owns clearing the roll history, which is reachable only from the settings screen. That
- * delete runs on [applicationScope], so it completes after this ViewModel is cleared.
+ * Also exposes the persisted key of the selected die type, and owns clearing the roll history,
+ * which is reachable only from the settings screen. That delete runs on [applicationScope], so it
+ * completes after this ViewModel is cleared.
  */
 @HiltViewModel
 class SettingsViewModel
@@ -67,6 +68,13 @@ class SettingsViewModel
                 initialValue = DiceColorSettings()
             )
 
+        val selectedDiceType: StateFlow<String?> =
+            repository.selectedDiceType.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+                initialValue = null
+            )
+
         fun setThemeMode(mode: ThemeMode) {
             viewModelScope.launch { repository.setThemeMode(mode) }
         }
@@ -81,6 +89,10 @@ class SettingsViewModel
 
         fun setD6FaceStyle(style: D6FaceStyle) {
             viewModelScope.launch { repository.setD6FaceStyle(style) }
+        }
+
+        fun setSelectedDiceType(key: String) {
+            viewModelScope.launch { repository.setSelectedDiceType(key) }
         }
 
         fun setUseSingleDiceColor(enabled: Boolean) {

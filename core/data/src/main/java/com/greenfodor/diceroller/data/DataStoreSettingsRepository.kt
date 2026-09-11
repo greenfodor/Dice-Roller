@@ -122,6 +122,19 @@ class DataStoreSettingsRepository(
         }
     }
 
+    override val selectedDiceType: Flow<String> =
+        dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences -> preferences[SELECTED_DICE_TYPE_KEY] ?: SELECTED_DICE_TYPE_DEFAULT }
+
+    override suspend fun setSelectedDiceType(key: String) {
+        dataStore.edit { preferences ->
+            preferences[SELECTED_DICE_TYPE_KEY] = key
+        }
+    }
+
     companion object {
         private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         private val HAPTIC_FEEDBACK_KEY = booleanPreferencesKey("haptic_feedback_enabled")
@@ -132,6 +145,9 @@ class DataStoreSettingsRepository(
         private val DICE_USE_SINGLE_COLOR_KEY = booleanPreferencesKey("dice_use_single_color")
         private const val DICE_USE_SINGLE_COLOR_DEFAULT = false
         private val DICE_SINGLE_COLOR_KEY = stringPreferencesKey("dice_single_color")
+
+        private val SELECTED_DICE_TYPE_KEY = stringPreferencesKey("selected_dice_type")
+        private const val SELECTED_DICE_TYPE_DEFAULT = "SINGLE_D6"
 
         private fun diceColorKey(target: DieColorTarget) = stringPreferencesKey("dice_color_${target.name}")
 

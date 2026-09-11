@@ -45,4 +45,13 @@ interface SettingsRepository {
 
     /** Clear all dice color choices, restoring the [DiceColorSettings] defaults. */
     suspend fun resetDiceColors()
+
+    /**
+     * The persisted key of the die type shown on the dice screen, defaulting to the single D6.
+     * The key is the presentation layer's own stable name for the die type, parsed back there.
+     */
+    val selectedDiceType: Flow<String>
+
+    /** Persist the key of the die type the user selected. */
+    suspend fun setSelectedDiceType(key: String)
 }

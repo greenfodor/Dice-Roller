@@ -10,8 +10,10 @@ object DiceConstants {
     // Animation
     const val ROLL_DURATION_MILLIS = 2_000
     const val THEME_TRANSITION_DURATION_MILLIS = 500
+    const val SCREEN_TRANSITION_DURATION_MILLIS = 300
     const val ROTATION_SPIN_COUNT = 3
     const val FULL_ROTATION = 360f
+    const val DIE_SWITCH_FADE_MILLIS = 180
 
     // Cube Appearance
     const val DEFAULT_CUBE_SIZE = 320f

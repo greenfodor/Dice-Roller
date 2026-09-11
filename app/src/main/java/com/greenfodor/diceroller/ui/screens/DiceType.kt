@@ -15,4 +15,10 @@ enum class DiceType(
     SINGLE_D10(labelResId = R.string.d10_label, iconResId = R.drawable.ic_die_d10),
     SINGLE_D20(labelResId = R.string.d20_label, iconResId = R.drawable.ic_die_d20),
     PERCENTILE_D100(labelResId = R.string.d100_label, iconResId = R.drawable.ic_die_d100)
+    ;
+
+    companion object {
+        /** Parse a persisted [DiceType.name], falling back to [SINGLE_D6] for unknown/missing values. */
+        fun fromName(name: String?): DiceType = entries.firstOrNull { it.name == name } ?: SINGLE_D6
+    }
 }

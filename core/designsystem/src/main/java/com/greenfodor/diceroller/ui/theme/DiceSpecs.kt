@@ -15,12 +15,15 @@ import com.greenfodor.diceroller.ui.DiceConstants
  * @param diceInternalSize The base scale factor for the 3D geometry.
  * @param rollDurationMillis Total time for the rolling animation.
  * @param strokeWidth The thickness of the dice edges.
+ * @param dieSwitchFadeMillis Time the incoming die screen takes to dissolve in over the outgoing
+ * one when the die type changes.
  */
 data class DiceSpecs(
     val canvasSize: Dp = 150.dp,
     val diceInternalSize: Float = DiceConstants.DEFAULT_CUBE_SIZE,
     val rollDurationMillis: Int = DiceConstants.ROLL_DURATION_MILLIS,
-    val strokeWidth: Float = DiceConstants.STROKE_WIDTH
+    val strokeWidth: Float = DiceConstants.STROKE_WIDTH,
+    val dieSwitchFadeMillis: Int = DiceConstants.DIE_SWITCH_FADE_MILLIS
 )
 
 val LocalDiceSpecs = staticCompositionLocalOf { DiceSpecs() }
