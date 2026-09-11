@@ -95,6 +95,8 @@ Compose:
     active: false
   LambdaParameterInRestartableEffect:
     active: false
+  MissingNonRestartableComposable:
+    active: false
   MissingReadOnlyComposable:
     active: false
   ModifierClickableOrder:
@@ -136,6 +138,8 @@ Compose:
   StateParam:
     active: false
   UnnecessaryComposable:
+    active: false
+  UnnecessaryLaunchedEffect:
     active: false
   UnstableCollections:
     active: false
