@@ -53,6 +53,7 @@ private class FakeSettingsRepository : SettingsRepository {
     override val shakeToRollEnabled = MutableStateFlow(true)
     override val d6FaceStyle = MutableStateFlow(D6FaceStyle.PIPS)
     override val diceColorSettings = MutableStateFlow(DiceColorSettings())
+    override val selectedDiceType = MutableStateFlow("SINGLE_D6")
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         themeMode.value = mode
@@ -84,6 +85,10 @@ private class FakeSettingsRepository : SettingsRepository {
 
     override suspend fun resetDiceColors() {
         diceColorSettings.value = DiceColorSettings()
+    }
+
+    override suspend fun setSelectedDiceType(key: String) {
+        selectedDiceType.value = key
     }
 }
 

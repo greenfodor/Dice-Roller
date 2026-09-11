@@ -1,6 +1,14 @@
 package com.greenfodor.diceroller.ui
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,10 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -64,6 +69,7 @@ import com.greenfodor.diceroller.ui.settings.SettingsRoute
 import com.greenfodor.diceroller.ui.settings.SettingsViewModel
 import com.greenfodor.diceroller.ui.settings.settingsEntries
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import com.greenfodor.diceroller.ui.theme.diceSpecs
 import com.greenfodor.diceroller.ui.theme.resolveDarkTheme
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.LocalD6FaceStyle
@@ -121,6 +127,7 @@ fun DiceRollerApp(
                     hapticsEnabled = hapticFeedbackSupported && hapticFeedbackEnabled,
                     shakeToRollEnabled = shakeToRollSupported && shakeToRollEnabled,
                     d6FaceStyle = d6FaceStyle,
+                    settingsViewModel = appSettingsViewModel,
                     onOpenHistory = { backStack.add(RollHistoryRoute) },
                     onOpenSettings = { backStack.add(SettingsRoute) }
                 )
@@ -140,12 +147,16 @@ fun DiceRollerApp(
 /**
  * Adds the dice entry. Its [DiceViewModel] is scoped to this entry and records every roll the
  * screens report once the dice settle.
+ *
+ * The selected die type is collected from [settingsViewModel] inside the entry's own content, so
+ * a pick made on the dice screen renders without the entry being rebuilt first.
  */
 private fun EntryProviderScope<NavKey>.diceEntry(
     windowSizeClass: WindowSizeClass,
     hapticsEnabled: Boolean,
     shakeToRollEnabled: Boolean,
     d6FaceStyle: D6FaceStyle,
+    settingsViewModel: SettingsViewModel,
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
@@ -153,7 +164,7 @@ private fun EntryProviderScope<NavKey>.diceEntry(
         val diceViewModel: DiceViewModel = hiltViewModel()
         val recentRollsViewModel: RecentRollsViewModel = hiltViewModel()
         val recentRolls by recentRollsViewModel.recentRolls.collectAsStateWithLifecycle()
-        var selectedDiceType by rememberSaveable { mutableStateOf(DiceType.SINGLE_D6) }
+        val selectedDiceTypeKey by settingsViewModel.selectedDiceType.collectAsStateWithLifecycle()
 
         CompositionLocalProvider(
             LocalHapticsEnabled provides hapticsEnabled,
@@ -162,9 +173,9 @@ private fun EntryProviderScope<NavKey>.diceEntry(
         ) {
             DiceHome(
                 windowSizeClass = windowSizeClass,
-                selectedDiceType = selectedDiceType,
+                selectedDiceType = DiceType.fromName(selectedDiceTypeKey),
                 recentRolls = recentRolls,
-                onDiceTypeSelected = { selectedDiceType = it },
+                onDiceTypeSelected = { settingsViewModel.setSelectedDiceType(it.name) },
                 onRollSettled = diceViewModel::onRollSettled,
                 onOpenHistory = onOpenHistory,
                 onOpenSettings = onOpenSettings
@@ -269,6 +280,8 @@ private fun DiceContent(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val diceSpecs = MaterialTheme.diceSpecs
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -285,14 +298,35 @@ private fun DiceContent(
                 .padding(innerPadding)
                 .padding(bottom = innerPadding.calculateTopPadding())
         ) {
-            when (selectedDiceType) {
-                DiceType.SINGLE_D4 -> D4Screen(onRollSettled = onRollSettled)
-                DiceType.SINGLE_D6 -> D6Screen(onRollSettled = onRollSettled)
-                DiceType.DOUBLE_D6 -> DoubleD6Screen(onRollSettled = onRollSettled)
-                DiceType.SINGLE_D8 -> D8Screen(onRollSettled = onRollSettled)
-                DiceType.SINGLE_D10 -> D10Screen(onRollSettled = onRollSettled)
-                DiceType.SINGLE_D20 -> D20Screen(onRollSettled = onRollSettled)
-                DiceType.PERCENTILE_D100 -> D100Screen(onRollSettled = onRollSettled)
+            AnimatedContent(
+                targetState = selectedDiceType,
+                modifier = Modifier.fillMaxSize(),
+                transitionSpec = {
+                    ContentTransform(
+                        targetContentEnter = fadeIn(
+                            animationSpec = tween(
+                                durationMillis = diceSpecs.dieSwitchFadeMillis,
+                                easing = LinearOutSlowInEasing
+                            )
+                        ),
+                        initialContentExit = fadeOut(
+                            animationSpec = snap(delayMillis = diceSpecs.dieSwitchFadeMillis)
+                        ),
+                        targetContentZIndex = 1f,
+                        sizeTransform = SizeTransform(clip = false)
+                    )
+                },
+                label = "DiceTypeSwitch"
+            ) { diceType ->
+                when (diceType) {
+                    DiceType.SINGLE_D4 -> D4Screen(onRollSettled = onRollSettled)
+                    DiceType.SINGLE_D6 -> D6Screen(onRollSettled = onRollSettled)
+                    DiceType.DOUBLE_D6 -> DoubleD6Screen(onRollSettled = onRollSettled)
+                    DiceType.SINGLE_D8 -> D8Screen(onRollSettled = onRollSettled)
+                    DiceType.SINGLE_D10 -> D10Screen(onRollSettled = onRollSettled)
+                    DiceType.SINGLE_D20 -> D20Screen(onRollSettled = onRollSettled)
+                    DiceType.PERCENTILE_D100 -> D100Screen(onRollSettled = onRollSettled)
+                }
             }
 
             RecentRollsWheel(

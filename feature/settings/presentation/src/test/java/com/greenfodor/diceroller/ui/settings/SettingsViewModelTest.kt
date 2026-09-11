@@ -33,7 +33,8 @@ private class FakeSettingsRepository(
     initialHaptics: Boolean = true,
     initialShake: Boolean = true,
     initialFaceStyle: D6FaceStyle = D6FaceStyle.PIPS,
-    initialDiceColors: DiceColorSettings = DiceColorSettings()
+    initialDiceColors: DiceColorSettings = DiceColorSettings(),
+    initialDiceType: String = "SINGLE_D6"
 ) : SettingsRepository {
     private val state = MutableStateFlow(initial)
     override val themeMode = state
@@ -49,6 +50,9 @@ private class FakeSettingsRepository(
 
     private val diceColors = MutableStateFlow(initialDiceColors)
     override val diceColorSettings = diceColors
+
+    private val diceType = MutableStateFlow(initialDiceType)
+    override val selectedDiceType = diceType
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         state.update { mode }
@@ -80,6 +84,10 @@ private class FakeSettingsRepository(
 
     override suspend fun resetDiceColors() {
         diceColors.update { DiceColorSettings() }
+    }
+
+    override suspend fun setSelectedDiceType(key: String) {
+        diceType.update { key }
     }
 }
 
@@ -282,6 +290,25 @@ class SettingsViewModelTest {
 
         assertEquals(1, rollHistoryRepository.clearCount)
         assertEquals(emptyList<RollRecord>(), rollHistoryRepository.rolls.first())
+    }
+
+    @Test
+    fun `selectedDiceType starts null then reflects the repository`() = runTest {
+        val viewModel =
+            settingsViewModel(FakeSettingsRepository(ThemeMode.DARK, initialDiceType = "SINGLE_D20"))
+
+        assertNull(viewModel.selectedDiceType.value)
+        assertEquals("SINGLE_D20", viewModel.selectedDiceType.first { it != null })
+    }
+
+    @Test
+    fun `setSelectedDiceType forwards the selection to the repository`() = runTest {
+        val repository = FakeSettingsRepository(ThemeMode.FOLLOW_SYSTEM)
+        val viewModel = settingsViewModel(repository)
+
+        viewModel.setSelectedDiceType("PERCENTILE_D100")
+
+        assertEquals("PERCENTILE_D100", repository.selectedDiceType.first())
     }
 
     @Test

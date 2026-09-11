@@ -66,6 +66,20 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun `selectedDiceType defaults to the single D6 key when nothing is persisted`() = runTest {
+        assertEquals("SINGLE_D6", newRepository().selectedDiceType.first())
+    }
+
+    @Test
+    fun `setSelectedDiceType persists the selected key`() = runTest {
+        val repository = newRepository()
+
+        repository.setSelectedDiceType("SINGLE_D20")
+
+        assertEquals("SINGLE_D20", repository.selectedDiceType.first())
+    }
+
+    @Test
     fun `d6FaceStyle defaults to PIPS when nothing is persisted`() = runTest {
         assertEquals(D6FaceStyle.PIPS, newRepository().d6FaceStyle.first())
     }
