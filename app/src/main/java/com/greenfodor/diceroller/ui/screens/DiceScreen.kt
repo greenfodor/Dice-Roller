@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui.screens
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,8 +35,9 @@ import com.greenfodor.diceroller.ui.utils.rememberShakeDetector
 import com.greenfodor.diceroller.ui.utils.rollDice
 
 /**
- * Shared layout for every dice screen: wires the shake detector, lays the dice out as one
- * centered group with a fixed gap between them, and renders the roll button.
+ * Shared layout for every dice screen: wires the shake detector, centres the dice as one
+ * group with a fixed gap between them in the content area, and renders the roll button a
+ * fixed gap below them.
  *
  * Each die is rendered through the [dieContent] slot, so a screen only has to
  * supply its own renderer. The roll button is disabled while any die is mid-roll.
@@ -53,7 +53,6 @@ import com.greenfodor.diceroller.ui.utils.rollDice
  *
  * @param dieStates The dice shown on this screen (one or more).
  * @param dieLabel One of the [com.greenfodor.diceroller.data.DieLabels] constants.
- * @param rollButtonResId Label for the roll button.
  * @param onRollSettled Called once per roll, after the dice settle.
  * @param result The scored outcome of the roll, derived from the dice. Defaults to the
  *   sum of every die's current face — correct for a single die (the value itself) and
@@ -65,7 +64,6 @@ import com.greenfodor.diceroller.ui.utils.rollDice
 fun DiceScreen(
     dieStates: List<DieState>,
     dieLabel: String,
-    @StringRes rollButtonResId: Int,
     modifier: Modifier = Modifier,
     onRollSettled: (RollOutcome) -> Unit = {},
     result: (List<DieState>) -> Int = { states -> states.sumOf { it.currentFace.value } },
@@ -105,12 +103,14 @@ fun DiceScreen(
         modifier = modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.weight(1f))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large, Alignment.CenterHorizontally)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             dieStates.forEach { dieState ->
                 val description = stringResource(R.string.cd_die_value, dieState.currentFace.value)
@@ -124,15 +124,18 @@ fun DiceScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
-
-        Button(
-            onClick = startRoll,
-            enabled = isRolling.not()
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = stringResource(rollButtonResId))
-        }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
-        Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
+            Button(
+                onClick = startRoll,
+                enabled = isRolling.not()
+            ) {
+                Text(text = stringResource(R.string.roll_button))
+            }
+        }
     }
 }

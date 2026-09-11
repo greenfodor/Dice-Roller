@@ -1,7 +1,6 @@
 package com.greenfodor.diceroller.ui.screens
 
 import androidx.compose.runtime.Composable
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollOutcome
@@ -18,8 +17,7 @@ fun DoubleD6Screen(onRollSettled: (RollOutcome) -> Unit = {}) {
     DiceScreen(
         dieStates = listOf(firstCubeState, secondCubeState),
         dieLabel = DieLabels.DOUBLE_D6,
-        onRollSettled = onRollSettled,
-        rollButtonResId = R.string.roll_button_multiple
+        onRollSettled = onRollSettled
     ) { state ->
         val target = if (state === secondCubeState) DieColorTarget.D6_SECONDARY else DieColorTarget.D6
         RollingCubeAnimation(cubeState = state, colorTarget = target)

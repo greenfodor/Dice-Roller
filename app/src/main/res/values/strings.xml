@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Dice Roller</string>
-    <string name="roll_button_single">Roll Die</string>
-    <string name="roll_button_multiple">Roll Dice</string>
+    <string name="roll_button">Roll</string>
     <string name="d6_label">d6</string>
     <string name="double_d6_label">2d6</string>
     <string name="d20_label">d20</string>

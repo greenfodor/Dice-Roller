@@ -3,7 +3,9 @@ package com.greenfodor.diceroller.ui.history
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,14 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import com.greenfodor.diceroller.ui.theme.spacing
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -39,14 +42,14 @@ private const val SLOT_TRAVEL_MILLIS = 350
 /** How long a newly added entry takes to reach full size and opacity. */
 private const val ENTER_MILLIS = 350
 
+/** Separates the die notation, the total and the breakdown when a line is read as one string. */
+private const val PART_SEPARATOR = "  "
+
 /** The size a newly added entry grows from. */
 private const val ENTER_START_SCALE = 0.6f
 
 /** How much smaller each slot above the bottom one renders. */
 private const val SLOT_SCALE_STEP = 0.15f
-
-/** Separates the die notation, the total and the breakdown on one line. */
-private const val PART_SEPARATOR = "  "
 
 /**
  * The newest rolls stacked as a wheel: the newest entry sits at the bottom, full size and fully
@@ -84,10 +87,8 @@ fun RecentRollsWheel(
             key(entry.id) {
                 val slot = rememberSlotPosition(target = targetSlot(entry = entry, rolls = rolls))
                 val enter = rememberEnterProgress()
-                Text(
-                    text = recentRollLine(entry),
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 1,
+                RecentRollLine(
+                    entry = entry,
                     modifier = Modifier.graphicsLayer {
                         val position = slot.value
                         val entered = enter.value
@@ -105,31 +106,44 @@ fun RecentRollsWheel(
 
 /**
  * One wheel line, styled part by part: the die notation quiet, the total large and bold in the
- * primary color, and the breakdown of a multi-die roll small and quiet again.
+ * primary color, and the breakdown of a multi-die roll small and quiet again. The parts are laid
+ * out as a row and centred on each other, so a part reads level with the total whatever its size.
+ * The row carries the whole line as its semantics text.
  */
 @Composable
-private fun recentRollLine(entry: RecentRollUiModel): AnnotatedString {
-    val labelStyle = MaterialTheme.typography.titleMedium.toSpanStyle().copy(
-        fontWeight = FontWeight.Medium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    val totalStyle = MaterialTheme.typography.headlineSmall.toSpanStyle().copy(
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary
-    )
-    val breakdownStyle = MaterialTheme.typography.bodyMedium.toSpanStyle().copy(
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-
-    return remember(entry, labelStyle, totalStyle, breakdownStyle) {
-        buildAnnotatedString {
-            withStyle(labelStyle) { append(entry.dieLabel) }
-            append(PART_SEPARATOR)
-            withStyle(totalStyle) { append(entry.total) }
-            entry.breakdown?.let { breakdown ->
-                append(PART_SEPARATOR)
-                withStyle(breakdownStyle) { append(breakdown) }
-            }
+private fun RecentRollLine(
+    entry: RecentRollUiModel,
+    modifier: Modifier = Modifier
+) {
+    val line = remember(entry) {
+        listOfNotNull(entry.dieLabel, entry.total, entry.breakdown).joinToString(PART_SEPARATOR)
+    }
+    Row(
+        modifier = modifier.clearAndSetSemantics { text = AnnotatedString(line) },
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = entry.dieLabel,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1
+        )
+        Text(
+            text = entry.total,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1
+        )
+        entry.breakdown?.let { breakdown ->
+            Text(
+                text = breakdown,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
         }
     }
 }
