@@ -10,7 +10,9 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
 /**
  * Applies detekt (shared config plus compose-rules) and ktlint (with the disabled standard rules).
- * In Kotlin Multiplatform modules the `detekt` task scans the Kotlin sources of every source set.
+ * ktlint skips generated sources under the build directory. In Kotlin Multiplatform modules the
+ * `detekt` task scans the Kotlin sources of every source set, except generated sources under the
+ * build directory.
  */
 class LintConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -28,6 +30,9 @@ class LintConventionPlugin : Plugin<Project> {
                 additionalEditorconfig.set(
                     DISABLED_KTLINT_RULES.associate { "ktlint_standard_$it" to "disabled" }
                 )
+                filter {
+                    exclude { element -> element.file.startsWith(layout.buildDirectory.get().asFile) }
+                }
             }
 
             dependencies {
@@ -36,9 +41,11 @@ class LintConventionPlugin : Plugin<Project> {
 
             pluginManager.withPlugin(libs.pluginId("kotlin-multiplatform")) {
                 val kotlinSourceDirs = provider {
+                    val buildDirectory = layout.buildDirectory.get().asFile
                     extensions.getByType(KotlinMultiplatformExtension::class.java)
                         .sourceSets
                         .flatMap { it.kotlin.srcDirs }
+                        .filterNot { it.startsWith(buildDirectory) }
                 }
                 extensions.configure<DetektExtension> {
                     source.setFrom(kotlinSourceDirs)

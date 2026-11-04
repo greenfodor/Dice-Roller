@@ -15,6 +15,20 @@ complexity:
   LargeClass:
     active: true
     allowedLines: 599
+  TooManyFunctions:
+    active: true
+    excludes: &testSources
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - '**/iosTest/**'
+      - '**/desktopTest/**'
+      - '**/androidHostTest/**'
+      - '**/androidDeviceTest/**'
 
 style:
   active: true
@@ -50,6 +64,7 @@ style:
     ignoreAnnotation: true
     ignoreNamedArgument: true
     ignoreEnums: true
+    excludes: *testSources
   MaxLineLength:
     active: true
     maxLineLength: 140
@@ -62,8 +77,36 @@ naming:
     active: true
     functionPattern: '([a-z][a-zA-Z0-9]*)|([A-Z][a-zA-Z0-9]*)|(`.*`) '
     excludeClassPattern: '.*'
+    excludes: *testSources
   MatchingDeclarationName:
     active: false
+
+exceptions:
+  active: true
+  InstanceOfCheckForException:
+    active: true
+    excludes: *testSources
+  ThrowingExceptionsWithoutMessageOrCause:
+    active: true
+    excludes: *testSources
+  TooGenericExceptionCaught:
+    active: true
+    excludes: *testSources
+
+performance:
+  active: true
+  ForEachOnRange:
+    active: true
+    excludes: *testSources
+  SpreadOperator:
+    active: true
+    excludes: *testSources
+
+potential-bugs:
+  active: true
+  UnsafeCallOnNullableType:
+    active: true
+    excludes: *testSources
 
 Compose:
   active: true
