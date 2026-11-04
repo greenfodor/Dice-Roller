@@ -2,10 +2,6 @@ package com.greenfodor.diceroller.ui.settings
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrightnessAuto
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SegmentedButton
@@ -19,6 +15,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.data.ThemeMode
 import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.ui.icons.BrightnessAuto
+import com.greenfodor.diceroller.ui.icons.DarkMode
+import com.greenfodor.diceroller.ui.icons.DiceIcons
+import com.greenfodor.diceroller.ui.icons.LightMode
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
@@ -29,9 +29,9 @@ private data class ThemeModeOption(
 )
 
 private val themeModeOptions = listOf(
-    ThemeModeOption(ThemeMode.FOLLOW_SYSTEM, R.string.theme_follow_system, Icons.Default.BrightnessAuto),
-    ThemeModeOption(ThemeMode.LIGHT, R.string.theme_light, Icons.Default.LightMode),
-    ThemeModeOption(ThemeMode.DARK, R.string.theme_dark, Icons.Default.DarkMode)
+    ThemeModeOption(ThemeMode.FOLLOW_SYSTEM, R.string.theme_follow_system, DiceIcons.BrightnessAuto),
+    ThemeModeOption(ThemeMode.LIGHT, R.string.theme_light, DiceIcons.LightMode),
+    ThemeModeOption(ThemeMode.DARK, R.string.theme_dark, DiceIcons.DarkMode)
 )
 
 /**

@@ -2,9 +2,6 @@ package com.greenfodor.diceroller.ui.settings
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Casino
-import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SegmentedButton
@@ -18,6 +15,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.ui.icons.Casino
+import com.greenfodor.diceroller.ui.icons.DiceIcons
+import com.greenfodor.diceroller.ui.icons.Numbers
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
@@ -28,8 +28,8 @@ private data class D6FaceStyleOption(
 )
 
 private val d6FaceStyleOptions = listOf(
-    D6FaceStyleOption(D6FaceStyle.PIPS, R.string.d6_face_style_pips, Icons.Default.Casino),
-    D6FaceStyleOption(D6FaceStyle.NUMBERS, R.string.d6_face_style_numbers, Icons.Default.Numbers)
+    D6FaceStyleOption(D6FaceStyle.PIPS, R.string.d6_face_style_pips, DiceIcons.Casino),
+    D6FaceStyleOption(D6FaceStyle.NUMBERS, R.string.d6_face_style_numbers, DiceIcons.Numbers)
 )
 
 /**

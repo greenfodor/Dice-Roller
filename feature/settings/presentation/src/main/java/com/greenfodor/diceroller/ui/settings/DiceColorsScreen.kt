@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +41,9 @@ import com.greenfodor.diceroller.data.DiceColorSettings
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.ThemeMode
 import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.ui.icons.ArrowBack
+import com.greenfodor.diceroller.ui.icons.DiceIcons
+import com.greenfodor.diceroller.ui.icons.Refresh
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.resolveDarkTheme
@@ -84,7 +84,7 @@ fun DiceColorsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = DiceIcons.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back)
                         )
                     }
@@ -183,7 +183,7 @@ private fun RestoreDefaultsButton(
         )
     ) {
         Icon(
-            imageVector = Icons.Default.Refresh,
+            imageVector = DiceIcons.Refresh,
             contentDescription = null,
             modifier = Modifier.size(ButtonDefaults.IconSize)
         )

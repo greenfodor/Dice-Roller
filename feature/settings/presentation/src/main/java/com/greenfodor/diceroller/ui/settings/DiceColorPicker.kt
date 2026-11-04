@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -36,6 +34,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.data.DiceColorOption
 import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.ui.icons.Check
+import com.greenfodor.diceroller.ui.icons.DiceIcons
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
@@ -94,7 +94,7 @@ fun DiceColorPicker(
                         checkScale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
                     }
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        imageVector = DiceIcons.Check,
                         contentDescription = null,
                         tint = if (color.luminance() > LUMINANCE_THRESHOLD) Color.Black else Color.White,
                         modifier = Modifier

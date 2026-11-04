@@ -1,8 +1,5 @@
 package com.greenfodor.diceroller.ui.components
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -14,6 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.ui.icons.DiceIcons
+import com.greenfodor.diceroller.ui.icons.History
+import com.greenfodor.diceroller.ui.icons.Settings
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 
@@ -48,13 +48,13 @@ fun DiceRollerTopBar(
         actions = {
             IconButton(onClick = onOpenHistory) {
                 Icon(
-                    imageVector = Icons.Outlined.History,
+                    imageVector = DiceIcons.History,
                     contentDescription = stringResource(R.string.cd_open_roll_history)
                 )
             }
             IconButton(onClick = onOpenSettings) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
+                    imageVector = DiceIcons.Settings,
                     contentDescription = stringResource(R.string.cd_open_settings)
                 )
             }
