@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
@@ -25,6 +26,7 @@ private fun D4StaticPreview(
     modifier: Modifier = Modifier
 ) {
     val paints = remember { D4Paints() }
+    val textMeasurer = rememberTextMeasurer()
     val color = MaterialTheme.colorScheme.tertiary
 
     Box(
@@ -47,6 +49,7 @@ private fun D4StaticPreview(
                 rotationY = rotationY,
                 rotationZ = rotationZ,
                 paints = paints,
+                textMeasurer = textMeasurer,
                 color = color
             )
         }

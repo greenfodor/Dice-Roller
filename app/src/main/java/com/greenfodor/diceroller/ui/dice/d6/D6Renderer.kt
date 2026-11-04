@@ -1,16 +1,15 @@
 package com.greenfodor.diceroller.ui.dice.d6
 
-import android.graphics.Matrix
-import android.graphics.Typeface
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextMeasurer
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.geometry.HexahedronGeometry
+import com.greenfodor.diceroller.geometry.PROJECTIVE_COEFFICIENT_COUNT
 import com.greenfodor.diceroller.geometry.Point2D
 import com.greenfodor.diceroller.geometry.Point3D
 import com.greenfodor.diceroller.geometry.calculateNormalZ
@@ -18,41 +17,33 @@ import com.greenfodor.diceroller.geometry.projectPoint
 import com.greenfodor.diceroller.geometry.rotatePoint
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.DiceConstants.LIGHT_SOURCE
+import com.greenfodor.diceroller.ui.dice.FaceLabelLayouts
 import com.greenfodor.diceroller.ui.utils.shade
-import android.graphics.Paint as NativePaint
-import android.graphics.Path as NativePath
 
 /**
- * Holds reusable [NativePaint] and [Path] objects used for cube face rendering.
+ * Holds reusable paths, matrices, styles, text layouts and buffers used for cube face rendering.
  *
  * Instantiating these once and reusing them across frames prevents unnecessary object allocation
  * and garbage collection during the animation loop.
  */
 class D6Paints {
-    /** Fill paint for the face surface. */
-    val fillPaint = NativePaint().apply { isAntiAlias = true }
-
-    /** Stroke paint for face borders. */
-    val strokePaint = NativePaint().apply { isAntiAlias = true }
-
-    /** Reusable native path for face polygon drawing. */
-    val nativeFacePath = NativePath()
-
-    /** Reusable Compose path for pip clipping. */
+    /** Reusable path for the face polygon (fill, stroke and pip clipping). */
     val facePath = Path()
 
     /** Reusable path for pip geometry. */
     val dotPath = Path()
 
-    /** Native paint for number rendering (used only when the face style is numbers). */
-    val textPaint = NativePaint().apply {
-        textAlign = NativePaint.Align.CENTER
-        isAntiAlias = true
-        typeface = Typeface.DEFAULT_BOLD
-    }
+    /** Stroke style for face borders. */
+    val stroke = Stroke(width = DiceConstants.STROKE_WIDTH)
 
     /** Reusable matrix for projecting the number label onto a face quad. */
     val numberMatrix = Matrix()
+
+    /** Projective coefficients of the number label transform. */
+    val numberCoefficients = FloatArray(PROJECTIVE_COEFFICIENT_COUNT)
+
+    /** Cached text layouts of the number labels (used only when the face style is numbers). */
+    val numberLayouts = FaceLabelLayouts()
 
     /** Temporary buffer for the four face-corner destination coordinates (x/y per corner). */
     val dstArray = FloatArray(8)
@@ -87,6 +78,7 @@ class D6Paints {
  * @param rotationY Current Y-axis rotation in degrees.
  * @param rotationZ Current Z-axis rotation in degrees.
  * @param paints Reusable [D6Paints] to avoid per-frame allocations (includes path buffers).
+ * @param textMeasurer Measures the number labels.
  * @param color The base color applied uniformly to every face.
  * @param faceStyle Whether faces are marked with pips or numbers.
  */
@@ -98,6 +90,7 @@ fun DrawScope.drawD6(
     rotationY: Float,
     rotationZ: Float,
     paints: D6Paints,
+    textMeasurer: TextMeasurer,
     color: Color,
     faceStyle: D6FaceStyle = D6FaceStyle.PIPS
 ) {
@@ -143,6 +136,7 @@ fun DrawScope.drawD6(
             centerX = centerX,
             centerY = centerY,
             paints = paints,
+            textMeasurer = textMeasurer,
             faceStyle = faceStyle
         )
     }
@@ -171,6 +165,7 @@ private fun DrawScope.renderFace(
     centerX: Float,
     centerY: Float,
     paints: D6Paints,
+    textMeasurer: TextMeasurer,
     faceStyle: D6FaceStyle
 ) {
     val intensity =
@@ -182,24 +177,12 @@ private fun DrawScope.renderFace(
     val vIndices = face.vertexIndices
     val verts = vIndices.map { projectedVertices[it] }
 
-    paints.nativeFacePath.rewind()
-    paints.nativeFacePath.moveTo(verts[0].x, verts[0].y)
-    for (i in 1 until verts.size) paints.nativeFacePath.lineTo(verts[i].x, verts[i].y)
-    paints.nativeFacePath.close()
-
-    paints.facePath.reset()
+    paints.facePath.rewind()
     paints.facePath.moveTo(verts[0].x, verts[0].y)
     for (i in 1 until verts.size) paints.facePath.lineTo(verts[i].x, verts[i].y)
     paints.facePath.close()
 
-    drawIntoCanvas { canvas ->
-        paints.fillPaint.apply {
-            color = shadedColor.toArgb()
-            style = NativePaint.Style.FILL
-            pathEffect = null
-        }
-        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.fillPaint)
-    }
+    drawPath(path = paints.facePath, color = shadedColor)
 
     when (faceStyle) {
         D6FaceStyle.PIPS -> {
@@ -217,24 +200,18 @@ private fun DrawScope.renderFace(
         }
 
         D6FaceStyle.NUMBERS ->
-            drawIntoCanvas { canvas ->
-                drawDiceNumberOnFace(
-                    canvas = canvas,
-                    label = face.dotCount.toString(),
-                    vIndices = vIndices,
-                    projectedVertices = projectedVertices,
-                    paints = paints
-                )
-            }
+            drawDiceNumberOnFace(
+                label = face.dotCount.toString(),
+                vIndices = vIndices,
+                projectedVertices = projectedVertices,
+                paints = paints,
+                textMeasurer = textMeasurer
+            )
     }
 
-    drawIntoCanvas { canvas ->
-        paints.strokePaint.apply {
-            color = Color.White.copy(alpha = DiceConstants.D6_STROKE_ALPHA).toArgb()
-            style = NativePaint.Style.STROKE
-            strokeWidth = DiceConstants.STROKE_WIDTH
-            pathEffect = null
-        }
-        canvas.nativeCanvas.drawPath(paints.nativeFacePath, paints.strokePaint)
-    }
+    drawPath(
+        path = paints.facePath,
+        color = Color.White.copy(alpha = DiceConstants.D6_STROKE_ALPHA),
+        style = paints.stroke
+    )
 }

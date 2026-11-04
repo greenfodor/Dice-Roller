@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.DieColorTarget
@@ -32,6 +33,7 @@ private fun D6StaticPreview(
 ) {
     val color = LocalDiceColors.current.colorFor(DieColorTarget.D6)
     val paints = remember { D6Paints() }
+    val textMeasurer = rememberTextMeasurer()
 
     Box(
         modifier = modifier
@@ -54,6 +56,7 @@ private fun D6StaticPreview(
                 rotationY = rotationY,
                 rotationZ = rotationZ,
                 paints = paints,
+                textMeasurer = textMeasurer,
                 color = color,
                 faceStyle = faceStyle
             )

@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.rememberTextMeasurer
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.dice.rememberRollRotation
@@ -26,6 +27,7 @@ fun RollingCubeAnimation(
     val faceStyle = LocalD6FaceStyle.current
     val diceSpecs = MaterialTheme.diceSpecs
     val paints = remember { D6Paints() }
+    val textMeasurer = rememberTextMeasurer()
     val rotation = rememberRollRotation(cubeState)
 
     Canvas(
@@ -42,6 +44,7 @@ fun RollingCubeAnimation(
             rotationY = rotation.y.value,
             rotationZ = rotation.z.value,
             paints = paints,
+            textMeasurer = textMeasurer,
             color = color,
             faceStyle = faceStyle
         )

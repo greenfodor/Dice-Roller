@@ -7,6 +7,7 @@ import com.greenfodor.diceroller.geometry.Point3D
 import com.greenfodor.diceroller.geometry.interpolatePoint3DOnFace
 import com.greenfodor.diceroller.geometry.projectPoint
 import com.greenfodor.diceroller.ui.DiceConstants
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -39,7 +40,7 @@ internal fun DrawScope.drawDiceDotsOnFace(
     dotCenters.forEach { center ->
         dotPath.reset()
         for (i in 0 until segments) {
-            val angle = 2.0 * Math.PI * i / segments
+            val angle = 2.0 * PI * i / segments
             val u = center.x + cos(angle).toFloat() * dotRadiusFactor
             val v = center.y + sin(angle).toFloat() * dotRadiusFactor
 

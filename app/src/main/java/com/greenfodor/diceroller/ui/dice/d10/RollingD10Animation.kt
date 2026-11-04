@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.rememberTextMeasurer
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.ui.dice.DieState
 import com.greenfodor.diceroller.ui.dice.rememberRollRotation
@@ -24,6 +25,7 @@ fun RollingD10Animation(
 ) {
     val diceSpecs = MaterialTheme.diceSpecs
     val paints = remember { D10Paints() }
+    val textMeasurer = rememberTextMeasurer()
     val color = LocalDiceColors.current.colorFor(colorTarget)
     val rotation = rememberRollRotation(dieState)
 
@@ -41,6 +43,7 @@ fun RollingD10Animation(
             rotationY = rotation.y.value,
             rotationZ = rotation.z.value,
             paints = paints,
+            textMeasurer = textMeasurer,
             color = color,
             labelFor = labelFor
         )
