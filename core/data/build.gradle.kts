@@ -40,7 +40,6 @@ kotlin {
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.junit)
-            implementation(libs.androidx.espresso.core)
             implementation(libs.androidx.room.testing)
             implementation(libs.kotlinx.coroutines.test)
         }

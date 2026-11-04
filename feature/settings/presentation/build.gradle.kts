@@ -23,7 +23,6 @@ kotlin {
 
             implementation(libs.androidx.navigation3.runtime)
             implementation(libs.jetbrains.navigation3.ui)
-            implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core.viewmodel)
             implementation(libs.jetbrains.lifecycle.viewmodel.compose)
