@@ -6,10 +6,12 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.roll_button
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +22,7 @@ class D100ScreenTest {
     val composeTestRule = createComposeRule()
 
     private val rollLabel: String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.roll_button)
+        runBlocking { getString(Res.string.roll_button) }
 
     @Test
     fun rollButton_isDisabledWhileRolling_thenReEnables() {

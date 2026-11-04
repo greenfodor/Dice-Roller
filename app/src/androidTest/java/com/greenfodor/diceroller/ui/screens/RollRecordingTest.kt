@@ -10,14 +10,18 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollOutcome
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_die_value
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.roll_button
 import com.greenfodor.diceroller.ui.DiceConstants
 import com.greenfodor.diceroller.ui.dice.d6.D6
 import com.greenfodor.diceroller.ui.dice.rememberDieState
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -84,7 +88,7 @@ class RollRecordingTest {
         composeTestRule.mainClock.autoAdvance = false
         setContent { D6Screen(onRollSettled = { settled += it }) }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeByFrame()
 
         assertEquals(0, settled.size)
@@ -95,7 +99,7 @@ class RollRecordingTest {
         setContent { D6Screen(onRollSettled = { settled += it }) }
 
         val beforeClick = System.currentTimeMillis()
-        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeByFrame()
         val afterClick = System.currentTimeMillis()
         composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
@@ -112,7 +116,7 @@ class RollRecordingTest {
             DiceRollerTheme { D6Screen(onRollSettled = { settled += it }) }
         }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.roll_button)).performClick()
         composeTestRule.waitUntil(timeoutMillis = SETTLE_TIMEOUT_MILLIS) { settled.size == 1 }
         restorationTester.emulateSavedInstanceStateRestore()
         composeTestRule.waitForIdle()
@@ -127,7 +131,7 @@ class RollRecordingTest {
             DiceRollerTheme { StillDiceScreen(onRollSettled = { settled += it }) }
         }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.roll_button)).performClick()
         restorationTester.emulateSavedInstanceStateRestore()
         composeTestRule.waitForIdle()
 
@@ -148,7 +152,7 @@ class RollRecordingTest {
             }
         }
 
-        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeByFrame()
         composeTestRule.runOnIdle { showD6 = false }
         composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
@@ -164,7 +168,7 @@ class RollRecordingTest {
         rollAndSettle()
 
         composeTestRule
-            .onNodeWithContentDescription(string(R.string.cd_die_value, settled.single().total))
+            .onNodeWithContentDescription(string(Res.string.cd_die_value, settled.single().total))
             .assertExists()
     }
 
@@ -186,13 +190,13 @@ class RollRecordingTest {
     }
 
     private fun rollAndSettle() {
-        composeTestRule.onNodeWithText(string(R.string.roll_button)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.roll_button)).performClick()
         composeTestRule.mainClock.advanceTimeBy(DiceConstants.ROLL_DURATION_MILLIS + ROLL_SETTLE_BUFFER_MILLIS)
         composeTestRule.mainClock.advanceTimeByFrame()
     }
 
-    private fun string(resId: Int, vararg formatArgs: Any): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId, *formatArgs)
+    private fun string(resource: StringResource, vararg formatArgs: Any): String =
+        runBlocking { getString(resource, *formatArgs) }
 
     private companion object {
         const val ROLL_SETTLE_BUFFER_MILLIS = 500L

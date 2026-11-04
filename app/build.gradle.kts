@@ -39,6 +39,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":feature:settings:presentation"))
     implementation(project(":feature:history:presentation"))
+    implementation(project(":feature:dice:presentation"))
 
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)

@@ -7,13 +7,13 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_open_roll_history
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_open_settings
 import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_close
 import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_empty
 import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_title
@@ -25,6 +25,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res as DiceRes
 import com.greenfodor.diceroller.feature.history.presentation.generated.resources.Res as HistoryRes
 import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res as SettingsRes
 
@@ -70,7 +71,7 @@ class RollHistoryNavigationTest {
     fun clickingTheTopBarHistoryButtonOpensTheHistoryOverTheDiceScreen() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
 
         composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertIsDisplayed()
         composeTestRule
@@ -82,7 +83,7 @@ class RollHistoryNavigationTest {
     fun theHistoryEntryResolvesItsViewModelThroughKoin() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
 
         composeTestRule.onNodeWithText(sampleRoll.total.toString()).assertIsDisplayed()
     }
@@ -98,11 +99,11 @@ class RollHistoryNavigationTest {
     fun closingTheHistoryReturnsToTheDiceScreen() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
         composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_close)).performClick()
 
         composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertDoesNotExist()
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).assertIsDisplayed()
     }
 
     @Test
@@ -110,7 +111,7 @@ class RollHistoryNavigationTest {
         repository.state.value = emptyList()
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
 
         composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_empty)).assertIsDisplayed()
     }
@@ -119,7 +120,7 @@ class RollHistoryNavigationTest {
     fun theSettingsEntryShowsItsSettingsAsSoonAsItIsOpened() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_settings)).performClick()
 
         composeTestRule.onNodeWithText(string(SettingsRes.string.settings_title)).assertIsDisplayed()
         composeTestRule.onNodeWithText(string(SettingsRes.string.settings_theme_title)).assertIsDisplayed()
@@ -128,9 +129,6 @@ class RollHistoryNavigationTest {
     private fun setContent() {
         composeTestRule.setContent { DiceRollerApp(windowSizeClass = CompactWindowSizeClass) }
     }
-
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
 
     private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 }

@@ -195,7 +195,10 @@ private fun DiceHome(
     onOpenSettings: () -> Unit
 ) {
     val orientation = LocalConfiguration.current.orientation
-    val showRail = shouldShowDiceRail(windowSizeClass.widthSizeClass, orientation)
+    val showRail = shouldShowDiceRail(
+        widthSizeClass = windowSizeClass.widthSizeClass,
+        isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+    )
     val recentRollsPlacement = recentRollsPlacement(orientation)
 
     if (showRail) {

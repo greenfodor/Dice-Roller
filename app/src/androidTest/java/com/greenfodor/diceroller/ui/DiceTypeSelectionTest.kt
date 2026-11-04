@@ -7,14 +7,18 @@ import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_change_die_type
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_die_value
 import com.greenfodor.diceroller.ui.screens.DiceType
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -73,7 +77,7 @@ class DiceTypeSelectionTest {
 
     /** How many dice the current screen draws — one for a single die, two for 2d6 and d100. */
     private fun diceOnScreen(): Int {
-        val prefix = string(R.string.cd_die_value, 0).substringBeforeLast(' ')
+        val prefix = string(Res.string.cd_die_value, 0).substringBeforeLast(' ')
         return composeTestRule
             .onAllNodes(hasContentDescription(prefix, substring = true))
             .fetchSemanticsNodes()
@@ -87,17 +91,17 @@ class DiceTypeSelectionTest {
     }
 
     private fun expandPicker() {
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(Res.string.cd_change_die_type)).performClick()
         composeTestRule.waitForIdle()
     }
 
     private fun tile(diceType: DiceType) =
-        composeTestRule.onNode(hasText(string(diceType.labelResId)) and isSelectable())
+        composeTestRule.onNode(hasText(string(diceType.label)) and isSelectable())
 
     private fun setContent() {
         composeTestRule.setContent { DiceRollerApp(windowSizeClass = CompactWindowSizeClass) }
     }
 
-    private fun string(resId: Int, vararg formatArgs: Any): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId, *formatArgs)
+    private fun string(resource: StringResource, vararg formatArgs: Any): String =
+        runBlocking { getString(resource, *formatArgs) }
 }

@@ -21,10 +21,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_change_die_type
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.dice_type_picker_title
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -144,18 +148,18 @@ class DiceTypePickerTest {
     }
 
     private fun assertSheetExpanded() {
-        composeTestRule.onNodeWithText(string(R.string.dice_type_picker_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.dice_type_picker_title)).assertIsDisplayed()
     }
 
     private fun assertSheetCollapsed() {
-        composeTestRule.onNodeWithText(string(R.string.dice_type_picker_title)).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.dice_type_picker_title)).assertIsNotDisplayed()
     }
 
     private fun handle() =
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type))
+        composeTestRule.onNodeWithContentDescription(string(Res.string.cd_change_die_type))
 
     private fun tile(diceType: DiceType) =
-        composeTestRule.onNode(hasText(string(diceType.labelResId)) and isSelectable())
+        composeTestRule.onNode(hasText(string(diceType.label)) and isSelectable())
 
     private fun setContent(
         initialDiceType: DiceType = DiceType.SINGLE_D6,
@@ -177,8 +181,7 @@ class DiceTypePickerTest {
         }
     }
 
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 
     private companion object {
         const val TOLERANCE_PX = 1f

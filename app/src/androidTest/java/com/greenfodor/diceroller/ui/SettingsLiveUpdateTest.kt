@@ -11,12 +11,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_open_settings
 import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
 import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.d6_face_style_numbers
 import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_single_label
@@ -28,6 +27,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res as DiceRes
 
 private class EmptyRollHistoryRepository : RollHistoryRepository {
     override val rolls = MutableStateFlow(emptyList<RollRecord>())
@@ -90,11 +90,8 @@ class SettingsLiveUpdateTest {
     }
 
     private fun openSettings() {
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_settings)).performClick()
     }
-
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
 
     private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 }

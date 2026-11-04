@@ -2,16 +2,8 @@ package com.greenfodor.diceroller.di
 
 import com.greenfodor.diceroller.data.di.coreDataModule
 import com.greenfodor.diceroller.ui.history.di.historyPresentationModule
-import com.greenfodor.diceroller.ui.screens.DiceViewModel
 import com.greenfodor.diceroller.ui.settings.di.settingsPresentationModule
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.dsl.module
-
-/** Provides the dice screen ViewModels. */
-val diceModule = module {
-    viewModelOf(::DiceViewModel)
-}
 
 /** Every module that provides a ViewModel. */
 val presentationModules: List<Module> = listOf(
