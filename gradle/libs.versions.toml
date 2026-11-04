@@ -87,7 +87,6 @@ compose-multiplatform-gradlePlugin = { group = "org.jetbrains.compose", name = "
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-android-library = { id = "com.android.library", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -102,8 +101,6 @@ compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMu
 
 # convention plugins (build-logic)
 diceroller-android-application = { id = "diceroller.android.application" }
-diceroller-android-library = { id = "diceroller.android.library" }
-diceroller-android-library-compose = { id = "diceroller.android.library.compose" }
 diceroller-android-test = { id = "diceroller.android.test" }
 diceroller-jvm-library = { id = "diceroller.jvm.library" }
 diceroller-kmp-library = { id = "diceroller.kmp.library" }

@@ -30,14 +30,6 @@ gradlePlugin {
             id = libs.plugins.diceroller.android.application.get().pluginId
             implementationClass = "AndroidApplicationConventionPlugin"
         }
-        register("androidLibrary") {
-            id = libs.plugins.diceroller.android.library.asProvider().get().pluginId
-            implementationClass = "AndroidLibraryConventionPlugin"
-        }
-        register("androidLibraryCompose") {
-            id = libs.plugins.diceroller.android.library.compose.get().pluginId
-            implementationClass = "AndroidLibraryComposeConventionPlugin"
-        }
         register("androidTest") {
             id = libs.plugins.diceroller.android.test.get().pluginId
             implementationClass = "AndroidTestConventionPlugin"
