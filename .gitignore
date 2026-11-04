@@ -28,7 +28,7 @@ proguard/
 captures/
 
 # Kotlin
-.kotlin/sessions
+.kotlin/
 # IntelliJ
 .idea/
 *.iml
