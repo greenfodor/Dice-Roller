@@ -5,9 +5,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
-/** Applies detekt (shared config plus compose-rules) and ktlint (with the disabled standard rules). */
+/**
+ * Applies detekt (shared config plus compose-rules) and ktlint (with the disabled standard rules).
+ * In Kotlin Multiplatform modules the `detekt` task scans the Kotlin sources of every source set.
+ */
 class LintConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
@@ -28,6 +32,17 @@ class LintConventionPlugin : Plugin<Project> {
 
             dependencies {
                 add("detektPlugins", libs.findLibrary("detekt-compose-rules").get())
+            }
+
+            pluginManager.withPlugin(libs.pluginId("kotlin-multiplatform")) {
+                val kotlinSourceDirs = provider {
+                    extensions.getByType(KotlinMultiplatformExtension::class.java)
+                        .sourceSets
+                        .flatMap { it.kotlin.srcDirs }
+                }
+                extensions.configure<DetektExtension> {
+                    source.setFrom(kotlinSourceDirs)
+                }
             }
         }
     }

@@ -32,7 +32,7 @@ import com.greenfodor.diceroller.feature.history.presentation.R
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
-import java.time.ZoneId
+import kotlinx.datetime.TimeZone
 
 private val DialogShape = RoundedCornerShape(28.dp)
 private val LoadingBoxHeight = 96.dp
@@ -61,12 +61,12 @@ private val FallbackListMaxHeight = 360.dp
  * Rendered inside the dialog window supplied by [rollHistoryEntry], which is why this composable
  * holds no `Dialog` of its own and previews normally.
  *
- * @param zoneId The zone each row's time is shown in.
+ * @param timeZone The zone each row's time is shown in.
  */
 @Composable
 fun RollHistoryContent(
     state: RollHistoryUiState,
-    zoneId: ZoneId,
+    timeZone: TimeZone,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -87,7 +87,7 @@ fun RollHistoryContent(
                 RollHistoryUiState.Empty -> RollHistoryMessage(textResId = R.string.roll_history_empty)
                 RollHistoryUiState.Error -> RollHistoryMessage(textResId = R.string.roll_history_error)
                 is RollHistoryUiState.Content ->
-                    RollHistoryList(sections = state.sections, zoneId = zoneId)
+                    RollHistoryList(sections = state.sections, timeZone = timeZone)
             }
 
             TextButton(
@@ -151,7 +151,7 @@ private fun rollHistoryListMaxHeight(): Dp {
 @Composable
 private fun RollHistoryList(
     sections: List<RollHistorySection>,
-    zoneId: ZoneId,
+    timeZone: TimeZone,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -163,7 +163,7 @@ private fun RollHistoryList(
                 RollHistoryDayHeader(day = section.day)
             }
             items(items = section.rolls, key = { it.id }) { record ->
-                RollHistoryRow(record = record, zoneId = zoneId)
+                RollHistoryRow(record = record, timeZone = timeZone)
             }
         }
     }
@@ -209,7 +209,7 @@ private fun RollHistoryContentPreview() {
                     )
                 )
             ),
-            zoneId = ZoneId.systemDefault(),
+            timeZone = TimeZone.currentSystemDefault(),
             onDismiss = {}
         )
     }
@@ -221,7 +221,7 @@ private fun RollHistoryContentEmptyPreview() {
     DiceRollerTheme {
         RollHistoryContent(
             state = RollHistoryUiState.Empty,
-            zoneId = ZoneId.systemDefault(),
+            timeZone = TimeZone.currentSystemDefault(),
             onDismiss = {}
         )
     }
@@ -233,7 +233,7 @@ private fun RollHistoryContentErrorPreview() {
     DiceRollerTheme {
         RollHistoryContent(
             state = RollHistoryUiState.Error,
-            zoneId = ZoneId.systemDefault(),
+            timeZone = TimeZone.currentSystemDefault(),
             onDismiss = {}
         )
     }
@@ -245,7 +245,7 @@ private fun RollHistoryContentLoadingPreview() {
     DiceRollerTheme {
         RollHistoryContent(
             state = RollHistoryUiState.Loading,
-            zoneId = ZoneId.systemDefault(),
+            timeZone = TimeZone.currentSystemDefault(),
             onDismiss = {}
         )
     }

@@ -1,9 +1,16 @@
 plugins {
-    alias(libs.plugins.diceroller.jvm.library)
+    alias(libs.plugins.diceroller.kmp.library)
 }
 
-dependencies {
-    api(libs.kotlinx.coroutines.core)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinx.coroutines.test)
+kotlin {
+    android {
+        namespace = "com.greenfodor.diceroller.core.domain"
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinx.coroutines.core)
+            api(libs.kotlinx.datetime)
+        }
+    }
 }

@@ -1,0 +1,59 @@
+package com.greenfodor.diceroller.ui.dice
+
+import com.greenfodor.diceroller.ui.dice.d10.D10
+import com.greenfodor.diceroller.ui.dice.d20.D20
+import com.greenfodor.diceroller.ui.dice.d4.D4
+import com.greenfodor.diceroller.ui.dice.d6.D6
+import com.greenfodor.diceroller.ui.dice.d8.D8
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class DieDefinitionTest {
+    @Test
+    fun `D6 definition is valid`() {
+        validateDie(D6, expectedFaceCount = 6)
+    }
+
+    @Test
+    fun `D4 definition is valid`() {
+        validateDie(D4, expectedFaceCount = 4)
+    }
+
+    @Test
+    fun `D8 definition is valid`() {
+        validateDie(D8, expectedFaceCount = 8)
+    }
+
+    @Test
+    fun `D10 definition is valid`() {
+        validateDie(D10, expectedFaceCount = 10)
+    }
+
+    @Test
+    fun `D20 definition is valid`() {
+        validateDie(D20, expectedFaceCount = 20)
+    }
+
+    private fun validateDie(
+        die: DieDefinition,
+        expectedFaceCount: Int
+    ) {
+        assertEquals(expectedFaceCount, die.faces.size, "Die should have $expectedFaceCount faces")
+
+        val values = die.faces.map { it.value }
+
+        // Check for correct range
+        assertTrue(
+            values.all { it in 1..expectedFaceCount },
+            "Die values should be in range 1..$expectedFaceCount"
+        )
+
+        // Check for duplicates
+        assertEquals(
+            expectedFaceCount,
+            values.distinct().size,
+            "Die should not have duplicate face values"
+        )
+    }
+}

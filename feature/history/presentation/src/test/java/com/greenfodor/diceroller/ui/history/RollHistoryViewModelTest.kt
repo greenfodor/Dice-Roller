@@ -19,15 +19,16 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.time.Clock
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 private class FakeRollHistoryRepository(
     initial: List<RollRecord> = emptyList()
@@ -64,20 +65,15 @@ private class FailingRollHistoryRepository : RollHistoryRepository {
 
 /** A [Clock] the test moves forward by hand. */
 private class MutableClock(
-    var now: Instant,
-    private val zone: ZoneId
-) : Clock() {
-    override fun getZone(): ZoneId = zone
-
-    override fun withZone(zone: ZoneId): Clock = MutableClock(now, zone)
-
-    override fun instant(): Instant = now
+    var now: Instant
+) : Clock {
+    override fun now(): Instant = now
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RollHistoryViewModelTest {
-    private val zone: ZoneId = ZoneId.of("Europe/Bucharest")
-    private val clock: Clock = Clock.fixed(Instant.ofEpochMilli(millisAt(2026, 8, 28, 14, 30)), zone)
+    private val zone: TimeZone = TimeZone.of("Europe/Bucharest")
+    private val clock: Clock = MutableClock(Instant.fromEpochMilliseconds(millisAt(2026, 8, 28, 14, 30)))
 
     @Before
     fun setUp() {
@@ -130,7 +126,7 @@ class RollHistoryViewModelTest {
             listOf(
                 RollHistoryDay.Today,
                 RollHistoryDay.Yesterday,
-                RollHistoryDay.Earlier(LocalDate.of(2026, 8, 20))
+                RollHistoryDay.Earlier(LocalDate(2026, 8, 20))
             ),
             content.sections.map { it.day }
         )
@@ -163,13 +159,13 @@ class RollHistoryViewModelTest {
     @Test
     fun `a rolls day header moves from Today to Yesterday once local midnight passes`() = runTest {
         val repository = FakeRollHistoryRepository(listOf(roll(timestampMillis = millisAt(2026, 8, 28, 23, 0))))
-        val movingClock = MutableClock(Instant.ofEpochMilli(millisAt(2026, 8, 28, 23, 30)), zone)
+        val movingClock = MutableClock(Instant.fromEpochMilliseconds(millisAt(2026, 8, 28, 23, 30)))
         val viewModel = RollHistoryViewModel(repository, movingClock, zone)
         val states = mutableListOf<RollHistoryUiState>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.toList(states) }
         assertEquals(RollHistoryDay.Today, states.lastDay())
 
-        movingClock.now = Instant.ofEpochMilli(millisAt(2026, 8, 29, 0, 1))
+        movingClock.now = Instant.fromEpochMilliseconds(millisAt(2026, 8, 29, 0, 1))
         advanceTimeBy(PAST_MIDNIGHT_MILLIS)
 
         assertEquals(RollHistoryDay.Yesterday, states.lastDay())
@@ -179,7 +175,7 @@ class RollHistoryViewModelTest {
         (last() as RollHistoryUiState.Content).sections.single().day
 
     private fun millisAt(year: Int, month: Int, day: Int, hour: Int, minute: Int): Long =
-        LocalDateTime.of(year, month, day, hour, minute).atZone(zone).toInstant().toEpochMilli()
+        LocalDateTime(year, month, day, hour, minute).toInstant(zone).toEpochMilliseconds()
 
     private fun roll(dieLabel: String = DieLabels.D6, timestampMillis: Long): RollRecord =
         RollRecord(dieLabel = dieLabel, values = listOf(4), total = 4, timestampMillis = timestampMillis)

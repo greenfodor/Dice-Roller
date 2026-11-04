@@ -14,7 +14,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule
 import org.koin.test.get
-import java.time.Clock
+import kotlin.time.Clock
 
 class CoreDataModuleTest : KoinTest {
     @get:Rule
@@ -35,7 +35,7 @@ class CoreDataModuleTest : KoinTest {
 
     @Test
     fun aClockIsAvailableForInjection() {
-        assertTrue(get<Clock>().millis() > 0L)
+        assertTrue(get<Clock>().now().toEpochMilliseconds() > 0L)
     }
 
     @Test

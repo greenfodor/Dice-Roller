@@ -45,6 +45,10 @@ gradlePlugin {
             id = libs.plugins.diceroller.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"
         }
+        register("kmpLibrary") {
+            id = libs.plugins.diceroller.kmp.library.get().pluginId
+            implementationClass = "KmpLibraryConventionPlugin"
+        }
         register("lint") {
             id = libs.plugins.diceroller.lint.get().pluginId
             implementationClass = "LintConventionPlugin"

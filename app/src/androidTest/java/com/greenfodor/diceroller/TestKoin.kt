@@ -8,12 +8,12 @@ import com.greenfodor.diceroller.di.presentationModules
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.datetime.TimeZone
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.test.KoinTestRule
-import java.time.Clock
-import java.time.ZoneId
+import kotlin.time.Clock
 
 /** The application context of the app under test. */
 val targetApplicationContext: Context
@@ -29,8 +29,8 @@ fun fakeDataModule(
 ): Module = module {
     single { rollHistoryRepository }
     single { settingsRepository }
-    single<Clock> { Clock.systemDefaultZone() }
-    factory<ZoneId> { ZoneId.systemDefault() }
+    single<Clock> { Clock.System }
+    factory<TimeZone> { TimeZone.currentSystemDefault() }
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
 }
 

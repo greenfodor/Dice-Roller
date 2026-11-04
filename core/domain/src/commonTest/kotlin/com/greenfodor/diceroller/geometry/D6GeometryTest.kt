@@ -1,0 +1,143 @@
+package com.greenfodor.diceroller.geometry
+
+import com.greenfodor.diceroller.ui.dice.d6.D6
+import kotlin.math.sqrt
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class D6GeometryTest {
+    @Test
+    fun `hexahedron has 8 vertices and 6 faces`() {
+        assertEquals(8, HexahedronGeometry.vertices.size)
+        assertEquals(6, HexahedronGeometry.faces.size)
+    }
+
+    @Test
+    fun `all vertices lie on the same circumsphere`() {
+        val radii = HexahedronGeometry.vertices.map { v ->
+            sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+        }
+        val expected = radii.first()
+        radii.forEach { r ->
+            assertEquals(expected, r, 0.001f, "All vertices should have equal circumradius")
+        }
+    }
+
+    @Test
+    fun `circumradius matches D4 and D8 for consistent apparent size`() {
+        val expectedRadius = sqrt(3f)
+        HexahedronGeometry.vertices.forEach { v ->
+            val radius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+            assertEquals(expectedRadius, radius, 0.001f, "Circumradius should be √3")
+        }
+    }
+
+    @Test
+    fun `face values cover 1 through 6 without duplicates`() {
+        val values = HexahedronGeometry.faces.map { it.value }.sorted()
+        assertEquals(listOf(1, 2, 3, 4, 5, 6), values, "Should have 6 faces")
+    }
+
+    @Test
+    fun `opposite faces sum to 7`() {
+        val faceNormals = HexahedronGeometry.faces.map { face ->
+            val v0 = HexahedronGeometry.vertices[face.vertexIndices[0]]
+            val v1 = HexahedronGeometry.vertices[face.vertexIndices[1]]
+            val v2 = HexahedronGeometry.vertices[face.vertexIndices[2]]
+            val normal = (v1 - v0).cross(v2 - v0).normalize()
+            face.value to normal
+        }
+
+        faceNormals.forEach { (value, normal) ->
+            val opposite = faceNormals.find { (_, otherNormal) ->
+                normal.dot(otherNormal) < -0.99f
+            }
+            assertTrue(opposite != null, "Face $value should have an antipodal face")
+            assertEquals(
+                7,
+                value + opposite.first,
+                "Face $value and its opposite should sum to 7"
+            )
+        }
+    }
+
+    @Test
+    fun `all D6 faces have outward pointing normals`() {
+        HexahedronGeometry.faces.forEach { face ->
+            val v0 = HexahedronGeometry.vertices[face.vertexIndices[0]]
+            val v1 = HexahedronGeometry.vertices[face.vertexIndices[1]]
+            val v2 = HexahedronGeometry.vertices[face.vertexIndices[2]]
+            val v3 = HexahedronGeometry.vertices[face.vertexIndices[3]]
+
+            val normal = (v1 - v0).cross(v2 - v0)
+            val center = (v0 + v1 + v2 + v3) * 0.25f
+
+            assertTrue(
+                normal.dot(center) > 0,
+                "Face ${face.value} normal should point outward (dot product: ${normal.dot(center)})"
+            )
+        }
+    }
+
+    @Test
+    fun `getFaceRotation brings target face normal to camera direction`() {
+        HexahedronGeometry.faces.forEach { face ->
+            val (rx, ry, rz) = HexahedronGeometry.getFaceRotation(face)
+
+            val v0 = HexahedronGeometry.vertices[face.vertexIndices[0]]
+            val v1 = HexahedronGeometry.vertices[face.vertexIndices[1]]
+            val v2 = HexahedronGeometry.vertices[face.vertexIndices[2]]
+
+            val normal = (v1 - v0).cross(v2 - v0).normalize()
+            val rotatedNormal = normal.rotatePoint(rx, ry, rz)
+
+            assertEquals(0f, rotatedNormal.x, 0.01f, "Face ${face.value}: Normal X should be 0")
+            assertEquals(0f, rotatedNormal.y, 0.01f, "Face ${face.value}: Normal Y should be 0")
+            assertTrue(rotatedNormal.z > 0.99f, "Face ${face.value}: Normal Z should be positive")
+        }
+    }
+
+    @Test
+    fun `getFaceRotation orients face to be axis-aligned and flat`() {
+        HexahedronGeometry.faces.forEach { face ->
+            val (rx, ry, rz) = HexahedronGeometry.getFaceRotation(face)
+
+            val vIndices = face.vertexIndices
+            val rotatedVertices = vIndices.map { HexahedronGeometry.vertices[it].rotatePoint(rx, ry, rz) }
+
+            // In a flat/axis-aligned square, top/bottom edges are horizontal (equal Y)
+            // and left/right edges are vertical (equal X).
+            // Indices 2 and 3 are the 'top' edge in our winding.
+            assertEquals(
+                rotatedVertices[2].y,
+                rotatedVertices[3].y,
+                0.01f,
+                "Face ${face.value}: Top edge should be horizontal"
+            )
+        }
+    }
+
+    @Test
+    fun `D6 face rotation brings the matching pip face to the front`() {
+        // The renderer assigns pips by HexahedronGeometry face value, so the rotation that
+        // D6 picks for a rolled value must bring that same geometry face to the camera (+Z).
+        // Guards against value/pip desync (e.g. the historical 3-vs-4 swap).
+        HexahedronGeometry.faces.forEach { geometryFace ->
+            val dieFace = D6.faces.first { it.value == geometryFace.value }
+
+            val v0 = HexahedronGeometry.vertices[geometryFace.vertexIndices[0]]
+            val v1 = HexahedronGeometry.vertices[geometryFace.vertexIndices[1]]
+            val v2 = HexahedronGeometry.vertices[geometryFace.vertexIndices[2]]
+            val normal = (v1 - v0).cross(v2 - v0).normalize()
+
+            val rotatedNormal = normal.rotatePoint(dieFace.rotationX, dieFace.rotationY, dieFace.rotationZ)
+
+            assertTrue(
+                rotatedNormal.z > 0.99f,
+                "Rolling ${geometryFace.value} should bring its own pip face to the front " +
+                    "(rotated normal z=${rotatedNormal.z})"
+            )
+        }
+    }
+}

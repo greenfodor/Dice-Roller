@@ -24,12 +24,12 @@ import com.greenfodor.diceroller.data.RollHistorySection
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.feature.history.presentation.R
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDate
-import java.time.ZoneId
 
 @RunWith(AndroidJUnit4::class)
 class RollHistoryContentTest {
@@ -87,7 +87,7 @@ class RollHistoryContentTest {
             RollHistoryUiState.Content(
                 listOf(
                     RollHistorySection(
-                        day = RollHistoryDay.Earlier(LocalDate.of(2026, 8, 20)),
+                        day = RollHistoryDay.Earlier(LocalDate(2026, 8, 20)),
                         rolls = listOf(record(id = 1, dieLabel = DieLabels.D8, values = listOf(7), total = 7))
                     )
                 )
@@ -125,7 +125,7 @@ class RollHistoryContentTest {
         var state: RollHistoryUiState by mutableStateOf(RollHistoryUiState.Loading)
         composeTestRule.setContent {
             DiceRollerTheme {
-                RollHistoryContent(state = state, zoneId = ZONE, onDismiss = {})
+                RollHistoryContent(state = state, timeZone = ZONE, onDismiss = {})
             }
         }
 
@@ -198,7 +198,7 @@ class RollHistoryContentTest {
         composeTestRule.setContent {
             DiceRollerTheme {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    RollHistoryContent(state = contentState(), zoneId = ZONE, onDismiss = {})
+                    RollHistoryContent(state = contentState(), timeZone = ZONE, onDismiss = {})
                 }
             }
         }
@@ -220,7 +220,7 @@ class RollHistoryContentTest {
                         state = RollHistoryUiState.Content(
                             listOf(RollHistorySection(day = RollHistoryDay.Today, rolls = manyRolls))
                         ),
-                        zoneId = ZONE,
+                        timeZone = ZONE,
                         onDismiss = {}
                     )
                 }
@@ -238,7 +238,7 @@ class RollHistoryContentTest {
     ) {
         composeTestRule.setContent {
             DiceRollerTheme {
-                RollHistoryContent(state = state, zoneId = ZONE, onDismiss = onDismiss)
+                RollHistoryContent(state = state, timeZone = ZONE, onDismiss = onDismiss)
             }
         }
     }
@@ -274,7 +274,7 @@ class RollHistoryContentTest {
         InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
 
     private companion object {
-        val ZONE: ZoneId = ZoneId.of("Europe/Bucharest")
+        val ZONE: TimeZone = TimeZone.of("Europe/Bucharest")
         const val FIXED_TIMESTAMP_MILLIS = 1_787_000_000_000L
         const val LONG_HISTORY_SIZE = 40
     }
