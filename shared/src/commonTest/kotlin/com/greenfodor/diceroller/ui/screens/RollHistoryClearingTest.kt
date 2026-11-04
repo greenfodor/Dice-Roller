@@ -23,10 +23,10 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 private class FakeRollHistoryRepository : RollHistoryRepository {
     private val state = MutableStateFlow(emptyList<RollRecord>())
@@ -96,13 +96,13 @@ private class FakeSettingsRepository : SettingsRepository {
 class RollHistoryClearingTest {
     private lateinit var applicationScope: CoroutineScope
 
-    @Before
+    @BeforeTest
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         applicationScope = CoroutineScope(UnconfinedTestDispatcher())
     }
 
-    @After
+    @AfterTest
     fun tearDown() {
         applicationScope.cancel()
         Dispatchers.resetMain()

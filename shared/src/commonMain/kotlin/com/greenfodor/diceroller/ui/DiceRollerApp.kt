@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.SizeTransform
@@ -26,11 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
@@ -42,8 +38,8 @@ import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.RollOutcome
-import com.greenfodor.diceroller.sensors.supportsHaptics
-import com.greenfodor.diceroller.sensors.supportsShakeDetection
+import com.greenfodor.diceroller.sensors.rememberRollHaptics
+import com.greenfodor.diceroller.sensors.rememberShakeDetectionSupported
 import com.greenfodor.diceroller.ui.components.DiceRollerTopBar
 import com.greenfodor.diceroller.ui.components.DiceTypePickerSheet
 import com.greenfodor.diceroller.ui.components.DiceTypeRail
@@ -87,22 +83,22 @@ import org.koin.compose.viewmodel.koinViewModel
  * nothing renders and the splash screen stays up (via [onReady]) to avoid a theme flash.
  *
  * @param windowSizeClass Size class of the window the app is drawn in, used to decide whether the
- * dice screen selects its die type through a permanent rail or a peeking bottom sheet.
+ * dice screen selects its die type through a permanent rail or a peeking bottom sheet. Defaults to
+ * [currentWindowSizeClass].
  * @param onReady Callback once the persisted theme has loaded and the first frame can be drawn.
  * @param appSettingsViewModel Activity-scoped source of the app-wide settings.
  */
 @Composable
 fun DiceRollerApp(
-    windowSizeClass: WindowSizeClass,
+    windowSizeClass: WindowSizeClass = currentWindowSizeClass(),
     onReady: () -> Unit = {},
     appSettingsViewModel: SettingsViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     val themeMode by appSettingsViewModel.themeMode.collectAsStateWithLifecycle()
     val hapticFeedbackEnabled by appSettingsViewModel.hapticFeedbackEnabled.collectAsStateWithLifecycle()
-    val hapticFeedbackSupported = remember(context) { context.supportsHaptics() }
+    val hapticFeedbackSupported = rememberRollHaptics().isSupported
     val shakeToRollEnabled by appSettingsViewModel.shakeToRollEnabled.collectAsStateWithLifecycle()
-    val shakeToRollSupported = remember(context) { context.supportsShakeDetection() }
+    val shakeToRollSupported = rememberShakeDetectionSupported()
     val d6FaceStyle by appSettingsViewModel.d6FaceStyle.collectAsStateWithLifecycle()
     val diceColorSettings by appSettingsViewModel.diceColorSettings.collectAsStateWithLifecycle()
 
@@ -110,7 +106,7 @@ fun DiceRollerApp(
 
     LaunchedEffect(Unit) { onReady() }
 
-    val backStack = rememberNavBackStack(DiceRoute)
+    val backStack = rememberNavBackStack(navSavedStateConfiguration, DiceRoute)
 
     DiceRollerTheme(darkTheme = resolveDarkTheme(mode), diceColorSettings = diceColorSettings) {
         NavDisplay(
@@ -194,12 +190,9 @@ private fun DiceHome(
     onOpenHistory: () -> Unit,
     onOpenSettings: () -> Unit
 ) {
-    val orientation = LocalConfiguration.current.orientation
-    val showRail = shouldShowDiceRail(
-        widthSizeClass = windowSizeClass.widthSizeClass,
-        isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
-    )
-    val recentRollsPlacement = recentRollsPlacement(orientation)
+    val isLandscape = isLandscapeWindow()
+    val showRail = shouldShowDiceRail(widthSizeClass = windowSizeClass.widthSizeClass, isLandscape = isLandscape)
+    val recentRollsPlacement = recentRollsPlacement(isLandscape)
 
     if (showRail) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -248,12 +241,11 @@ private data class RecentRollsPlacement(
  * Anchors the recent rolls wheel to the end edge in landscape and to the top center in portrait,
  * where it sits directly under the top bar.
  *
- * @param orientation Orientation of the current configuration, one of the
- * `Configuration.ORIENTATION_*` values.
+ * @param isLandscape Whether the window is in landscape orientation.
  */
 @Composable
-private fun recentRollsPlacement(orientation: Int): RecentRollsPlacement =
-    if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+private fun recentRollsPlacement(isLandscape: Boolean): RecentRollsPlacement =
+    if (isLandscape) {
         RecentRollsPlacement(
             alignment = Alignment.CenterEnd,
             padding = PaddingValues(end = MaterialTheme.spacing.medium)
