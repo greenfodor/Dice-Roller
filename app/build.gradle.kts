@@ -1,8 +1,6 @@
 plugins {
     alias(libs.plugins.diceroller.android.application)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
 }
 
 android {
@@ -13,7 +11,7 @@ android {
         versionCode = 1
         versionName = "1.0.0"
 
-        testInstrumentationRunner = "com.greenfodor.diceroller.HiltTestRunner"
+        testInstrumentationRunner = "com.greenfodor.diceroller.KoinTestRunner"
     }
 
     buildTypes {
@@ -45,9 +43,9 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.core.ktx)
@@ -63,12 +61,15 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(platform(libs.koin.bom))
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.android.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.hilt.android.testing)
-    kspAndroidTest(libs.hilt.compiler)
+    androidTestImplementation(platform(libs.koin.bom))
+    androidTestImplementation(libs.koin.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

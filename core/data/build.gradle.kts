@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.diceroller.android.library)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.room)
 }
 
@@ -20,8 +19,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

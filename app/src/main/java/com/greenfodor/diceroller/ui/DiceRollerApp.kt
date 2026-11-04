@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderScope
@@ -75,6 +74,7 @@ import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.utils.LocalD6FaceStyle
 import com.greenfodor.diceroller.ui.utils.LocalHapticsEnabled
 import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Root composable. Owns the back stack and the app-wide configuration.
@@ -95,7 +95,7 @@ import com.greenfodor.diceroller.ui.utils.LocalShakeToRollEnabled
 fun DiceRollerApp(
     windowSizeClass: WindowSizeClass,
     onReady: () -> Unit = {},
-    appSettingsViewModel: SettingsViewModel = hiltViewModel()
+    appSettingsViewModel: SettingsViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val themeMode by appSettingsViewModel.themeMode.collectAsStateWithLifecycle()
@@ -161,8 +161,8 @@ private fun EntryProviderScope<NavKey>.diceEntry(
     onOpenSettings: () -> Unit
 ) {
     entry<DiceRoute> {
-        val diceViewModel: DiceViewModel = hiltViewModel()
-        val recentRollsViewModel: RecentRollsViewModel = hiltViewModel()
+        val diceViewModel: DiceViewModel = koinViewModel()
+        val recentRollsViewModel: RecentRollsViewModel = koinViewModel()
         val recentRolls by recentRollsViewModel.recentRolls.collectAsStateWithLifecycle()
         val selectedDiceTypeKey by settingsViewModel.selectedDiceType.collectAsStateWithLifecycle()
 

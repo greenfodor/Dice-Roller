@@ -6,32 +6,20 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
-import com.greenfodor.diceroller.HiltTestActivity
 import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
-import com.greenfodor.diceroller.data.SettingsRepository
-import com.greenfodor.diceroller.data.di.DataModule
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.greenfodor.diceroller.fakeDataKoinTestRule
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.Clock
-import java.time.ZoneId
 import com.greenfodor.diceroller.feature.settings.presentation.R as SettingsR
 
 private class EmptyRollHistoryRepository : RollHistoryRepository {
@@ -46,34 +34,12 @@ private class EmptyRollHistoryRepository : RollHistoryRepository {
  * Drives the real [DiceRollerApp] back stack to check that a setting changed on screen is
  * rendered straight away.
  */
-@HiltAndroidTest
-@UninstallModules(DataModule::class)
 class SettingsLiveUpdateTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val koinTestRule = fakeDataKoinTestRule(EmptyRollHistoryRepository(), FakeSettingsRepository())
 
     @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
-
-    @BindValue
-    val repository: RollHistoryRepository = EmptyRollHistoryRepository()
-
-    @BindValue
-    val settingsRepository: SettingsRepository = FakeSettingsRepository()
-
-    @BindValue
-    val clock: Clock = Clock.systemDefaultZone()
-
-    @BindValue
-    val zoneId: ZoneId = ZoneId.systemDefault()
-
-    @BindValue
-    val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    @Before
-    fun inject() {
-        hiltRule.inject()
-    }
+    val composeTestRule = createComposeRule()
 
     @Test
     fun choosingTheNumbersD6FaceStyleMarksItSelectedWhileStillOnTheSettingsScreen() {

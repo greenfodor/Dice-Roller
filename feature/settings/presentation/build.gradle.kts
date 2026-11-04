@@ -1,8 +1,6 @@
 plugins {
     alias(libs.plugins.diceroller.android.library.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
 }
 
 android {
@@ -22,9 +20,8 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core.viewmodel)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     debugImplementation(libs.androidx.compose.ui.tooling)

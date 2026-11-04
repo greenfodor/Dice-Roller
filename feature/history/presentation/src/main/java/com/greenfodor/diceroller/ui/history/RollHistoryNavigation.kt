@@ -2,12 +2,12 @@ package com.greenfodor.diceroller.ui.history
 
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.scene.DialogSceneStrategy
 import kotlinx.serialization.Serializable
+import org.koin.compose.viewmodel.koinViewModel
 
 /** The roll history pop-up, shown over whichever screen is underneath it. */
 @Serializable
@@ -27,7 +27,7 @@ fun EntryProviderScope<NavKey>.rollHistoryEntry(onDismiss: () -> Unit) {
             DialogProperties(usePlatformDefaultWidth = false)
         )
     ) {
-        val viewModel: RollHistoryViewModel = hiltViewModel()
+        val viewModel: RollHistoryViewModel = koinViewModel()
         val state by viewModel.uiState.collectAsStateWithLifecycle()
 
         RollHistoryContent(state = state, zoneId = viewModel.zoneId, onDismiss = onDismiss)
