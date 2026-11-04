@@ -17,10 +17,17 @@ import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.d6_face_style_numbers
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_single_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_dice_colors_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.theme_dark
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
-import com.greenfodor.diceroller.feature.settings.presentation.R as SettingsR
 
 private class EmptyRollHistoryRepository : RollHistoryRepository {
     override val rolls = MutableStateFlow(emptyList<RollRecord>())
@@ -46,9 +53,9 @@ class SettingsLiveUpdateTest {
         setContent()
         openSettings()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.d6_face_style_numbers)).performScrollTo().performClick()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).assertIsSelected()
+        composeTestRule.onNodeWithText(string(Res.string.d6_face_style_numbers)).assertIsSelected()
     }
 
     @Test
@@ -56,21 +63,21 @@ class SettingsLiveUpdateTest {
         setContent()
         openSettings()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.theme_dark)).performScrollTo().performClick()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).assertIsSelected()
+        composeTestRule.onNodeWithText(string(Res.string.theme_dark)).assertIsSelected()
     }
 
     @Test
     fun togglingOneColorForAllDiceFlipsItsSwitchWhileStillOnTheDiceColorsScreen() {
         setContent()
         openSettings()
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_dice_colors_label))
+        composeTestRule.onNodeWithText(string(Res.string.settings_dice_colors_label))
             .performScrollTo()
             .performClick()
 
         val singleColorSwitch = composeTestRule.onNode(
-            isToggleable() and hasAnySibling(hasText(string(SettingsR.string.dice_colors_single_label)))
+            isToggleable() and hasAnySibling(hasText(string(Res.string.dice_colors_single_label)))
         )
 
         singleColorSwitch.assertIsOff()
@@ -88,4 +95,6 @@ class SettingsLiveUpdateTest {
 
     private fun string(resId: Int): String =
         InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 }

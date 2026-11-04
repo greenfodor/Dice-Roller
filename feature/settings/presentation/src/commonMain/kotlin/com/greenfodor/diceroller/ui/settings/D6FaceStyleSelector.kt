@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -12,24 +11,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.data.D6FaceStyle
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.d6_face_style_numbers
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.d6_face_style_pips
 import com.greenfodor.diceroller.ui.icons.Casino
 import com.greenfodor.diceroller.ui.icons.DiceIcons
 import com.greenfodor.diceroller.ui.icons.Numbers
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 private data class D6FaceStyleOption(
     val style: D6FaceStyle,
-    @field:StringRes val labelResId: Int,
+    val label: StringResource,
     val icon: ImageVector
 )
 
 private val d6FaceStyleOptions = listOf(
-    D6FaceStyleOption(D6FaceStyle.PIPS, R.string.d6_face_style_pips, DiceIcons.Casino),
-    D6FaceStyleOption(D6FaceStyle.NUMBERS, R.string.d6_face_style_numbers, DiceIcons.Numbers)
+    D6FaceStyleOption(D6FaceStyle.PIPS, Res.string.d6_face_style_pips, DiceIcons.Casino),
+    D6FaceStyleOption(D6FaceStyle.NUMBERS, Res.string.d6_face_style_numbers, DiceIcons.Numbers)
 )
 
 /**
@@ -50,7 +52,7 @@ fun D6FaceStyleSelector(
                 onClick = { onSelected(option.style) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = d6FaceStyleOptions.size),
                 icon = { Icon(imageVector = option.icon, contentDescription = null) },
-                label = { Text(text = stringResource(option.labelResId)) }
+                label = { Text(text = stringResource(option.label)) }
             )
         }
     }

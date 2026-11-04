@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.annotation.StringRes
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -10,13 +9,23 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.data.DiceColorOption
 import com.greenfodor.diceroller.data.DiceColorSettings
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.ThemeMode
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_teal
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_all_dice_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d4_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d6_secondary_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_defaults
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_cancel
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_confirm
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_title
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -27,10 +36,7 @@ class DiceColorsScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private fun string(
-        @StringRes resId: Int
-    ): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 
     private fun setContent(
         settings: DiceColorSettings = DiceColorSettings(),
@@ -72,17 +78,17 @@ class DiceColorsScreenTest {
     fun singleColorMode_showsAllDiceSection_andHidesPerDieSections() {
         setContent(settings = DiceColorSettings(useSingleColor = true))
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_all_dice_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_d4_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_all_dice_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_d4_title)).assertDoesNotExist()
     }
 
     @Test
     fun perDieMode_showsPerDieSections_andHidesAllDiceSection() {
         setContent(settings = DiceColorSettings(useSingleColor = false))
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_d4_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_d6_secondary_title)).assertExists()
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_all_dice_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_d4_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_d6_secondary_title)).assertExists()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_all_dice_title)).assertDoesNotExist()
     }
 
     @Test
@@ -93,7 +99,7 @@ class DiceColorsScreenTest {
             onSingleColorSelected = { selected = it }
         )
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.dice_color_teal)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(Res.string.dice_color_teal)).performClick()
 
         assertEquals(DiceColorOption.TEAL, selected)
     }
@@ -111,7 +117,7 @@ class DiceColorsScreenTest {
         )
 
         // D4 is the first target, so its picker holds the first set of swatches.
-        composeTestRule.onAllNodesWithContentDescription(string(R.string.dice_color_teal))[0].performClick()
+        composeTestRule.onAllNodesWithContentDescription(string(Res.string.dice_color_teal))[0].performClick()
 
         assertEquals(DieColorTarget.D4, target)
         assertEquals(DiceColorOption.TEAL, option)
@@ -122,10 +128,10 @@ class DiceColorsScreenTest {
         var restored = false
         setContent(onRestoreDefaults = { restored = true })
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_defaults))
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_defaults))
             .performScrollTo().performClick()
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_dialog_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_dialog_title)).assertIsDisplayed()
         assertEquals(false, restored)
     }
 
@@ -134,9 +140,9 @@ class DiceColorsScreenTest {
         var restored = false
         setContent(onRestoreDefaults = { restored = true })
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_defaults))
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_defaults))
             .performScrollTo().performClick()
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_dialog_confirm)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_dialog_confirm)).performClick()
 
         assertEquals(true, restored)
     }
@@ -146,11 +152,11 @@ class DiceColorsScreenTest {
         var restored = false
         setContent(onRestoreDefaults = { restored = true })
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_defaults))
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_defaults))
             .performScrollTo().performClick()
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_dialog_cancel)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_dialog_cancel)).performClick()
 
-        composeTestRule.onNodeWithText(string(R.string.dice_colors_restore_dialog_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(Res.string.dice_colors_restore_dialog_title)).assertDoesNotExist()
         assertEquals(false, restored)
     }
 }

@@ -10,22 +10,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_unsupported
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A labeled [Switch] row for a boolean setting. When [supported] is `false` the device lacks
  * the required capability, so the switch is forced off, disabled (grayed out), and the
- * [unsupportedMessageResId] explanation is shown beneath it.
+ * [unsupportedMessage] explanation is shown beneath it.
  */
 @Composable
 fun SettingSwitchRow(
     label: String,
     enabled: Boolean,
     supported: Boolean,
-    unsupportedMessageResId: Int,
+    unsupportedMessage: StringResource,
     onToggle: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -47,7 +49,7 @@ fun SettingSwitchRow(
         }
         if (supported.not()) {
             Text(
-                text = stringResource(unsupportedMessageResId),
+                text = stringResource(unsupportedMessage),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -64,7 +66,7 @@ private fun SettingSwitchRowPreview() {
                 label = "Roll vibration",
                 enabled = true,
                 supported = true,
-                unsupportedMessageResId = R.string.settings_unsupported,
+                unsupportedMessage = Res.string.settings_unsupported,
                 onToggle = {}
             )
         }
@@ -80,7 +82,7 @@ private fun SettingSwitchRowUnsupportedPreview() {
                 label = "Shake to roll",
                 enabled = false,
                 supported = false,
-                unsupportedMessageResId = R.string.settings_unsupported,
+                unsupportedMessage = Res.string.settings_unsupported,
                 onToggle = {}
             )
         }

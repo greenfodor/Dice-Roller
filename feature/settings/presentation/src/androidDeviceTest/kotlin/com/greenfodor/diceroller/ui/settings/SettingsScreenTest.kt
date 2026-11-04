@@ -1,17 +1,26 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.annotation.StringRes
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.ThemeMode
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.d6_face_style_numbers
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_cancel
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_confirm
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_dice_colors_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_unsupported
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.theme_dark
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -22,10 +31,7 @@ class SettingsScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private fun string(
-        @StringRes resId: Int
-    ): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 
     private fun setContent(
         themeMode: ThemeMode = ThemeMode.FOLLOW_SYSTEM,
@@ -69,7 +75,7 @@ class SettingsScreenTest {
         var selected: ThemeMode? = null
         setContent(onThemeModeSelected = { selected = it })
 
-        composeTestRule.onNodeWithText(string(R.string.theme_dark)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.theme_dark)).performClick()
 
         assertEquals(ThemeMode.DARK, selected)
     }
@@ -101,7 +107,7 @@ class SettingsScreenTest {
         var selected: D6FaceStyle? = null
         setContent(d6FaceStyle = D6FaceStyle.PIPS, onD6FaceStyleSelected = { selected = it })
 
-        composeTestRule.onNodeWithText(string(R.string.d6_face_style_numbers)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.d6_face_style_numbers)).performClick()
 
         assertEquals(D6FaceStyle.NUMBERS, selected)
     }
@@ -110,14 +116,14 @@ class SettingsScreenTest {
     fun whenHapticsUnsupported_showsUnsupportedMessage() {
         setContent(hapticFeedbackEnabled = false, hapticFeedbackSupported = false)
 
-        composeTestRule.onNodeWithText(string(R.string.settings_unsupported)).assertExists()
+        composeTestRule.onNodeWithText(string(Res.string.settings_unsupported)).assertExists()
     }
 
     @Test
     fun whenShakeUnsupported_showsUnsupportedMessage() {
         setContent(shakeToRollEnabled = false, shakeToRollSupported = false)
 
-        composeTestRule.onNodeWithText(string(R.string.settings_unsupported)).assertExists()
+        composeTestRule.onNodeWithText(string(Res.string.settings_unsupported)).assertExists()
     }
 
     @Test
@@ -125,9 +131,9 @@ class SettingsScreenTest {
         var cleared = false
         setContent(onClearRollHistory = { cleared = true })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_title)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_title)).performScrollTo().performClick()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_title)).assertExists()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_dialog_title)).assertExists()
         assertEquals(false, cleared)
     }
 
@@ -136,8 +142,8 @@ class SettingsScreenTest {
         var cleared = false
         setContent(onClearRollHistory = { cleared = true })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_title)).performScrollTo().performClick()
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_confirm)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_title)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_dialog_confirm)).performClick()
 
         assertEquals(true, cleared)
     }
@@ -147,10 +153,10 @@ class SettingsScreenTest {
         var cleared = false
         setContent(onClearRollHistory = { cleared = true })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_title)).performScrollTo().performClick()
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_cancel)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_title)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_dialog_cancel)).performClick()
 
-        composeTestRule.onNodeWithText(string(R.string.settings_clear_history_dialog_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(Res.string.settings_clear_history_dialog_title)).assertDoesNotExist()
         assertEquals(false, cleared)
     }
 
@@ -159,7 +165,7 @@ class SettingsScreenTest {
         var opened = false
         setContent(onOpenDiceColors = { opened = true })
 
-        composeTestRule.onNodeWithText(string(R.string.settings_dice_colors_title)).performClick()
+        composeTestRule.onNodeWithText(string(Res.string.settings_dice_colors_title)).performClick()
 
         assertEquals(true, opened)
     }

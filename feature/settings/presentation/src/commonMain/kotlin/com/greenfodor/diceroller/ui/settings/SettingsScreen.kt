@@ -26,16 +26,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.data.D6FaceStyle
 import com.greenfodor.diceroller.data.ThemeMode
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.cd_back
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_d6_face_style_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_dice_colors_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_dice_colors_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_haptics_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_haptics_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_shake_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_shake_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_theme_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_unsupported
 import com.greenfodor.diceroller.ui.icons.ArrowBack
 import com.greenfodor.diceroller.ui.icons.DiceIcons
 import com.greenfodor.diceroller.ui.icons.KeyboardArrowRight
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Settings screen. Currently, exposes the theme selector; structured so future settings
@@ -61,12 +72,12 @@ fun SettingsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.settings_title)) },
+                title = { Text(text = stringResource(Res.string.settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = DiceIcons.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_back)
+                            contentDescription = stringResource(Res.string.cd_back)
                         )
                     }
                 },
@@ -87,7 +98,7 @@ fun SettingsScreen(
                 .padding(horizontal = MaterialTheme.spacing.medium)
         ) {
             Text(
-                text = stringResource(R.string.settings_theme_title),
+                text = stringResource(Res.string.settings_theme_title),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
@@ -99,37 +110,37 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
             Text(
-                text = stringResource(R.string.settings_haptics_title),
+                text = stringResource(Res.string.settings_haptics_title),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             SettingSwitchRow(
-                label = stringResource(R.string.settings_haptics_label),
+                label = stringResource(Res.string.settings_haptics_label),
                 enabled = state.hapticFeedbackEnabled,
                 supported = state.hapticFeedbackSupported,
-                unsupportedMessageResId = R.string.settings_unsupported,
+                unsupportedMessage = Res.string.settings_unsupported,
                 onToggle = onHapticFeedbackToggled
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
             Text(
-                text = stringResource(R.string.settings_shake_title),
+                text = stringResource(Res.string.settings_shake_title),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
             SettingSwitchRow(
-                label = stringResource(R.string.settings_shake_label),
+                label = stringResource(Res.string.settings_shake_label),
                 enabled = state.shakeToRollEnabled,
                 supported = state.shakeToRollSupported,
-                unsupportedMessageResId = R.string.settings_unsupported,
+                unsupportedMessage = Res.string.settings_unsupported,
                 onToggle = onShakeToRollToggled
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
             Text(
-                text = stringResource(R.string.settings_d6_face_style_title),
+                text = stringResource(Res.string.settings_d6_face_style_title),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
@@ -141,8 +152,8 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
             SettingsNavigationRow(
-                title = stringResource(R.string.settings_dice_colors_title),
-                subtitle = stringResource(R.string.settings_dice_colors_label),
+                title = stringResource(Res.string.settings_dice_colors_title),
+                subtitle = stringResource(Res.string.settings_dice_colors_label),
                 onClick = onOpenDiceColors
             )
 

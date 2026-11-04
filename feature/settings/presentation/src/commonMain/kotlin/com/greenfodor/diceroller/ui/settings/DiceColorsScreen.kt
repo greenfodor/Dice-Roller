@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -35,12 +34,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.data.DiceColorOption
 import com.greenfodor.diceroller.data.DiceColorSettings
 import com.greenfodor.diceroller.data.DieColorTarget
 import com.greenfodor.diceroller.data.ThemeMode
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.cd_back
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_all_dice_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d100_secondary_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d100_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d10_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d20_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d4_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d6_secondary_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d6_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_d8_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_defaults
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_cancel
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_confirm
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_message
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_restore_dialog_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_single_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_unsupported
 import com.greenfodor.diceroller.ui.icons.ArrowBack
 import com.greenfodor.diceroller.ui.icons.DiceIcons
 import com.greenfodor.diceroller.ui.icons.Refresh
@@ -48,6 +64,8 @@ import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.resolveDarkTheme
 import com.greenfodor.diceroller.ui.theme.spacing
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Sub-screen for choosing dice colors. A switch toggles "single color for all dice": when on,
@@ -80,12 +98,12 @@ fun DiceColorsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.dice_colors_title)) },
+                title = { Text(text = stringResource(Res.string.dice_colors_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = DiceIcons.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_back)
+                            contentDescription = stringResource(Res.string.cd_back)
                         )
                     }
                 },
@@ -105,20 +123,20 @@ fun DiceColorsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             SettingSwitchRow(
-                label = stringResource(R.string.dice_colors_single_label),
+                label = stringResource(Res.string.dice_colors_single_label),
                 enabled = settings.useSingleColor,
                 supported = true,
-                unsupportedMessageResId = R.string.settings_unsupported,
+                unsupportedMessage = Res.string.settings_unsupported,
                 onToggle = onUseSingleColorToggled
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
 
             ColorSection(
-                titleResId = if (settings.useSingleColor) {
-                    R.string.dice_colors_all_dice_title
+                title = if (settings.useSingleColor) {
+                    Res.string.dice_colors_all_dice_title
                 } else {
-                    DieColorTarget.D4.labelResId
+                    DieColorTarget.D4.label
                 },
                 selected = if (settings.useSingleColor) {
                     settings.singleColor
@@ -142,7 +160,7 @@ fun DiceColorsScreen(
                     DieColorTarget.entries.drop(1).forEach { target ->
                         Spacer(modifier = Modifier.height(MaterialTheme.spacing.large))
                         ColorSection(
-                            titleResId = target.labelResId,
+                            title = target.label,
                             selected = settings.optionFor(target),
                             isDark = isDark,
                             onSelected = perDieColorSelected.getValue(target)
@@ -188,7 +206,7 @@ private fun RestoreDefaultsButton(
             modifier = Modifier.size(ButtonDefaults.IconSize)
         )
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-        Text(text = stringResource(R.string.dice_colors_restore_defaults))
+        Text(text = stringResource(Res.string.dice_colors_restore_defaults))
     }
 }
 
@@ -199,16 +217,16 @@ private fun RestoreDefaultsDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.dice_colors_restore_dialog_title)) },
-        text = { Text(text = stringResource(R.string.dice_colors_restore_dialog_message)) },
+        title = { Text(text = stringResource(Res.string.dice_colors_restore_dialog_title)) },
+        text = { Text(text = stringResource(Res.string.dice_colors_restore_dialog_message)) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = stringResource(R.string.dice_colors_restore_dialog_confirm))
+                Text(text = stringResource(Res.string.dice_colors_restore_dialog_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.dice_colors_restore_dialog_cancel))
+                Text(text = stringResource(Res.string.dice_colors_restore_dialog_cancel))
             }
         }
     )
@@ -216,7 +234,7 @@ private fun RestoreDefaultsDialog(
 
 @Composable
 private fun ColorSection(
-    @StringRes titleResId: Int,
+    title: StringResource,
     selected: DiceColorOption,
     isDark: Boolean,
     onSelected: (DiceColorOption) -> Unit,
@@ -224,7 +242,7 @@ private fun ColorSection(
 ) {
     Column(modifier = modifier) {
         Text(
-            text = stringResource(titleResId),
+            text = stringResource(title),
             style = MaterialTheme.typography.titleMedium
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
@@ -236,17 +254,16 @@ private fun ColorSection(
     }
 }
 
-@get:StringRes
-private val DieColorTarget.labelResId: Int
+private val DieColorTarget.label: StringResource
     get() = when (this) {
-        DieColorTarget.D4 -> R.string.dice_colors_d4_title
-        DieColorTarget.D6 -> R.string.dice_colors_d6_title
-        DieColorTarget.D6_SECONDARY -> R.string.dice_colors_d6_secondary_title
-        DieColorTarget.D8 -> R.string.dice_colors_d8_title
-        DieColorTarget.D10 -> R.string.dice_colors_d10_title
-        DieColorTarget.D20 -> R.string.dice_colors_d20_title
-        DieColorTarget.D100 -> R.string.dice_colors_d100_title
-        DieColorTarget.D100_SECONDARY -> R.string.dice_colors_d100_secondary_title
+        DieColorTarget.D4 -> Res.string.dice_colors_d4_title
+        DieColorTarget.D6 -> Res.string.dice_colors_d6_title
+        DieColorTarget.D6_SECONDARY -> Res.string.dice_colors_d6_secondary_title
+        DieColorTarget.D8 -> Res.string.dice_colors_d8_title
+        DieColorTarget.D10 -> Res.string.dice_colors_d10_title
+        DieColorTarget.D20 -> Res.string.dice_colors_d20_title
+        DieColorTarget.D100 -> Res.string.dice_colors_d100_title
+        DieColorTarget.D100_SECONDARY -> Res.string.dice_colors_d100_secondary_title
     }
 
 @LightDarkPreview

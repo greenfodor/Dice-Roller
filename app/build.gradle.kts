@@ -69,6 +69,7 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(platform(libs.koin.bom))
     androidTestImplementation(libs.koin.test.junit4)
+    androidTestImplementation(libs.jetbrains.compose.components.resources)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

@@ -14,11 +14,16 @@ import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_theme_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_title
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
 import com.greenfodor.diceroller.feature.history.presentation.R as HistoryR
-import com.greenfodor.diceroller.feature.settings.presentation.R as SettingsR
 
 private class FakeRollHistoryRepository : RollHistoryRepository {
     val state = MutableStateFlow(listOf(sampleRoll))
@@ -113,8 +118,8 @@ class RollHistoryNavigationTest {
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_theme_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.settings_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(Res.string.settings_theme_title)).assertIsDisplayed()
     }
 
     private fun setContent() {
@@ -123,4 +128,6 @@ class RollHistoryNavigationTest {
 
     private fun string(resId: Int): String =
         InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 }

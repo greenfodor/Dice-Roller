@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -12,26 +11,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import com.greenfodor.diceroller.data.ThemeMode
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.theme_dark
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.theme_follow_system
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.theme_light
 import com.greenfodor.diceroller.ui.icons.BrightnessAuto
 import com.greenfodor.diceroller.ui.icons.DarkMode
 import com.greenfodor.diceroller.ui.icons.DiceIcons
 import com.greenfodor.diceroller.ui.icons.LightMode
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 private data class ThemeModeOption(
     val mode: ThemeMode,
-    @field:StringRes val labelResId: Int,
+    val label: StringResource,
     val icon: ImageVector
 )
 
 private val themeModeOptions = listOf(
-    ThemeModeOption(ThemeMode.FOLLOW_SYSTEM, R.string.theme_follow_system, DiceIcons.BrightnessAuto),
-    ThemeModeOption(ThemeMode.LIGHT, R.string.theme_light, DiceIcons.LightMode),
-    ThemeModeOption(ThemeMode.DARK, R.string.theme_dark, DiceIcons.DarkMode)
+    ThemeModeOption(ThemeMode.FOLLOW_SYSTEM, Res.string.theme_follow_system, DiceIcons.BrightnessAuto),
+    ThemeModeOption(ThemeMode.LIGHT, Res.string.theme_light, DiceIcons.LightMode),
+    ThemeModeOption(ThemeMode.DARK, Res.string.theme_dark, DiceIcons.DarkMode)
 )
 
 /**
@@ -54,7 +57,7 @@ fun ThemeModeSelector(
                 icon = { Icon(imageVector = option.icon, contentDescription = null) },
                 label = {
                     Text(
-                        text = stringResource(option.labelResId),
+                        text = stringResource(option.label),
                         maxLines = 1,
                         softWrap = false
                     )

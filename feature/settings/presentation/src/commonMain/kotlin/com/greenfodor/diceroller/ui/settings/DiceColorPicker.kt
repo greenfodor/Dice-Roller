@@ -1,6 +1,5 @@
 package com.greenfodor.diceroller.ui.settings
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -27,19 +26,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.greenfodor.diceroller.data.DiceColorOption
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.cd_dice_color_swatch_selected
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_blue
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_brown
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_gray
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_green
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_orange
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_pink
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_purple
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_red
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_teal
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_color_yellow
 import com.greenfodor.diceroller.ui.icons.Check
 import com.greenfodor.diceroller.ui.icons.DiceIcons
 import com.greenfodor.diceroller.ui.preview.LightDarkPreview
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
 import com.greenfodor.diceroller.ui.theme.spacing
 import com.greenfodor.diceroller.ui.theme.toColor
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A row of palette swatches for the current theme. Each swatch shows a [DiceColorOption] resolved
@@ -62,9 +73,9 @@ fun DiceColorPicker(
         DiceColorOption.entries.forEach { option ->
             val color = option.toColor(isDark)
             val isSelected = option == selected
-            val name = stringResource(option.labelResId)
+            val name = stringResource(option.label)
             val description = if (isSelected) {
-                stringResource(R.string.cd_dice_color_swatch_selected, name)
+                stringResource(Res.string.cd_dice_color_swatch_selected, name)
             } else {
                 name
             }
@@ -111,19 +122,18 @@ fun DiceColorPicker(
     }
 }
 
-@get:StringRes
-private val DiceColorOption.labelResId: Int
+private val DiceColorOption.label: StringResource
     get() = when (this) {
-        DiceColorOption.RED -> R.string.dice_color_red
-        DiceColorOption.ORANGE -> R.string.dice_color_orange
-        DiceColorOption.YELLOW -> R.string.dice_color_yellow
-        DiceColorOption.GREEN -> R.string.dice_color_green
-        DiceColorOption.TEAL -> R.string.dice_color_teal
-        DiceColorOption.BLUE -> R.string.dice_color_blue
-        DiceColorOption.PURPLE -> R.string.dice_color_purple
-        DiceColorOption.PINK -> R.string.dice_color_pink
-        DiceColorOption.BROWN -> R.string.dice_color_brown
-        DiceColorOption.GRAY -> R.string.dice_color_gray
+        DiceColorOption.RED -> Res.string.dice_color_red
+        DiceColorOption.ORANGE -> Res.string.dice_color_orange
+        DiceColorOption.YELLOW -> Res.string.dice_color_yellow
+        DiceColorOption.GREEN -> Res.string.dice_color_green
+        DiceColorOption.TEAL -> Res.string.dice_color_teal
+        DiceColorOption.BLUE -> Res.string.dice_color_blue
+        DiceColorOption.PURPLE -> Res.string.dice_color_purple
+        DiceColorOption.PINK -> Res.string.dice_color_pink
+        DiceColorOption.BROWN -> Res.string.dice_color_brown
+        DiceColorOption.GRAY -> Res.string.dice_color_gray
     }
 
 private val SWATCH_SIZE = 48.dp

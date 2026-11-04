@@ -12,9 +12,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.greenfodor.diceroller.feature.settings.presentation.R
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_cancel
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_confirm
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_message
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_dialog_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_clear_history_title
 import com.greenfodor.diceroller.ui.theme.spacing
+import org.jetbrains.compose.resources.stringResource
 
 /** Destructive settings row that opens the clear-roll-history confirmation. */
 @Composable
@@ -31,12 +37,12 @@ internal fun ClearRollHistoryRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.settings_clear_history_title),
+                text = stringResource(Res.string.settings_clear_history_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.error
             )
             Text(
-                text = stringResource(R.string.settings_clear_history_label),
+                text = stringResource(Res.string.settings_clear_history_label),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -51,16 +57,16 @@ internal fun ClearRollHistoryDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.settings_clear_history_dialog_title)) },
-        text = { Text(text = stringResource(R.string.settings_clear_history_dialog_message)) },
+        title = { Text(text = stringResource(Res.string.settings_clear_history_dialog_title)) },
+        text = { Text(text = stringResource(Res.string.settings_clear_history_dialog_message)) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = stringResource(R.string.settings_clear_history_dialog_confirm))
+                Text(text = stringResource(Res.string.settings_clear_history_dialog_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.settings_clear_history_dialog_cancel))
+                Text(text = stringResource(Res.string.settings_clear_history_dialog_cancel))
             }
         }
     )
