@@ -21,6 +21,7 @@ dependencies {
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.detekt.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
+    compileOnly(libs.compose.multiplatform.gradlePlugin)
 }
 
 gradlePlugin {
@@ -48,6 +49,10 @@ gradlePlugin {
         register("kmpLibrary") {
             id = libs.plugins.diceroller.kmp.library.get().pluginId
             implementationClass = "KmpLibraryConventionPlugin"
+        }
+        register("kmpCompose") {
+            id = libs.plugins.diceroller.kmp.compose.get().pluginId
+            implementationClass = "KmpComposeConventionPlugin"
         }
         register("lint") {
             id = libs.plugins.diceroller.lint.get().pluginId
