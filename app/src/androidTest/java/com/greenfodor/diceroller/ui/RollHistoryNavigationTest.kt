@@ -14,7 +14,9 @@ import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
 import com.greenfodor.diceroller.fakeDataKoinTestRule
-import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_close
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_empty
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_title
 import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_theme_title
 import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_title
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +25,8 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
-import com.greenfodor.diceroller.feature.history.presentation.R as HistoryR
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.Res as HistoryRes
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res as SettingsRes
 
 private class FakeRollHistoryRepository : RollHistoryRepository {
     val state = MutableStateFlow(listOf(sampleRoll))
@@ -60,7 +63,7 @@ class RollHistoryNavigationTest {
     fun theHistoryIsNotShownUntilTheTopBarButtonIsClicked() {
         setContent()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertDoesNotExist()
     }
 
     @Test
@@ -69,7 +72,7 @@ class RollHistoryNavigationTest {
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertIsDisplayed()
         composeTestRule
             .onNode(hasText(DieLabels.DOUBLE_D6) and isSelectable().not())
             .assertIsDisplayed()
@@ -96,9 +99,9 @@ class RollHistoryNavigationTest {
         setContent()
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_close)).performClick()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_close)).performClick()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertDoesNotExist()
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).assertIsDisplayed()
     }
 
@@ -109,7 +112,7 @@ class RollHistoryNavigationTest {
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_empty)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_empty)).assertIsDisplayed()
     }
 
     @Test
@@ -118,8 +121,8 @@ class RollHistoryNavigationTest {
 
         composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
 
-        composeTestRule.onNodeWithText(string(Res.string.settings_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(Res.string.settings_theme_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(SettingsRes.string.settings_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(SettingsRes.string.settings_theme_title)).assertIsDisplayed()
     }
 
     private fun setContent() {
