@@ -6,33 +6,28 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasAnySibling
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
-import com.greenfodor.diceroller.HiltTestActivity
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
-import com.greenfodor.diceroller.data.SettingsRepository
-import com.greenfodor.diceroller.data.di.DataModule
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_open_settings
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.d6_face_style_numbers
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.dice_colors_single_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_dice_colors_label
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.theme_dark
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.Before
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
-import java.time.Clock
-import java.time.ZoneId
-import com.greenfodor.diceroller.feature.settings.presentation.R as SettingsR
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res as DiceRes
 
 private class EmptyRollHistoryRepository : RollHistoryRepository {
     override val rolls = MutableStateFlow(emptyList<RollRecord>())
@@ -46,43 +41,21 @@ private class EmptyRollHistoryRepository : RollHistoryRepository {
  * Drives the real [DiceRollerApp] back stack to check that a setting changed on screen is
  * rendered straight away.
  */
-@HiltAndroidTest
-@UninstallModules(DataModule::class)
 class SettingsLiveUpdateTest {
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val koinTestRule = fakeDataKoinTestRule(EmptyRollHistoryRepository(), FakeSettingsRepository())
 
     @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
-
-    @BindValue
-    val repository: RollHistoryRepository = EmptyRollHistoryRepository()
-
-    @BindValue
-    val settingsRepository: SettingsRepository = FakeSettingsRepository()
-
-    @BindValue
-    val clock: Clock = Clock.systemDefaultZone()
-
-    @BindValue
-    val zoneId: ZoneId = ZoneId.systemDefault()
-
-    @BindValue
-    val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    @Before
-    fun inject() {
-        hiltRule.inject()
-    }
+    val composeTestRule = createComposeRule()
 
     @Test
     fun choosingTheNumbersD6FaceStyleMarksItSelectedWhileStillOnTheSettingsScreen() {
         setContent()
         openSettings()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.d6_face_style_numbers)).performScrollTo().performClick()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.d6_face_style_numbers)).assertIsSelected()
+        composeTestRule.onNodeWithText(string(Res.string.d6_face_style_numbers)).assertIsSelected()
     }
 
     @Test
@@ -90,21 +63,21 @@ class SettingsLiveUpdateTest {
         setContent()
         openSettings()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).performScrollTo().performClick()
+        composeTestRule.onNodeWithText(string(Res.string.theme_dark)).performScrollTo().performClick()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.theme_dark)).assertIsSelected()
+        composeTestRule.onNodeWithText(string(Res.string.theme_dark)).assertIsSelected()
     }
 
     @Test
     fun togglingOneColorForAllDiceFlipsItsSwitchWhileStillOnTheDiceColorsScreen() {
         setContent()
         openSettings()
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_dice_colors_label))
+        composeTestRule.onNodeWithText(string(Res.string.settings_dice_colors_label))
             .performScrollTo()
             .performClick()
 
         val singleColorSwitch = composeTestRule.onNode(
-            isToggleable() and hasAnySibling(hasText(string(SettingsR.string.dice_colors_single_label)))
+            isToggleable() and hasAnySibling(hasText(string(Res.string.dice_colors_single_label)))
         )
 
         singleColorSwitch.assertIsOff()
@@ -117,9 +90,8 @@ class SettingsLiveUpdateTest {
     }
 
     private fun openSettings() {
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_settings)).performClick()
     }
 
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 }

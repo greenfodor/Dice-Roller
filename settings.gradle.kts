@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -31,4 +32,7 @@ include(":core:data")
 include(":core:designsystem")
 include(":feature:settings:presentation")
 include(":feature:history:presentation")
+include(":feature:dice:presentation")
+include(":shared")
+include(":desktopApp")
 include(":macrobenchmark")

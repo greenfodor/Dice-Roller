@@ -1,7 +1,14 @@
 package com.greenfodor.diceroller
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import com.greenfodor.diceroller.di.initKoin
+import org.koin.android.ext.koin.androidContext
 
-@HiltAndroidApp
-class DiceRollerApplication : Application()
+class DiceRollerApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        initKoin {
+            androidContext(this@DiceRollerApplication)
+        }
+    }
+}

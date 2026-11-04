@@ -18,10 +18,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import com.greenfodor.diceroller.R
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_change_die_type
 import com.greenfodor.diceroller.ui.screens.DiceType
 import com.greenfodor.diceroller.ui.theme.DiceRollerTheme
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -40,7 +43,7 @@ class DiceTypeRailTest {
         DiceType.entries.forEach { diceType ->
             tile(diceType).assertExists()
         }
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_change_die_type)).assertDoesNotExist()
+        composeTestRule.onNodeWithContentDescription(string(Res.string.cd_change_die_type)).assertDoesNotExist()
     }
 
     @Test
@@ -112,7 +115,7 @@ class DiceTypeRailTest {
     }
 
     private fun tile(diceType: DiceType) =
-        composeTestRule.onNode(hasText(string(diceType.labelResId)) and isSelectable())
+        composeTestRule.onNode(hasText(string(diceType.label)) and isSelectable())
 
     private fun bounds(diceType: DiceType): Rect = tile(diceType).fetchSemanticsNode().boundsInRoot
 
@@ -137,8 +140,7 @@ class DiceTypeRailTest {
         }
     }
 
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 
     private companion object {
         const val RAIL_COLUMNS = 2

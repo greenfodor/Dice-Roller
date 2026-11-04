@@ -28,7 +28,7 @@ proguard/
 captures/
 
 # Kotlin
-.kotlin/sessions
+.kotlin/
 # IntelliJ
 .idea/
 *.iml
@@ -72,3 +72,8 @@ gradle/
 CLAUDE.md
 .claude/
 graphify-out/
+
+# Xcode
+xcuserdata/
+DerivedData/
+.DS_Store

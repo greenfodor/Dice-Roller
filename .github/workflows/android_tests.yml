@@ -26,7 +26,7 @@ jobs:
     - name: Run Detekt and Ktlint
       run: ./gradlew detekt ktlintCheck
 
-    - name: Run Unit Tests
+    - name: Run Unit Tests (desktop and Android host)
       run: ./gradlew test
 
     - name: Build Debug APK
@@ -34,3 +34,56 @@ jobs:
 
     - name: Build Release APK (verify R8/minify)
       run: ./gradlew assembleRelease
+
+    - name: Build Instrumented Test APKs
+      run: >-
+        ./gradlew assembleDebugAndroidTest
+        :core:data:assembleAndroidDeviceTest
+        :feature:settings:presentation:assembleAndroidDeviceTest
+        :feature:history:presentation:assembleAndroidDeviceTest
+
+    - name: Build Desktop App
+      run: ./gradlew :desktopApp:build
+
+  ios:
+    name: iOS Build and Test
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Cache Kotlin/Native toolchain
+      uses: actions/cache@v4
+      with:
+        path: ~/.konan
+        key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+        restore-keys: konan-${{ runner.os }}-
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Link Shared Framework (iOS simulator)
+      run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+
+    - name: Run iOS Simulator Tests
+      run: ./gradlew iosSimulatorArm64Test
+
+    - name: Build iOS App (simulator, unsigned)
+      run: >-
+        xcodebuild
+        -project iosApp/iosApp.xcodeproj
+        -scheme iosApp
+        -configuration Debug
+        -sdk iphonesimulator
+        -destination 'generic/platform=iOS Simulator'
+        ARCHS=arm64
+        CODE_SIGNING_ALLOWED=NO
+        build

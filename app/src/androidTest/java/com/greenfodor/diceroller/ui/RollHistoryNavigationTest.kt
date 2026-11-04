@@ -3,34 +3,31 @@ package com.greenfodor.diceroller.ui
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
-import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
 import com.greenfodor.diceroller.FakeSettingsRepository
-import com.greenfodor.diceroller.HiltTestActivity
-import com.greenfodor.diceroller.R
 import com.greenfodor.diceroller.data.DieLabels
 import com.greenfodor.diceroller.data.RollHistoryRepository
 import com.greenfodor.diceroller.data.RollRecord
-import com.greenfodor.diceroller.data.SettingsRepository
-import com.greenfodor.diceroller.data.di.DataModule
-import dagger.hilt.android.testing.BindValue
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.greenfodor.diceroller.fakeDataKoinTestRule
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_open_roll_history
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.cd_open_settings
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_close
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_empty
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.roll_history_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_theme_title
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.settings_title
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.junit.Before
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.junit.Rule
 import org.junit.Test
-import java.time.Clock
-import java.time.ZoneId
-import com.greenfodor.diceroller.feature.history.presentation.R as HistoryR
-import com.greenfodor.diceroller.feature.settings.presentation.R as SettingsR
+import com.greenfodor.diceroller.feature.dice.presentation.generated.resources.Res as DiceRes
+import com.greenfodor.diceroller.feature.history.presentation.generated.resources.Res as HistoryRes
+import com.greenfodor.diceroller.feature.settings.presentation.generated.resources.Res as SettingsRes
 
 private class FakeRollHistoryRepository : RollHistoryRepository {
     val state = MutableStateFlow(listOf(sampleRoll))
@@ -54,59 +51,39 @@ private val sampleRoll = RollRecord(
 )
 
 /** Drives the real [DiceRollerApp] back stack, with only the persistence layer faked. */
-@HiltAndroidTest
-@UninstallModules(DataModule::class)
 class RollHistoryNavigationTest {
+    private val repository = FakeRollHistoryRepository()
+
     @get:Rule(order = 0)
-    val hiltRule = HiltAndroidRule(this)
+    val koinTestRule = fakeDataKoinTestRule(repository, FakeSettingsRepository())
 
     @get:Rule(order = 1)
-    val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
-
-    @BindValue
-    val repository: RollHistoryRepository = FakeRollHistoryRepository()
-
-    @BindValue
-    val settingsRepository: SettingsRepository = FakeSettingsRepository()
-
-    @BindValue
-    val clock: Clock = Clock.systemDefaultZone()
-
-    @BindValue
-    val zoneId: ZoneId = ZoneId.systemDefault()
-
-    @BindValue
-    val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    @Before
-    fun inject() {
-        hiltRule.inject()
-    }
+    val composeTestRule = createComposeRule()
 
     @Test
     fun theHistoryIsNotShownUntilTheTopBarButtonIsClicked() {
         setContent()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertDoesNotExist()
     }
 
     @Test
     fun clickingTheTopBarHistoryButtonOpensTheHistoryOverTheDiceScreen() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertIsDisplayed()
         composeTestRule
             .onNode(hasText(DieLabels.DOUBLE_D6) and isSelectable().not())
             .assertIsDisplayed()
     }
 
     @Test
-    fun theHistoryEntryResolvesItsViewModelThroughHilt() {
+    fun theHistoryEntryResolvesItsViewModelThroughKoin() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
 
         composeTestRule.onNodeWithText(sampleRoll.total.toString()).assertIsDisplayed()
     }
@@ -122,37 +99,36 @@ class RollHistoryNavigationTest {
     fun closingTheHistoryReturnsToTheDiceScreen() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_close)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_close)).performClick()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_title)).assertDoesNotExist()
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_title)).assertDoesNotExist()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).assertIsDisplayed()
     }
 
     @Test
     fun anEmptyHistoryOpensOnTheNoRollsMessage() {
-        (repository as FakeRollHistoryRepository).state.value = emptyList()
+        repository.state.value = emptyList()
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_roll_history)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_roll_history)).performClick()
 
-        composeTestRule.onNodeWithText(string(HistoryR.string.roll_history_empty)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(HistoryRes.string.roll_history_empty)).assertIsDisplayed()
     }
 
     @Test
     fun theSettingsEntryShowsItsSettingsAsSoonAsItIsOpened() {
         setContent()
 
-        composeTestRule.onNodeWithContentDescription(string(R.string.cd_open_settings)).performClick()
+        composeTestRule.onNodeWithContentDescription(string(DiceRes.string.cd_open_settings)).performClick()
 
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_title)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(string(SettingsR.string.settings_theme_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(SettingsRes.string.settings_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(string(SettingsRes.string.settings_theme_title)).assertIsDisplayed()
     }
 
     private fun setContent() {
         composeTestRule.setContent { DiceRollerApp(windowSizeClass = CompactWindowSizeClass) }
     }
 
-    private fun string(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun string(resource: StringResource): String = runBlocking { getString(resource) }
 }
